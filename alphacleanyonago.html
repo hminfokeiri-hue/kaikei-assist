@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>帳簿アシスト｜合同会社アシスト建物管理</title>
+<title>帳簿アシスト｜アルファクリーン米子</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
@@ -311,7 +311,7 @@ td{padding:9px 14px;font-size:13px;}
 <div id="lockScreen">
   <div class="lock-box">
     <div class="lock-logo">帳<span>簿</span>アシスト</div>
-    <div class="lock-sub">🏢 アシスト建物管理 専用</div>
+    <div class="lock-sub">🏢 アルファクリーン米子 専用</div>
     <div class="lock-icon">🔐</div>
     <div class="lock-label">パスワード</div>
     <form id="loginForm" autocomplete="on">
@@ -420,7 +420,6 @@ td{padding:9px 14px;font-size:13px;}
     <div class="export-grid">
       <div class="export-card" id="printDashBtn"><div class="export-icon">🖨️</div><div class="export-label">ダッシュボード</div></div>
       <div class="export-card" id="printTxBtn"><div class="export-icon">🖨️</div><div class="export-label">収支記録</div></div>
-      <div class="export-card" id="printCashBtn"><div class="export-icon">🖨️</div><div class="export-label">現金出納帳</div></div>
       <div class="export-card" id="printLedgerAllBtn"><div class="export-icon">🖨️</div><div class="export-label">元帳（全科目）</div></div>
       <div class="export-card" id="printPlBtn"><div class="export-icon">🖨️</div><div class="export-label">損益計算書</div></div>
       <div class="export-card" id="printBsBtn"><div class="export-icon">🖨️</div><div class="export-label">貸借対照表</div></div>
@@ -446,7 +445,6 @@ td{padding:9px 14px;font-size:13px;}
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txEditAmount" min="0"></div>
       <div class="fg"><label>消費税率</label><select id="txEditTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
     </div>
-    <div class="fg"><label>支払方法</label><select id="txEditPay"><option value="other">現金以外</option><option value="cash">現金</option></select></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" id="txEditCancelBtn">キャンセル</button>
       <button class="btn btn-primary" id="txEditSaveBtn">✅ 更新する</button>
@@ -566,7 +564,7 @@ td{padding:9px 14px;font-size:13px;}
 
 <!-- HEADER -->
 <header>
-  <div class="logo">帳<span>簿</span>アシスト <span style="font-size:11px;color:#93c5fd;font-weight:400">｜ アシスト建物管理</span></div>
+  <div class="logo">帳<span>簿</span>アシスト <span style="font-size:11px;color:#93c5fd;font-weight:400">｜ アルファクリーン米子</span></div>
   <div class="hright">
     <span class="sync-badge sync-wait" id="syncBadge">⟳ 未接続</span>
     対象年度: <select id="yearSelect"></select>
@@ -584,7 +582,6 @@ td{padding:9px 14px;font-size:13px;}
   <div class="nav-sec">メイン</div>
   <div class="nav-item active" data-page="dashboard">📊 ダッシュボード</div>
   <div class="nav-item" data-page="transactions">📝 収支記録</div>
-  <div class="nav-item" data-page="cashbook">💵 現金出納帳</div>
   <div class="nav-sec">帳簿・財務</div>
   <div class="nav-item" data-page="ledger">📒 総勘定元帳</div>
   <div class="nav-item" data-page="pl">📈 損益計算書</div>
@@ -645,14 +642,13 @@ td{padding:9px 14px;font-size:13px;}
   </div>
   <div class="form-card print-hide">
     <div class="form-title">新規入力</div>
-    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 82px 96px 70px">
+    <div class="form-row" style="grid-template-columns:115px 105px 1fr 1fr 105px 85px 72px">
       <div class="fg"><label>日付</label><input type="date" id="txDate"></div>
       <div class="fg"><label>種別</label><select id="txType"><option value="income">収入</option><option value="expense">支出</option></select></div>
       <div class="fg"><label>勘定科目</label><select id="txCategory"></select></div>
       <div class="fg"><label>摘要</label><input type="text" id="txNote" placeholder="例：〇〇様 作業代"></div>
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txAmount" placeholder="0" min="0"></div>
       <div class="fg"><label>消費税率</label><select id="txTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
-      <div class="fg"><label>支払方法</label><select id="txPay"><option value="other">現金以外</option><option value="cash">現金</option></select></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-primary" id="addTxBtn">追加</button></div>
     </div>
     <div style="margin-top:10px;padding:8px 14px;background:var(--paper-alt);border-radius:6px;font-size:12px;color:var(--ink-soft)" id="txPreview">金額を入力すると税額を表示します</div>
@@ -661,7 +657,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="table-header">
       <div class="table-header-title">取引一覧</div>
       <div class="filter-row">
-        <select id="fMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
+        <select id="fMonth"><option value="all">全月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
         <select id="fType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
         <input type="date" id="fDateFrom" title="開始日" style="font-size:12px">
         <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -671,59 +667,6 @@ td{padding:9px 14px;font-size:13px;}
     </div>
     <table><thead><tr><th>日付</th><th>種別</th><th>勘定科目</th><th>補助科目</th><th>摘要</th><th style="text-align:right">税込</th><th style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead><tbody id="txBody"></tbody></table>
     <div class="empty-state" id="txEmpty" style="display:none">まだ取引がありません。</div>
-  </div>
-</div>
-
-<!-- CASHBOOK -->
-<div class="page" id="page-cashbook">
-  <div class="print-header"><h2>現金出納帳</h2><p id="ph-cashbook"></p></div>
-  <div class="page-header">
-    <div>
-      <div class="page-title">現金出納帳</div>
-      <div class="page-sub">現金でやりとりした取引の入出金と残高</div>
-    </div>
-    <button class="btn btn-secondary btn-sm print-hide" id="printCashBtn2">🖨️ 印刷</button>
-  </div>
-
-  <div class="form-card print-hide">
-    <div class="form-title">現金取引の入力（自動で現金扱いになります）</div>
-    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 82px 70px">
-      <div class="fg"><label>日付</label><input type="date" id="cbDate"></div>
-      <div class="fg"><label>種別</label><select id="cbType"><option value="expense">出金</option><option value="income">入金</option></select></div>
-      <div class="fg"><label>勘定科目</label><select id="cbCategory"></select></div>
-      <div class="fg"><label>摘要</label><input type="text" id="cbNote" placeholder="例：文房具購入"></div>
-      <div class="fg"><label>税込金額（円）</label><input type="number" id="cbAmount" placeholder="0" min="0"></div>
-      <div class="fg"><label>消費税率</label><select id="cbTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
-      <div class="fg"><label>&nbsp;</label><button class="btn btn-primary" id="addCashBtn">追加</button></div>
-    </div>
-  </div>
-
-  <div class="form-card print-hide">
-    <div class="form-title">期首残高（年度はじめに金庫にあった現金）</div>
-    <div class="form-row" style="grid-template-columns:180px 90px 1fr">
-      <div class="fg"><label>期首残高（円）</label><input type="number" id="cbOpen" placeholder="0" min="0"></div>
-      <div class="fg"><label>&nbsp;</label><button class="btn btn-secondary" id="saveCashOpenBtn">保存</button></div>
-      <div class="fg"><label>&nbsp;</label><div style="font-size:12px;color:var(--ink-soft);padding-top:9px">対象年度ごとに保存されます</div></div>
-    </div>
-  </div>
-
-  <div class="card-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
-    <div class="card"><div class="card-label">現金入金 合計</div><div class="card-value cv-inc" id="cbTotalIn">¥0</div></div>
-    <div class="card"><div class="card-label">現金出金 合計</div><div class="card-value cv-exp" id="cbTotalOut">¥0</div></div>
-    <div class="card"><div class="card-label">現在の現金残高</div><div class="card-value cv-prf" id="cbBalance">¥0</div><div class="card-note">帳簿上の残高</div></div>
-  </div>
-
-  <div class="table-card">
-    <div class="table-header">
-      <div class="table-header-title">現金の動き</div>
-      <div class="filter-row">
-        <select id="cbMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
-      </div>
-    </div>
-    <table>
-      <thead><tr><th>日付</th><th>勘定科目</th><th>摘要</th><th style="text-align:right">入金</th><th style="text-align:right">出金</th><th style="text-align:right">残高</th><th class="print-hide"></th></tr></thead>
-      <tbody id="cbBody"></tbody>
-    </table>
   </div>
 </div>
 
@@ -740,7 +683,7 @@ td{padding:9px 14px;font-size:13px;}
   <div class="ledger-bar print-hide">
     <input type="text" id="ledgerSearch" placeholder="🔍 摘要・科目名で検索...">
     <select id="ledgerCat"><option value="all">全科目</option></select>
-    <select id="ledgerMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
+    <select id="ledgerMonth"><option value="all">全月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     <select id="ledgerType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
     <input type="date" id="lDateFrom" title="開始日" style="font-size:12px">
     <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -943,9 +886,9 @@ td{padding:9px 14px;font-size:13px;}
 // ── 定数 ──
 var PW_KEY = 'kaikei_pw';
 var SESSION_KEY = 'kaikei_session';
-var STORAGE_KEY = 'kaikei_assist_v1';
-var FB_KEY = 'kaikei_assist_fb';
-var DEFAULT_FB_URL = 'https://kaikei-assist-default-rtdb.asia-southeast1.firebasedatabase.app';
+var STORAGE_KEY = 'kaikei_v4';
+var FB_KEY = 'kaikei_fb';
+var DEFAULT_FB_URL = 'https://a-clean-yonago-keiri-default-rtdb.asia-southeast1.firebasedatabase.app';
 /* ログインPWはFirebase Authに移行（ソースから削除） */
 var ENCRYPT_KEY = '260625';
 
@@ -1049,7 +992,6 @@ function initFirebase() {
       if (data.categories && data.categories.length) state.categories = data.categories;
       if (data.transactions && data.transactions.length) state.transactions = data.transactions;
       if (data.journals && data.journals.length) state.journals = data.journals;
-      if (data.cashOpen) state.cashOpen = data.cashOpen;
       save();
     }
     setSyncBadge('sync-ok', '✓ 同期済み 🔒');
@@ -1070,8 +1012,6 @@ function startPolling() {
         lastHash = h;
         if (data.categories && data.categories.length) state.categories = data.categories;
         if (data.transactions && data.transactions.length) state.transactions = data.transactions;
-        if (data.journals && data.journals.length) state.journals = data.journals;
-        if (data.cashOpen) state.cashOpen = data.cashOpen;
         save();
         setSyncBadge('sync-ok', '✓ 同期済み 🔒');
         renderAll();
@@ -1085,7 +1025,7 @@ function saveToFb() {
   var url = getFbUrl();
   if (!url) return Promise.resolve();
   setSyncBadge('sync-wait', '⟳ 保存中...');
-  return fbFetch('/kaikei', 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{} })
+  return fbFetch('/kaikei', 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[] })
     .then(function() {
       setSyncBadge('sync-ok', '✓ 保存済み 🔒');
       lastHash = JSON.stringify({ categories: state.categories, transactions: state.transactions });
@@ -1094,8 +1034,7 @@ function saveToFb() {
 
 // ── データ ──
 var state = {
-  year: (function(){var d=new Date();return (d.getMonth()+1)>=8?d.getFullYear():d.getFullYear()-1;})(),
-  cashOpen: {},
+  year: new Date().getFullYear(),
   categories: [
     // ══ 収入 ══
     { id: 'i01', name: '売上高',            type: 'income',  icon: '💰', subCategories: [
@@ -1183,7 +1122,6 @@ function load() {
       state.categories = p.categories || state.categories;
       state.transactions = p.transactions || state.transactions;
       state.journals = p.journals || [];
-      state.cashOpen = p.cashOpen || {};
       state.year = p.year || state.year;
     } catch(e) {}
   }
@@ -1194,23 +1132,15 @@ function today() { return new Date().toISOString().slice(0, 10); }
 function fmt(n) { return '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP'); }
 function uid() { return 't' + Date.now() + Math.random().toString(36).slice(2, 5); }
 function catById(id) { return state.categories.find(function(c) { return c.id === id; }) || { name: id, icon: '•', type: 'expense', subCategories: [] }; }
-// ── 会計年度（期隖8月・期末翻7月） ──
-var FY_START = 8;
-var FY_MONTHS = [8,9,10,11,12,1,2,3,4,5,6,7];
-function fyStart(y){ return (y||state.year) + '-08-01'; }
-function fyEnd(y){ return ((y||state.year)+1) + '-07-31'; }
-function fyIndex(m){ return (m - FY_START + 12) % 12; }
-function fyOfDate(d){ var yr=parseInt(d.slice(0,4)), mo=parseInt(d.slice(5,7)); return mo>=FY_START ? yr : yr-1; }
-function currentFY(){ var d=new Date(); return (d.getMonth()+1)>=FY_START ? d.getFullYear() : d.getFullYear()-1; }
-function txOfYear(y) { var ys=fyStart(y), ye=fyEnd(y); return state.transactions.filter(function(t) { return t.date && t.date>=ys && t.date<=ye; }); }
+function txOfYear(y) { return state.transactions.filter(function(t) { return t.date && t.date.startsWith(String(y || state.year)); }); }
 
 function journalsToTx(y) {
   var journals = state.journals;
   if (!journals || !Array.isArray(journals) || !journals.length) return [];
-  var ys = fyStart(y), ye = fyEnd(y);
+  var yr = String(y || state.year);
   var result = [];
   journals.filter(function(j) {
-    return j && j.date && j.date>=ys && j.date<=ye && !j.srcId;
+    return j && j.date && j.date.startsWith(yr) && !j.srcId;
   }).forEach(function(j) {
     var dCat = state.categories.find(function(c) { return c.id === j.dAcc; });
     var cCat = state.categories.find(function(c) { return c.id === j.cAcc; });
@@ -1254,11 +1184,11 @@ function init() {
 
   // 年度セレクト（過去5年～現在+2年）
   var ys = document.getElementById('yearSelect');
-  var cy = currentFY();
+  var cy = new Date().getFullYear();
   for (var y = cy + 2; y >= cy - 5; y--) {
     var o = document.createElement('option');
     o.value = y;
-    o.textContent = y + '年度 (' + y + '/8〜' + (y+1) + '/7)';
+    o.textContent = y + '年';
     if (y === state.year) o.selected = true;
     ys.appendChild(o);
   }
@@ -1357,12 +1287,6 @@ function bindEvents() {
   safeOn('txTaxRate','change',updateTxPreview);
   safeOn('addTxBtn','click',addTransaction);
 
-  // 現金出納帳
-  safeOn('cbType','change',updateCashCatSelect);
-  safeOn('addCashBtn','click',addCashTx);
-  safeOn('saveCashOpenBtn','click',saveCashOpen);
-  safeOn('cbMonth','change',renderCashbook);
-
   // フィルター
   safeOn('fMonth','change',renderTransactions);
   safeOn('fType','change',renderTransactions);
@@ -1460,7 +1384,6 @@ function bindEvents() {
   safeOn('jTaxRate', 'change', jPreviewUpdate);
   bindPrint('printDashBtn', 'dashboard'); bindPrint('printDashBtn2', 'dashboard');
   bindPrint('printTxBtn', 'transactions'); bindPrint('printTxBtn2', 'transactions');
-  bindPrint('printCashBtn', 'cashbook'); bindPrint('printCashBtn2', 'cashbook');
   bindPrint('printLedgerAllBtn', 'ledger'); bindPrint('printLedgerAllBtn2', 'ledger');
   bindPrint('printPlBtn', 'pl'); bindPrint('printPlBtn2', 'pl');
   bindPrint('printBsBtn', 'bs'); bindPrint('printBsBtn2', 'bs');
@@ -1504,11 +1427,9 @@ function addTransaction() {
   var note = document.getElementById('txNote').value.trim();
   var amount = parseInt(document.getElementById('txAmount').value);
   var taxRate = parseInt(document.getElementById('txTaxRate').value);
-  var payEl = document.getElementById('txPay');
-  var pay = payEl ? payEl.value : 'other';
   if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
   var r = calcTax(amount, taxRate);
-  state.transactions.push({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: pay });
+  state.transactions.push({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax });
   state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
   saveToFb().then(function() { renderAll(); });
   document.getElementById('txNote').value = '';
@@ -1586,7 +1507,6 @@ function deleteSubCategory(parentId, subId) {
 function renderAll() {
   renderDashboard();
   renderTransactions();
-  renderCashbook();
   renderLedger();
   renderPL();
   renderBS();
@@ -1608,7 +1528,7 @@ function renderDashboard() {
   var tE = exp.reduce(function(s, t) { return s + t.amount; }, 0);
   var tC = inc.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
   var tP = exp.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
-  document.getElementById('dash-sub').textContent = state.year + '年度 (' + state.year + '/8〜' + (state.year+1) + '/7)';
+  document.getElementById('dash-sub').textContent = state.year + '年 年間サマリー';
   document.getElementById('d-inc').textContent = fmt(tI);
   document.getElementById('d-exp').textContent = fmt(tE);
   document.getElementById('d-prf').textContent = fmt(tI - tE);
@@ -1617,7 +1537,7 @@ function renderDashboard() {
   document.getElementById('d-exp-cnt').textContent = exp.length + '件';
 
   var prevInc = txOfYear(state.year - 1).filter(function(t) { return t.type === 'income'; });
-  var months = FY_MONTHS;
+  var months = [1,2,3,4,5,6,7,8,9,10,11,12];
   var mI = months.map(function(m) { return inc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
   var mE = months.map(function(m) { return exp.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
   var mP = months.map(function(m) { return prevInc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
@@ -1843,7 +1763,7 @@ function renderBS() {
 
 // ── Compare ──
 function renderCompare() {
-  var cy = currentFY();
+  var cy = new Date().getFullYear();
   var years = [cy-5,cy-4,cy-3,cy-2,cy-1,cy,cy+1,cy+2];
   var data = years.map(function(y) {
     var txs = txOfYear(y);
@@ -2011,7 +1931,7 @@ function renderTax() {
 
   var tbody = document.getElementById('taxMonthly'); tbody.innerHTML = '';
   var any = false;
-  FY_MONTHS.forEach(function(m) {
+  [1,2,3,4,5,6,7,8,9,10,11,12].forEach(function(m) {
     var mI = inc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; });
     var mE = exp.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; });
     var ti = mI.reduce(function(s,t){return s+t.amount;},0);
@@ -2038,7 +1958,6 @@ function doPrint(pageId) {
   // 印刷前に全モーダルを閉じる（モーダルが印刷されるのを防ぐ）
   document.querySelectorAll('.modal-bg').forEach(function(m){ m.classList.add('hidden'); });
   if (pageId === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
-  else if (pageId === 'cashbook' && typeof renderCashbook === 'function') renderCashbook();
   else if (pageId === 'pl' && typeof renderPL === 'function') renderPL();
   else if (pageId === 'bs' && typeof renderBS === 'function') renderBS();
   else if (pageId === 'ledger' && typeof renderLedger === 'function') renderLedger();
@@ -2198,7 +2117,7 @@ function renderMonthlyPL() {
   var ph = document.getElementById('ph-monthly-pl');
   if (ph) ph.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP');
 
-  var months = FY_MONTHS;
+  var months = [1,2,3,4,5,6,7,8,9,10,11,12];
   var txs = allTxOfYear();
   var inc = txs.filter(function(t){return t.type==='income';});
   var exp = txs.filter(function(t){return t.type==='expense';});
@@ -2276,21 +2195,21 @@ function renderMonthlyBS() {
   var ph = document.getElementById('ph-monthly-bs');
   if (ph) ph.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP');
 
-  var months = FY_MONTHS;
+  var months = [1,2,3,4,5,6,7,8,9,10,11,12];
   var txs = allTxOfYear();
 
   // 月別累計（その月まで）
   function cumulativeAmt(txArr, catId) {
     return months.map(function(m) {
       return txArr.filter(function(t){
-        return t.catId===catId && fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m);
+        return t.catId===catId && parseInt(t.date.slice(5,7))<=m;
       }).reduce(function(s,t){return s+t.amount;},0);
     });
   }
   function cumulativeTotal(txArr) {
     return months.map(function(m) {
       return txArr.filter(function(t){
-        return fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m);
+        return parseInt(t.date.slice(5,7))<=m;
       }).reduce(function(s,t){return s+t.amount;},0);
     });
   }
@@ -2469,7 +2388,7 @@ function renderJournal() {
   var jdto   = (document.getElementById('jDateTo')||{}).value||'';
   var js=state.journals.filter(function(j){
     if (!j.date) return false;
-    if (!(j.date && j.date>=fyStart() && j.date<=fyEnd())) return false;
+    if (!j.date.startsWith(String(state.year))) return false;
     if (jdfrom && j.date < jdfrom) return false;
     if (jdto   && j.date > jdto)   return false;
     return true;
@@ -2524,7 +2443,7 @@ function renderJournal() {
 function renderTrial() {
   document.getElementById('trialSub').textContent=state.year+'\u5e74\u5ea6 \u8a66\u7b97\u8868';
   if(!state.journals)state.journals=[];
-  var js=state.journals.filter(function(j){return j.date&&j.date>=fyStart()&&j.date<=fyEnd();});
+  var js=state.journals.filter(function(j){return j.date&&j.date.startsWith(String(state.year));});
   var cont=document.getElementById('trialContent');cont.innerHTML='';
   if(!js.length){cont.innerHTML='<div class="empty-state">\u4ed5\u8a33\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093\u3002</div>';return;}
   var accs={};
@@ -2581,7 +2500,7 @@ function execYearUpdate() {
 function renderMonthlyPL() {
   var y = state.year;
   document.getElementById('mpl-sub').textContent = y + '年度 科目別月別発生額';
-  var months = FY_MONTHS;
+  var months = [1,2,3,4,5,6,7,8,9,10,11,12];
   var txs = allTxOfYear(y);
 
   // 月別・科目別の金額を集計
@@ -2680,7 +2599,7 @@ function renderMonthlyPL() {
 function renderMonthlyBS() {
   var y = state.year;
   document.getElementById('mbs-sub').textContent = y + '\u5e74\u5ea6 \u6708\u5225\u7d2f\u8a08\u6b8b\u9ad8';
-  var months = FY_MONTHS;
+  var months = [1,2,3,4,5,6,7,8,9,10,11,12];
   var txs = allTxOfYear(y);
 
   // 月末時点の累計（1月〜m月の合計）
@@ -2688,7 +2607,7 @@ function renderMonthlyBS() {
     return txs.filter(function(t) {
       return t.catId === catId
         && t.type === type
-        && fyIndex(parseInt(t.date.slice(5,7))) <= fyIndex(upToMonth);
+        && parseInt(t.date.slice(5,7)) <= upToMonth;
     }).reduce(function(s,t) { return s + t.amount; }, 0);
   }
 
@@ -3152,7 +3071,6 @@ function openTxEdit(id) {
   document.getElementById('txEditNote').value = t.note || '';
   document.getElementById('txEditAmount').value = t.amount;
   document.getElementById('txEditTaxRate').value = t.taxRate !== undefined ? t.taxRate : 10;
-  document.getElementById('txEditPay').value = t.pay === 'cash' ? 'cash' : 'other';
   // 科目セレクト更新
   var sel = document.getElementById('txEditCategory');
   sel.innerHTML = '';
@@ -3184,7 +3102,6 @@ function saveTxEdit() {
   t.date = date; t.type = type; t.catId = catId;
   t.note = note; t.amount = amount; t.taxRate = taxRate;
   t.excl = r.excl; t.tax = r.tax;
-  t.pay = document.getElementById('txEditPay').value;
   state.transactions.sort(function(a,b){ return b.date.localeCompare(a.date); });
   saveToFb().then(function(){ renderAll(); });
   document.getElementById('txEditModal').classList.add('hidden');
@@ -3298,121 +3215,6 @@ function execReset() {
     document.getElementById('resetModal').classList.add('hidden');
     alert('✅ 全データを消去しました。バックアップファイルを保存してください。');
   });
-}
-
-// ── 現金出納帳 ──
-function cashOpenOf(y) {
-  var yr = String(y || state.year);
-  var v = (state.cashOpen || {})[yr];
-  return isNaN(parseInt(v)) ? 0 : parseInt(v);
-}
-function cashTxOfYear() {
-  var ys = fyStart(), ye = fyEnd();
-  return state.transactions.filter(function(t) {
-    return t.pay === 'cash' && t.date >= ys && t.date <= ye;
-  }).sort(function(a, b) { return a.date.localeCompare(b.date); });
-}
-function updateCashCatSelect() {
-  var typeEl = document.getElementById('cbType');
-  var sel = document.getElementById('cbCategory');
-  if (!typeEl || !sel) return;
-  var type = typeEl.value;
-  sel.innerHTML = '';
-  state.categories.filter(function(c) {
-    return c.type === type && c.visible !== false;
-  }).forEach(function(c) {
-    var o = document.createElement('option');
-    o.value = c.id; o.textContent = c.icon + ' ' + c.name;
-    sel.appendChild(o);
-  });
-}
-function addCashTx() {
-  var date = document.getElementById('cbDate').value;
-  var type = document.getElementById('cbType').value;
-  var catId = document.getElementById('cbCategory').value;
-  var note = document.getElementById('cbNote').value.trim();
-  var amount = parseInt(document.getElementById('cbAmount').value);
-  var taxRate = parseInt(document.getElementById('cbTaxRate').value);
-  if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
-  var r = calcTax(amount, taxRate);
-  state.transactions.push({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: 'cash' });
-  state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
-  saveToFb().then(function() { renderAll(); });
-  document.getElementById('cbNote').value = '';
-  document.getElementById('cbAmount').value = '';
-}
-function saveCashOpen() {
-  var v = parseInt(document.getElementById('cbOpen').value);
-  if (isNaN(v) || v < 0) { alert('期首残高を正しく入力してください。'); return; }
-  if (!state.cashOpen) state.cashOpen = {};
-  state.cashOpen[String(state.year)] = v;
-  saveToFb().then(function() { renderCashbook(); });
-  alert('✅ ' + state.year + '年度の期首残高を保存しました。');
-}
-function renderCashbook() {
-  var body = document.getElementById('cbBody');
-  if (!body) return;
-  var openEl = document.getElementById('cbOpen');
-  if (openEl && document.activeElement !== openEl) openEl.value = cashOpenOf(state.year);
-  var dateEl = document.getElementById('cbDate');
-  if (dateEl && !dateEl.value) dateEl.value = today();
-  updateCashCatSelect();
-
-  var txs = cashTxOfYear();
-  var mEl = document.getElementById('cbMonth');
-  var month = mEl ? mEl.value : 'all';
-
-  var running = cashOpenOf(state.year);
-  var rows = [];
-  var carry = running;
-  var totalIn = 0, totalOut = 0;
-
-  txs.forEach(function(t) {
-    var isIn = t.type === 'income';
-    var before = running;
-    running = isIn ? running + t.amount : running - t.amount;
-    var m = parseInt(String(t.date).slice(5, 7), 10);
-    if (month === 'all' || m === parseInt(month, 10)) {
-      rows.push({ tx: t, isIn: isIn, bal: running });
-      if (isIn) totalIn += t.amount; else totalOut += t.amount;
-    } else if (month !== 'all' && fyIndex(m) < fyIndex(parseInt(month, 10))) {
-      carry = running;
-    }
-  });
-
-  var openLabel = (month === 'all') ? '期首残高' : '前月繰越';
-  var openBal = (month === 'all') ? cashOpenOf(state.year) : carry;
-
-  var html = '<tr style="background:var(--paper-alt);font-weight:600">'
-    + '<td>' + (month === 'all' ? state.year + '/08/01' : '') + '</td>'
-    + '<td>' + openLabel + '</td><td></td>'
-    + '<td style="text-align:right">—</td><td style="text-align:right">—</td>'
-    + '<td style="text-align:right">' + fmt(openBal) + '</td>'
-    + '<td class="print-hide"></td></tr>';
-
-  if (!rows.length) {
-    html += '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:24px">現金取引がありません。上のフォームから入力するか、収支記録で支払方法を「現金」にしてください。</td></tr>';
-  } else {
-    rows.forEach(function(r) {
-      var cat = catById(r.tx.catId);
-      html += '<tr>'
-        + '<td>' + r.tx.date + '</td>'
-        + '<td>' + cat.icon + ' ' + cat.name + '</td>'
-        + '<td>' + (r.tx.note || '') + '</td>'
-        + '<td style="text-align:right;color:var(--green)">' + (r.isIn ? fmt(r.tx.amount) : '') + '</td>'
-        + '<td style="text-align:right;color:var(--red)">' + (r.isIn ? '' : fmt(r.tx.amount)) + '</td>'
-        + '<td style="text-align:right;font-weight:600">' + fmt(r.bal) + '</td>'
-        + '<td class="print-hide" style="display:flex;gap:4px;padding:6px 14px">'
-        + '<button class="btn btn-secondary btn-sm" data-edit-tx="' + r.tx.id + '">編集</button>'
-        + '<button class="btn btn-danger btn-sm" data-del-tx="' + r.tx.id + '">削除</button>'
-        + '</td></tr>';
-    });
-  }
-  body.innerHTML = html;
-
-  document.getElementById('cbTotalIn').textContent = fmt(totalIn);
-  document.getElementById('cbTotalOut').textContent = fmt(totalOut);
-  document.getElementById('cbBalance').textContent = fmt(running);
 }
 
 window.initFirebase = initFirebase;
