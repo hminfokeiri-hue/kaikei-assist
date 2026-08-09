@@ -95,7 +95,9 @@ export function setupKaikeiAuth(opts) {
   // 他スクリプトから使えるように公開
   window.kaikeiAuth = {
     auth: auth,
-    signOut: function () { return signOut(auth); }
+    signOut: function () { return signOut(auth); },
+    getToken: function () { return auth.currentUser ? auth.currentUser.getIdToken() : Promise.resolve(null); },
+    getEmail: function () { return auth.currentUser ? auth.currentUser.email : null; }
   };
   return auth;
 }

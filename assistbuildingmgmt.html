@@ -945,7 +945,9 @@ var PW_KEY = 'kaikei_pw';
 var SESSION_KEY = 'kaikei_session';
 var STORAGE_KEY = 'kaikei_assist_v1';
 var FB_KEY = 'kaikei_assist_fb';
-var DEFAULT_FB_URL = 'https://kaikei-assist-default-rtdb.asia-southeast1.firebasedatabase.app';
+var COMPANY_KEY = 'assist';
+var FB_PATH = '/companies/' + COMPANY_KEY + '/kaikei';
+var DEFAULT_FB_URL = 'https://kaikei-login-default-rtdb.asia-southeast1.firebasedatabase.app';
 /* ログインPWはFirebase Authに移行（ソースから削除） */
 var ENCRYPT_KEY = '260625';
 
@@ -1021,13 +1023,16 @@ function setSyncBadge(cls, text) {
 function fbFetch(path, method, body) {
   var url = getFbUrl();
   if (!url) return Promise.resolve(null);
-  var endpoint = url.replace(/\/$/, '') + path + '.json';
-  var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
-  if (body !== undefined) {
-    var encrypted = encrypt(body);
-    opts.body = JSON.stringify({ d: encrypted });
-  }
-  return fetch(endpoint, opts).then(function(r) {
+  var getTok = (window.kaikeiAuth && window.kaikeiAuth.getToken) ? window.kaikeiAuth.getToken() : Promise.resolve(null);
+  return getTok.then(function(token) {
+    var endpoint = url.replace(/\/$/, '') + path + '.json' + (token ? ('?auth=' + encodeURIComponent(token)) : '');
+    var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
+    if (body !== undefined) {
+      var encrypted = encrypt(body);
+      opts.body = JSON.stringify({ d: encrypted });
+    }
+    return fetch(endpoint, opts);
+  }).then(function(r) {
     if (!r.ok) throw new Error('Firebase ' + r.status);
     return r.json();
   }).then(function(raw) {
@@ -1044,7 +1049,7 @@ function initFirebase() {
   var url = getFbUrl();
   if (!url) { setSyncBadge('sync-err', '⚠ Firebase未設定'); return; }
   setSyncBadge('sync-wait', '⟳ 接続中...');
-  fbFetch('/kaikei').then(function(data) {
+  fbFetch(FB_PATH).then(function(data) {
     if (data) {
       if (data.categories && data.categories.length) state.categories = data.categories;
       if (data.transactions && data.transactions.length) state.transactions = data.transactions;
@@ -1063,7 +1068,7 @@ function initFirebase() {
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(function() {
-    fbFetch('/kaikei').then(function(data) {
+    fbFetch(FB_PATH).then(function(data) {
       if (!data) return;
       var h = JSON.stringify(data);
       if (h !== lastHash) {
@@ -1085,7 +1090,7 @@ function saveToFb() {
   var url = getFbUrl();
   if (!url) return Promise.resolve();
   setSyncBadge('sync-wait', '⟳ 保存中...');
-  return fbFetch('/kaikei', 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{} })
+  return fbFetch(FB_PATH, 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{} })
     .then(function() {
       setSyncBadge('sync-ok', '✓ 保存済み 🔒');
       lastHash = JSON.stringify({ categories: state.categories, transactions: state.transactions });
@@ -3431,7 +3436,7 @@ init();
       messagingSenderId: "890962616772",
       appId: "1:890962616772:web:789a933f2fd03c37e14491"
     },
-    email: "hm.info.keiri@gmail.com",
+    email: "hm.info.keiri+assist@gmail.com",
     onLogin: function(){ if (window.initFirebase) window.initFirebase(); },
     onLogout: function(){ if (window.kaikeiStopSync) window.kaikeiStopSync(); }
   });
