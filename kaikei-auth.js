@@ -26,7 +26,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/fireba
 import {
   getAuth,
   setPersistence,
-  browserLocalPersistence,
+  inMemoryPersistence,
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
@@ -46,8 +46,8 @@ export function setupKaikeiAuth(opts) {
   // 埋め込みID（利用者には見せず、値だけセット）
   if (emailInput && opts.email) emailInput.value = opts.email;
 
-  // ログイン状態をこの端末に保持（タブを閉じても保たれる）
-  setPersistence(auth, browserLocalPersistence).catch(function (e) {
+  // ログイン状態を保持しない（ページを開くたびに毎回ログイン）
+  setPersistence(auth, inMemoryPersistence).catch(function (e) {
     console.warn('[kaikei-auth] setPersistence failed:', e && e.code);
   });
 
