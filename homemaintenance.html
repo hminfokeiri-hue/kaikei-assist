@@ -661,7 +661,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="table-header">
       <div class="table-header-title">取引一覧</div>
       <div class="filter-row">
-        <select id="fMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
+        <select id="fMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
         <select id="fType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
         <input type="date" id="fDateFrom" title="開始日" style="font-size:12px">
         <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -717,7 +717,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="table-header">
       <div class="table-header-title">現金の動き</div>
       <div class="filter-row">
-        <select id="cbMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
+        <select id="cbMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
       </div>
     </div>
     <table>
@@ -740,7 +740,7 @@ td{padding:9px 14px;font-size:13px;}
   <div class="ledger-bar print-hide">
     <input type="text" id="ledgerSearch" placeholder="🔍 摘要・科目名で検索...">
     <select id="ledgerCat"><option value="all">全科目</option></select>
-    <select id="ledgerMonth"><option value="all">全月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option></select>
+    <select id="ledgerMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
     <select id="ledgerType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
     <input type="date" id="lDateFrom" title="開始日" style="font-size:12px">
     <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -1199,9 +1199,13 @@ function today() { return new Date().toISOString().slice(0, 10); }
 function fmt(n) { return '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP'); }
 function uid() { return 't' + Date.now() + Math.random().toString(36).slice(2, 5); }
 function catById(id) { return state.categories.find(function(c) { return c.id === id; }) || { name: id, icon: '•', type: 'expense', subCategories: [] }; }
-// ── 会計年度（期隖8月・期末翻7月） ──
-var FY_START = 8;
-var FY_MONTHS = [8,9,10,11,12,1,2,3,4,5,6,7];
+// ── 会計年度（期首7月・期末6月） ──
+var FY_START = 7;
+var FY_MONTHS = [7,8,9,10,11,12,1,2,3,4,5,6];
+// 期数：2026年度＝第36期
+var PERIOD_BASE = 1990;
+function periodNo(y){ return y - PERIOD_BASE; }
+function fyLabel(y){ return y + '年度 第' + periodNo(y) + '期 (' + y + '/7〜' + (y+1) + '/6)'; }
 function fyStart(y){ return (y||state.year) + '-08-01'; }
 function fyEnd(y){ return ((y||state.year)+1) + '-07-31'; }
 function fyIndex(m){ return (m - FY_START + 12) % 12; }
@@ -1263,7 +1267,7 @@ function init() {
   for (var y = cy + 2; y >= cy - 5; y--) {
     var o = document.createElement('option');
     o.value = y;
-    o.textContent = y + '年度 (' + y + '/8〜' + (y+1) + '/7)';
+    o.textContent = fyLabel(y);
     if (y === state.year) o.selected = true;
     ys.appendChild(o);
   }
@@ -1613,7 +1617,7 @@ function renderDashboard() {
   var tE = exp.reduce(function(s, t) { return s + t.amount; }, 0);
   var tC = inc.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
   var tP = exp.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
-  document.getElementById('dash-sub').textContent = state.year + '年度 (' + state.year + '/8〜' + (state.year+1) + '/7)';
+  document.getElementById('dash-sub').textContent = fyLabel(state.year);
   document.getElementById('d-inc').textContent = fmt(tI);
   document.getElementById('d-exp').textContent = fmt(tE);
   document.getElementById('d-prf').textContent = fmt(tI - tE);
