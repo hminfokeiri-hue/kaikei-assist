@@ -513,6 +513,70 @@ td{padding:9px 14px;font-size:13px;}
   </div>
 </div>
 
+<!-- COMPOUND JOURNAL MODAL -->
+<div class="modal-bg hidden" id="cmpModal">
+  <div class="modal-box" style="width:760px">
+    <div class="modal-title">🧾 複合仕訳（諸口）を入力</div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">
+      例：当座預金から500,000円引き出し、内訳が消耗品費30,000・旅費交通費20,000・仮払金450,000
+    </div>
+    <div class="form-row" style="grid-template-columns:150px 1fr;gap:10px">
+      <div class="fg"><label>日付</label><input type="date" id="cmpDate"></div>
+      <div class="fg"><label>摘要</label><input type="text" id="cmpMemo" placeholder="例：当座より引出 内訳"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="jside">
+        <div class="jside-title jside-d">借方（Debit）</div>
+        <div id="cmpDLines"></div>
+        <button class="btn btn-secondary btn-sm" id="cmpAddD" style="width:100%;margin-top:6px">＋ 借方に行を追加</button>
+        <div style="margin-top:8px;font-size:12px;text-align:right">借方計：<b id="cmpDTotal" style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">¥0</b></div>
+      </div>
+      <div class="jside">
+        <div class="jside-title jside-c">貸方（Credit）</div>
+        <div id="cmpCLines"></div>
+        <button class="btn btn-secondary btn-sm" id="cmpAddC" style="width:100%;margin-top:6px">＋ 貸方に行を追加</button>
+        <div style="margin-top:8px;font-size:12px;text-align:right">貸方計：<b id="cmpCTotal" style="font-family:'IBM Plex Mono',monospace;color:var(--red)">¥0</b></div>
+      </div>
+    </div>
+    <div id="cmpBal" class="jbalance jbal-ng" style="margin-top:12px">金額を入力してください</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="cmpCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="cmpSaveBtn">✅ 仕訳を追加</button>
+    </div>
+    <div class="modal-msg" id="cmpMsg"></div>
+  </div>
+</div>
+
+<!-- CATEGORY EDIT MODAL -->
+<div class="modal-bg hidden" id="catEditModal">
+  <div class="modal-box" style="width:470px">
+    <div class="modal-title">✏️ 科目を編集</div>
+    <input type="hidden" id="catEditId">
+    <div class="form-row" style="grid-template-columns:1fr 90px;gap:10px">
+      <div class="fg"><label>科目名</label><input type="text" id="catEditName"></div>
+      <div class="fg"><label>アイコン</label><input type="text" id="catEditIcon" maxlength="2"></div>
+    </div>
+    <div class="fg"><label>種別</label><select id="catEditType">
+      <option value="expense">費用（経費）</option>
+      <option value="income">収益（収入）</option>
+      <option value="asset">資産（BS）</option>
+      <option value="liability">負債・純資産（BS）</option>
+    </select></div>
+    <div class="disclaimer" id="catEditUse" style="margin-bottom:0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="catEditCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="catEditSaveBtn">✅ 更新する</button>
+    </div>
+    <div style="border-top:1px solid var(--rule);margin-top:18px;padding-top:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🔀 別の科目に統合する</div>
+      <div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px">同じ科目が重複してしまったときに使います。使用中の仕訳・取引・期首残高をすべて統合先に付け替えます。</div>
+      <div class="fg"><label>統合先の科目</label><select id="catMergeTo"></select></div>
+      <button class="btn btn-danger btn-sm" id="catMergeBtn" style="width:100%">🔀 統合する（この科目は削除されます）</button>
+    </div>
+    <div class="modal-msg" id="catEditMsg"></div>
+  </div>
+</div>
+
 <!-- JOURNAL CSV IMPORT MODAL -->
 <div class="modal-bg hidden" id="jCsvModal">
   <div class="modal-box" style="width:660px">
@@ -878,6 +942,7 @@ td{padding:9px 14px;font-size:13px;}
       <span style="font-size:12px;color:var(--ink-soft)">〜</span>
       <input type="date" id="jDateTo" title="終了日" style="font-size:12px;border:1px solid var(--rule);border-radius:5px;padding:5px 8px">
       <button class="btn btn-secondary btn-sm" id="jDateClear">クリア</button>
+      <button class="btn btn-primary btn-sm print-hide" id="cmpOpenBtn">🧾 複合仕訳（諸口）</button>
       <button class="btn btn-secondary btn-sm print-hide" id="convertBtn">🔄 自動変換</button>
       <button class="btn btn-secondary btn-sm print-hide" id="printJournalBtn">🖨️ 印刷</button>
     </div>
@@ -1253,8 +1318,15 @@ function load() {
 // ── ヘルパー ──
 function today() { return new Date().toISOString().slice(0, 10); }
 function fmt(n) { return '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP'); }
+// マイナスは会計慣行の△を付けて返す
+function fmtS(n) { return (n < 0 ? '△' : '') + fmt(n); }
 function uid() { return 't' + Date.now() + Math.random().toString(36).slice(2, 5); }
 function catById(id) { return state.categories.find(function(c) { return c.id === id; }) || { name: id, icon: '•', type: 'expense', subCategories: [] }; }
+// 科目の登録順（並び替え結果）を返す。未登録の古いIDは末尾へ
+function catIndex(id) {
+  var i = state.categories.findIndex(function(c){ return c.id === id; });
+  return i < 0 ? 9999 : i;
+}
 // ── BS科目（資産・負債・純資産）の既定値 ──
 var BS_DEFAULTS = [
   { id:'b_cash',    name:'現金',             type:'asset',     icon:'💵' },
@@ -1314,6 +1386,27 @@ function fyOfDate(d){ var yr=parseInt(d.slice(0,4)), mo=parseInt(d.slice(5,7)); 
 function currentFY(){ var d=new Date(); return (d.getMonth()+1)>=FY_START ? d.getFullYear() : d.getFullYear()-1; }
 function txOfYear(y) { var ys=fyStart(y), ye=fyEnd(y); return state.transactions.filter(function(t) { return t.date && t.date>=ys && t.date<=ye; }); }
 
+// 仕訳を「借方行の配列＋貸方行の配列」に正規化する
+// 旧形式（dAcc/dAmt/cAcc/cAmt）もそのまま読める
+function jLines(j) {
+  if (j && Array.isArray(j.dLines) && Array.isArray(j.cLines)) {
+    return { d: j.dLines, c: j.cLines };
+  }
+  var rate = (j && j.rate !== undefined) ? j.rate : 10;
+  return {
+    d: [{ acc: j.dAcc, amt: j.dAmt || 0, rate: rate,
+          excl: (j.dExcl !== undefined ? j.dExcl : j.dAmt), tax: (j.dTax || 0) }],
+    c: [{ acc: j.cAcc, amt: j.cAmt || 0, rate: rate }]
+  };
+}
+function jSum(arr) {
+  return arr.reduce(function(s2, x){ return s2 + (parseInt(x.amt) || 0); }, 0);
+}
+function isCompound(j) {
+  var L = jLines(j);
+  return L.d.length > 1 || L.c.length > 1;
+}
+
 function journalsToTx(y) {
   var journals = state.journals;
   if (!journals || !Array.isArray(journals) || !journals.length) return [];
@@ -1322,18 +1415,24 @@ function journalsToTx(y) {
   journals.filter(function(j) {
     return j && j.date && j.date>=ys && j.date<=ye && !j.srcId;
   }).forEach(function(j) {
-    var dCat = state.categories.find(function(c) { return c.id === j.dAcc; });
-    var cCat = state.categories.find(function(c) { return c.id === j.cAcc; });
-    if (dCat && j.dAmt > 0) {
-      result.push({ id: 'j_'+j.id+'_d', date: j.date, type: dCat.type, catId: j.dAcc,
-        note: j.memo||'', amount: j.dAmt, taxRate: j.rate||10, excl: j.dExcl||j.dAmt, tax: j.dTax||0 });
-    }
-    if (cCat && j.cAmt > 0) {
-      var cRate = (j.cRate !== undefined) ? j.cRate : (j.rate !== undefined ? j.rate : 10);
-      var cr = calcTax(j.cAmt, cRate);
-      result.push({ id: 'j_'+j.id+'_c', date: j.date, type: cCat.type, catId: j.cAcc,
-        note: j.memo||'', amount: j.cAmt, taxRate: cRate, excl: cr.excl, tax: cr.tax });
-    }
+    var L = jLines(j);
+    L.d.forEach(function(ln, i) {
+      var cat = state.categories.find(function(c){ return c.id === ln.acc; });
+      if (!cat || !(ln.amt > 0)) return;
+      var rate = (ln.rate !== undefined) ? ln.rate : 10;
+      var t = calcTax(ln.amt, rate);
+      result.push({ id:'j_'+j.id+'_d'+i, date:j.date, type:cat.type, catId:ln.acc,
+        note:j.memo||'', amount:ln.amt, taxRate:rate,
+        excl:(ln.excl !== undefined ? ln.excl : t.excl), tax:(ln.tax !== undefined ? ln.tax : t.tax) });
+    });
+    L.c.forEach(function(ln, i) {
+      var cat = state.categories.find(function(c){ return c.id === ln.acc; });
+      if (!cat || !(ln.amt > 0)) return;
+      var rate = (ln.rate !== undefined) ? ln.rate : 10;
+      var t = calcTax(ln.amt, rate);
+      result.push({ id:'j_'+j.id+'_c'+i, date:j.date, type:cat.type, catId:ln.acc,
+        note:j.memo||'', amount:ln.amt, taxRate:rate, excl:t.excl, tax:t.tax });
+    });
   });
   return result;
 }
@@ -1507,8 +1606,17 @@ function bindEvents() {
   safeOn('ledgerMonth','change',renderLedger);
   safeOn('ledgerType','change',renderLedger);
 
-  // 科目追加
+  // 科目追加・編集
   safeOn('addCatBtn','click',addCategory);
+  safeOn('catEditCancelBtn','click',function(){ document.getElementById('catEditModal').classList.add('hidden'); });
+  safeOn('catEditSaveBtn','click',saveCatEdit);
+  safeOn('catMergeBtn','click',execCatMerge);
+  // 複合仕訳
+  safeOn('cmpOpenBtn','click',openCmpModal);
+  safeOn('cmpCancelBtn','click',function(){ document.getElementById('cmpModal').classList.add('hidden'); });
+  safeOn('cmpSaveBtn','click',saveCmpJournal);
+  safeOn('cmpAddD','click',function(){ cmpD.push({acc:'',amt:'',rate:10}); renderCmpLines('d'); updateCmpTotal(); });
+  safeOn('cmpAddC','click',function(){ cmpC.push({acc:'',amt:'',rate:10}); renderCmpLines('c'); updateCmpTotal(); });
 
   // 補助科目モーダル
   safeOn('subCancelBtn','click',function() { document.getElementById('subModal').classList.add('hidden'); });
@@ -1667,6 +1775,101 @@ function addCategory() {
   document.getElementById('catIcon').value = '';
 }
 
+// この科目が使われている件数（仕訳＋収支記録）
+function catUsage(id) {
+  var n = 0;
+  (state.journals || []).forEach(function(j) {
+    var L = jLines(j);
+    L.d.forEach(function(x){ if (x.acc === id) n++; });
+    L.c.forEach(function(x){ if (x.acc === id) n++; });
+  });
+  state.transactions.forEach(function(t){ if (t.catId === id) n++; });
+  return n;
+}
+
+// 同じ種別の中で上下に入れ替える（配列の順番＝表示順）
+function moveCategory(id, dir) {
+  var i = state.categories.findIndex(function(c){ return c.id === id; });
+  if (i < 0) return;
+  var tp = state.categories[i].type, j = -1, k;
+  if (dir < 0) { for (k = i - 1; k >= 0; k--) { if (state.categories[k].type === tp) { j = k; break; } } }
+  else { for (k = i + 1; k < state.categories.length; k++) { if (state.categories[k].type === tp) { j = k; break; } } }
+  if (j < 0) return;
+  var tmp = state.categories[i]; state.categories[i] = state.categories[j]; state.categories[j] = tmp;
+  saveToFb().then(function(){ renderAll(); });
+}
+
+function openCatEdit(id) {
+  var c = state.categories.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('catEditId').value = id;
+  document.getElementById('catEditName').value = c.name;
+  document.getElementById('catEditIcon').value = c.icon || '';
+  document.getElementById('catEditType').value = c.type;
+  var u = catUsage(id);
+  document.getElementById('catEditUse').innerHTML = u
+    ? 'この科目は<b>' + u + '件</b>で使用中です。名前・アイコンの変更はすぐに反映されます。<br>種別を変えると損益・財産の集計先が変わるのでご注意ください。'
+    : 'この科目はまだ使われていません。';
+  var sel = document.getElementById('catMergeTo');
+  sel.innerHTML = '';
+  ACC_GROUPS.forEach(function(g) {
+    var list = state.categories.filter(function(x){ return x.type === g.type && x.id !== id; });
+    if (!list.length) return;
+    var og = document.createElement('optgroup'); og.label = g.label;
+    list.forEach(function(x) {
+      var o = document.createElement('option'); o.value = x.id; o.textContent = (x.icon||'') + ' ' + x.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  document.getElementById('catEditMsg').textContent = '';
+  document.getElementById('catEditModal').classList.remove('hidden');
+}
+
+function saveCatEdit() {
+  var id = document.getElementById('catEditId').value;
+  var c = state.categories.find(function(x){ return x.id === id; });
+  if (!c) return;
+  var name = document.getElementById('catEditName').value.trim();
+  var type = document.getElementById('catEditType').value;
+  var icon = document.getElementById('catEditIcon').value.trim() || '📁';
+  var msg = document.getElementById('catEditMsg');
+  if (!name) { msg.textContent = '科目名を入力してください。'; msg.className = 'modal-msg err'; return; }
+  if (state.categories.find(function(x){ return x.id !== id && x.name === name && x.type === type; })) {
+    msg.textContent = '同じ種別に同名の科目があります。'; msg.className = 'modal-msg err'; return;
+  }
+  c.name = name; c.type = type; c.icon = icon;
+  saveToFb().then(function(){ renderAll(); });
+  msg.textContent = '✅ 更新しました。'; msg.className = 'modal-msg ok';
+  setTimeout(function(){ document.getElementById('catEditModal').classList.add('hidden'); }, 800);
+}
+
+function execCatMerge() {
+  var id = document.getElementById('catEditId').value;
+  var to = document.getElementById('catMergeTo').value;
+  var msg = document.getElementById('catEditMsg');
+  if (!to || to === id) { msg.textContent = '統合先を選んでください。'; msg.className = 'modal-msg err'; return; }
+  var src = catById(id), dst = catById(to);
+  var u = catUsage(id);
+  if (!confirm('「' + src.name + '」を「' + dst.name + '」に統合します。\n'
+    + '使用中の' + u + '件はすべて「' + dst.name + '」に付け替えられ、「' + src.name + '」は削除されます。\nよろしいですか？')) return;
+  (state.journals || []).forEach(function(j) {
+    if (j.dAcc === id) j.dAcc = to;
+    if (j.cAcc === id) j.cAcc = to;
+    if (Array.isArray(j.dLines)) j.dLines.forEach(function(x){ if (x.acc === id) x.acc = to; });
+    if (Array.isArray(j.cLines)) j.cLines.forEach(function(x){ if (x.acc === id) x.acc = to; });
+  });
+  state.transactions.forEach(function(t){ if (t.catId === id) t.catId = to; });
+  Object.keys(state.openBal || {}).forEach(function(y) {
+    var o = state.openBal[y];
+    if (o && o[id] !== undefined) { o[to] = (parseInt(o[to]) || 0) + (parseInt(o[id]) || 0); delete o[id]; }
+  });
+  state.categories = state.categories.filter(function(c){ return c.id !== id; });
+  saveToFb().then(function(){ renderAll(); });
+  document.getElementById('catEditModal').classList.add('hidden');
+  alert('✅ 「' + src.name + '」を「' + dst.name + '」に統合しました。');
+}
+
 function deleteCategory(id) {
   if (state.transactions.find(function(t) { return t.catId === id; })) { alert('この科目は取引で使用中です。'); return; }
   if ((state.journals||[]).find(function(j) { return j.dAcc === id || j.cAcc === id; })) { alert('この科目は仕訳で使用中です。'); return; }
@@ -1737,7 +1940,7 @@ function renderDashboard() {
   document.getElementById('dash-sub').textContent = fyLabel(state.year);
   document.getElementById('d-inc').textContent = fmt(tI);
   document.getElementById('d-exp').textContent = fmt(tE);
-  document.getElementById('d-prf').textContent = fmt(tI - tE);
+  document.getElementById('d-prf').textContent = fmtS(tI - tE);
   document.getElementById('d-tax').textContent = fmt(Math.max(0, tC - tP));
   document.getElementById('d-inc-cnt').textContent = inc.length + '件';
   document.getElementById('d-exp-cnt').textContent = exp.length + '件';
@@ -1862,8 +2065,7 @@ function renderLedger_inner(txs) {
   var container = document.getElementById('ledgerContent'); container.innerHTML = '';
   if (!Object.keys(groups).length) { container.innerHTML = '<div class="empty-state">該当する取引がありません。</div>'; return; }
   Object.values(groups).sort(function(a,b) {
-    if (a.cat.type !== b.cat.type) return a.cat.type === 'income' ? -1 : 1;
-    return a.cat.name.localeCompare(b.cat.name, 'ja');
+    return catIndex(a.cat.id) - catIndex(b.cat.id);
   }).forEach(function(g) {
     var cat = g.cat; var ctxs = g.txs;
     var tI = ctxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
@@ -1929,7 +2131,7 @@ function renderPL() {
     + '<div class="report-row subtotal"><span class="report-row-label">経費合計</span><span class="report-row-value" style="color:var(--red)">' + fmt(tE) + '</span></div></div>'
     + '</div>'
     + '<div class="report-section" style="margin-bottom:20px">'
-    + '<div class="report-row' + (profit >= 0 ? ' profit-row' : '') + '"><span class="report-row-label" style="font-size:15px">当期純利益（概算）</span><span class="report-row-value" style="font-size:18px">' + fmt(profit) + '</span></div>'
+    + '<div class="report-row' + (profit >= 0 ? ' profit-row' : '') + '"><span class="report-row-label" style="font-size:15px">当期純利益（概算）</span><span class="report-row-value" style="font-size:18px">' + fmtS(profit) + '</span></div>'
     + '<div class="report-row"><span class="report-row-label">売上総利益率</span><span class="report-row-value">' + (tI > 0 ? Math.round(profit/tI*100) : 0) + '%</span></div>'
     + '</div>';
 }
@@ -2040,11 +2242,25 @@ function renderCategories() {
       var nameDiv = document.createElement('div');
       var n = document.createElement('div'); n.className = 'cat-name'; n.textContent = c.name;
       var TYPE_LABEL = { expense:'費用', income:'収益', asset:'資産', liability:'負債・純資産' };
-      var t = document.createElement('div'); t.className = 'cat-type'; t.textContent = (TYPE_LABEL[type] || type) + (subs.length ? ' (' + subs.length + '件の補助科目)' : '');
+      var _u = catUsage(c.id);
+      var t = document.createElement('div'); t.className = 'cat-type';
+      t.textContent = (TYPE_LABEL[type] || type)
+        + (subs.length ? ' (' + subs.length + '件の補助科目)' : '')
+        + (_u ? ' ・使用 ' + _u + '件' : '');
       nameDiv.appendChild(n); nameDiv.appendChild(t);
       info.appendChild(icon); info.appendChild(nameDiv);
 
       var actions = document.createElement('div'); actions.className = 'cat-actions';
+      var upBtn = document.createElement('button');
+      upBtn.className = 'add-sub-btn'; upBtn.textContent = '▲'; upBtn.title = '上へ';
+      upBtn.onclick = (function(id) { return function() { moveCategory(id, -1); }; })(c.id);
+      var downBtn = document.createElement('button');
+      downBtn.className = 'add-sub-btn'; downBtn.textContent = '▼'; downBtn.title = '下へ';
+      downBtn.onclick = (function(id) { return function() { moveCategory(id, 1); }; })(c.id);
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-secondary btn-sm'; editBtn.textContent = '✏️ 編集';
+      editBtn.onclick = (function(id) { return function() { openCatEdit(id); }; })(c.id);
+      actions.appendChild(upBtn); actions.appendChild(downBtn); actions.appendChild(editBtn);
       var isVis = c.visible !== false;
       var toggleBtn = document.createElement('button');
       toggleBtn.className = 'toggle-btn ' + (isVis ? 'on' : 'off');
@@ -2136,7 +2352,7 @@ function renderTax() {
 
   document.getElementById('tax-sales').textContent = fmt(tI);
   document.getElementById('tax-exp').textContent = fmt(tE);
-  document.getElementById('tax-income').textContent = fmt(tI - tE);
+  document.getElementById('tax-income').textContent = fmtS(tI - tE);
 
   var tbody = document.getElementById('taxMonthly'); tbody.innerHTML = '';
   var any = false;
@@ -2640,7 +2856,7 @@ function renderJournal() {
     return true;
   });
   var tD=0,tC=0;
-  js.forEach(function(j){tD+=j.dAmt;tC+=j.cAmt;});
+  js.forEach(function(j){var L=jLines(j);tD+=jSum(L.d);tC+=jSum(L.c);});
   var bd=document.getElementById('jBalDiv');
   if(js.length){
     bd.style.display='block';
@@ -2662,14 +2878,28 @@ function renderJournal() {
   cont.appendChild(hdrRow);
   js.forEach(function(j){
     var card=document.createElement('div');card.className='jcard';
-    var taxNote=j.dTax?('<span class="jtax"> \u7a0e'+fmt(j.dTax)+'</span>'):'';
     var autoBadge=j.src==='auto'?'<span class="jautobadge">\u81ea\u52d5</span>':'';
 
-    var d1=document.createElement('div');d1.className='jcol-date';d1.textContent=j.date;
+    var L=jLines(j);
+    var cmp=isCompound(j);
+    var sideHtml=function(lines, cls) {
+      return lines.map(function(ln) {
+        var t = (ln.tax !== undefined ? ln.tax : calcTax(ln.amt, (ln.rate !== undefined ? ln.rate : 10)).tax);
+        var tn = (cls === 'jamt-d' && t) ? ('<span class="jtax"> \u7a0e' + fmt(t) + '</span>') : '';
+        return '<div style="display:flex;align-items:center;gap:6px;width:100%">'
+          + '<span class="jacc">' + jName(ln.acc) + '</span>' + tn
+          + '<span class="' + cls + '">' + fmt(ln.amt) + '</span></div>';
+      }).join('');
+    };
+    var d1=document.createElement('div');d1.className='jcol-date';
+    d1.style.flexDirection='column';d1.style.alignItems='flex-start';
+    d1.innerHTML=j.date + (cmp?'<div class="jautobadge" style="margin-top:2px">\u8af8\u53e3</div>':'');
     var d2=document.createElement('div');d2.className='jcol-debit';
-    d2.innerHTML='<span class="jacc">'+jName(j.dAcc)+'</span>'+taxNote+'<span class="jamt-d">'+fmt(j.dAmt)+'</span>';
+    d2.style.flexDirection='column';d2.style.alignItems='stretch';
+    d2.innerHTML=sideHtml(L.d,'jamt-d');
     var d3=document.createElement('div');d3.className='jcol-credit';
-    d3.innerHTML='<span class="jacc">'+jName(j.cAcc)+'</span><span class="jamt-c">'+fmt(j.cAmt)+'</span>';
+    d3.style.flexDirection='column';d3.style.alignItems='stretch';
+    d3.innerHTML=sideHtml(L.c,'jamt-c');
     var d4=document.createElement('div');d4.className='jcol-memo';
     d4.innerHTML=(j.memo||'\u2014')+' '+autoBadge;
     var d5=document.createElement('div');d5.className='jcol-del';
@@ -2708,9 +2938,13 @@ function renderTrial() {
     ensure(id);
     if(normalSide(id)==='credit') accs[id].oc+=v; else accs[id].od+=v;
   });
-  js.forEach(function(j){ensure(j.dAcc);ensure(j.cAcc);accs[j.dAcc].d+=j.dAmt;accs[j.cAcc].c+=j.cAmt;});
+  js.forEach(function(j){
+    var L=jLines(j);
+    L.d.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); accs[ln.acc].d+=(parseInt(ln.amt)||0); });
+    L.c.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); accs[ln.acc].c+=(parseInt(ln.amt)||0); });
+  });
   if(!Object.keys(accs).length){cont.innerHTML='<div class="empty-state">\u4ed5\u8a33\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093\u3002</div>';return;}
-  var rows=Object.values(accs).sort(function(a,b){return a.name.localeCompare(b.name,'ja');});
+  var rows=Object.values(accs).sort(function(a,b){return catIndex(a.id)-catIndex(b.id);});
   var tOD=0,tOC=0,tD=0,tC=0;
   function sideCell(od,oc){
     if(!od&&!oc)return '\u2014';
@@ -3066,7 +3300,7 @@ function onCsvFileSelected(e) {
             + '<td style="padding:5px 10px;font-size:11px">' + r.date + '</td>'
             + '<td style="padding:5px 10px"><span style="color:' + (r.type==='income'?'var(--green)':'var(--red)') + '">'
             + (r.type==='income'?'\u53ce\u5165':'\u652f\u51fa') + '</span></td>'
-            + '<td style="padding:5px 10px;font-size:11px' + (!r.matched?';color:var(--red)':'') + '">' + (pdfType === 'sales' ? '借:売掛金 / 貸:売上高' : r.catName) + '</td>'
+            + '<td style="padding:5px 10px;font-size:11px' + (!r.matched?';color:var(--red)':'') + '">' + r.catName + '</td>'
             + '<td style="padding:5px 10px;font-size:11px">' + r.note + '</td>'
             + '<td style="padding:5px 10px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
             + '<td style="padding:5px 10px;text-align:center">' + (r.taxRate===0?'\u975e\u8ab2\u7a0e':r.taxRate+'%') + '</td></tr>';
@@ -3102,6 +3336,104 @@ function execCsvImport() {
   saveToFb().then(function(){ renderAll(); });
   document.getElementById('csvImportModal').classList.add('hidden');
   alert('\u2705 ' + added + '\u4ef6\u3092\u53d6\u308a\u8fbc\u307f\u307e\u3057\u305f\uff01');
+}
+
+// ── 複合仕訳（諸口） ──
+var cmpD = [], cmpC = [];
+
+function openCmpModal() {
+  cmpD = [{ acc:'', amt:'', rate:10 }, { acc:'', amt:'', rate:10 }];
+  cmpC = [{ acc:'', amt:'', rate:10 }];
+  document.getElementById('cmpDate').value = today();
+  document.getElementById('cmpMemo').value = '';
+  document.getElementById('cmpMsg').textContent = '';
+  renderCmpLines('d'); renderCmpLines('c'); updateCmpTotal();
+  document.getElementById('cmpModal').classList.remove('hidden');
+}
+
+function renderCmpLines(side) {
+  var arr = (side === 'd') ? cmpD : cmpC;
+  var box = document.getElementById(side === 'd' ? 'cmpDLines' : 'cmpCLines');
+  box.innerHTML = '';
+  arr.forEach(function(ln, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 96px 74px 26px;gap:5px;margin-bottom:6px;align-items:center';
+    var sel = document.createElement('select');
+    sel.style.cssText = 'padding:6px 8px;border:1px solid var(--rule);border-radius:6px;font-family:inherit;font-size:12px;outline:none;min-width:0';
+    fillAccSelect(sel, ln.acc || null);
+    if (!ln.acc) { ln.acc = sel.value; }
+    sel.addEventListener('change', function(){ ln.acc = sel.value; updateCmpTotal(); });
+
+    var amt = document.createElement('input');
+    amt.type = 'number'; amt.min = '0'; amt.placeholder = '0'; amt.value = ln.amt;
+    amt.style.cssText = 'padding:6px 8px;border:1px solid var(--rule);border-radius:6px;font-family:monospace;font-size:12px;text-align:right;outline:none;min-width:0';
+    amt.addEventListener('input', function(){ ln.amt = amt.value; updateCmpTotal(); });
+
+    var rt = document.createElement('select');
+    rt.style.cssText = 'padding:6px 4px;border:1px solid var(--rule);border-radius:6px;font-family:inherit;font-size:11px;outline:none;min-width:0';
+    [[10,'10%'],[8,'軽8%'],[0,'非課']].forEach(function(o){
+      var op=document.createElement('option'); op.value=o[0]; op.textContent=o[1];
+      if (parseInt(ln.rate) === o[0]) op.selected = true;
+      rt.appendChild(op);
+    });
+    rt.addEventListener('change', function(){ ln.rate = parseInt(rt.value); });
+
+    var del = document.createElement('button');
+    del.className = 'btn btn-danger btn-sm'; del.textContent = '×';
+    del.style.cssText = 'padding:5px 6px;font-size:12px';
+    del.addEventListener('click', function(){
+      if (arr.length <= 1) return;
+      arr.splice(idx, 1); renderCmpLines(side); updateCmpTotal();
+    });
+
+    row.appendChild(sel); row.appendChild(amt); row.appendChild(rt); row.appendChild(del);
+    box.appendChild(row);
+  });
+}
+
+function updateCmpTotal() {
+  var td = cmpD.reduce(function(s2,x){ return s2 + (parseInt(x.amt)||0); }, 0);
+  var tc = cmpC.reduce(function(s2,x){ return s2 + (parseInt(x.amt)||0); }, 0);
+  document.getElementById('cmpDTotal').textContent = fmt(td);
+  document.getElementById('cmpCTotal').textContent = fmt(tc);
+  var bd = document.getElementById('cmpBal');
+  if (!td && !tc) {
+    bd.className = 'jbalance jbal-ng';
+    bd.textContent = '金額を入力してください';
+  } else if (td === tc) {
+    bd.className = 'jbalance jbal-ok';
+    bd.textContent = '✅ 貸借一致 — 借方:' + fmt(td) + ' / 貸方:' + fmt(tc);
+  } else {
+    bd.className = 'jbalance jbal-ng';
+    bd.textContent = '⚠️ 貸借不一致 — 借方:' + fmt(td) + ' / 貸方:' + fmt(tc)
+      + ' / 差額:' + fmt(Math.abs(td - tc));
+  }
+}
+
+function saveCmpJournal() {
+  var date = document.getElementById('cmpDate').value;
+  var memo = document.getElementById('cmpMemo').value.trim();
+  var msg = document.getElementById('cmpMsg');
+  var clean = function(arr) {
+    return arr.filter(function(x){ return x.acc && (parseInt(x.amt)||0) > 0; })
+      .map(function(x) {
+        var rate = parseInt(x.rate); if ([0,8,10].indexOf(rate) === -1) rate = 10;
+        var amt = parseInt(x.amt);
+        var t = calcTax(amt, rate);
+        return { acc:x.acc, amt:amt, rate:rate, excl:t.excl, tax:t.tax };
+      });
+  };
+  var dl = clean(cmpD), cl = clean(cmpC);
+  if (!date) { msg.textContent = '日付を入力してください。'; msg.className='modal-msg err'; return; }
+  if (!dl.length || !cl.length) { msg.textContent = '借方・貸方とも最低1行必要です。'; msg.className='modal-msg err'; return; }
+  var td = dl.reduce(function(s2,x){return s2+x.amt;},0), tc = cl.reduce(function(s2,x){return s2+x.amt;},0);
+  if (td !== tc) { msg.textContent = '貸借が一致していません。'; msg.className='modal-msg err'; return; }
+  if (!state.journals) state.journals = [];
+  state.journals.push({ id: uid(), date: date, memo: memo, dLines: dl, cLines: cl, src: 'compound' });
+  state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  saveToFb().then(function(){ renderAll(); });
+  document.getElementById('cmpModal').classList.add('hidden');
+  alert('✅ 複合仕訳を追加しました（借方' + dl.length + '行 / 貸方' + cl.length + '行）。');
 }
 
 // ── 仕訳CSVインポート ──
@@ -3586,6 +3918,10 @@ function saveTxEdit() {
 function openJournalEdit(id) {
   var j = state.journals.find(function(x){ return x.id === id; });
   if (!j) return;
+  if (isCompound(j)) {
+    alert('諸口（複合仕訳）はこの画面では編集できません。\n削除して「🧾 複合仕訳」から入力し直してください。');
+    return;
+  }
   document.getElementById('jEditId').value = id;
   document.getElementById('jEditDate').value = j.date;
   document.getElementById('jEditMemo').value = j.memo || '';
