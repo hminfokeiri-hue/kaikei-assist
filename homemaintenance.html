@@ -885,14 +885,18 @@ td{padding:9px 14px;font-size:13px;}
     <div class="form-title">科目を追加</div>
     <div class="form-row" style="grid-template-columns:160px 140px 70px auto">
       <div class="fg"><label>科目名</label><input type="text" id="catName" placeholder="例：旅費交通費"></div>
-      <div class="fg"><label>種別</label><select id="catType"><option value="expense">支出（経費）</option><option value="income">収入</option></select></div>
+      <div class="fg"><label>種別</label><select id="catType"><option value="expense">費用（経費）</option><option value="income">収益（収入）</option><option value="asset">資産（BS）</option><option value="liability">負債・純資産（BS）</option></select></div>
       <div class="fg"><label>アイコン</label><input type="text" id="catIcon" placeholder="🚌" maxlength="2"></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-primary btn-sm" id="addCatBtn">追加</button></div>
     </div>
   </div>
-  <div class="cat-section-title">支出科目</div>
+  <div class="cat-section-title">資産科目（BS）</div>
+  <div id="assetCatGrid"></div>
+  <div class="cat-section-title">負債・純資産科目（BS）</div>
+  <div id="liabilityCatGrid"></div>
+  <div class="cat-section-title">費用科目（PL）</div>
   <div id="expenseCatGrid"></div>
-  <div class="cat-section-title">収入科目</div>
+  <div class="cat-section-title">収益科目（PL）</div>
   <div id="incomeCatGrid"></div>
 </div>
 
@@ -1058,6 +1062,7 @@ function initFirebase() {
       save();
     }
     setSyncBadge('sync-ok', '✓ 同期済み 🔒');
+    if (ensureBsCats()) { saveToFb(); }
     renderAll();
     startPolling();
   }).catch(function() {
@@ -1077,6 +1082,7 @@ function startPolling() {
         if (data.transactions && data.transactions.length) state.transactions = data.transactions;
         if (data.journals && data.journals.length) state.journals = data.journals;
         if (data.cashOpen) state.cashOpen = data.cashOpen;
+        ensureBsCats();
         save();
         setSyncBadge('sync-ok', '✓ 同期済み 🔒');
         renderAll();
@@ -1099,7 +1105,7 @@ function saveToFb() {
 
 // ── データ ──
 var state = {
-  year: (function(){var d=new Date();return (d.getMonth()+1)>=8?d.getFullYear():d.getFullYear()-1;})(),
+  year: (function(){var d=new Date();return (d.getMonth()+1)>=7?d.getFullYear():d.getFullYear()-1;})(),
   cashOpen: {},
   categories: [
     // ══ 収入 ══
@@ -1192,6 +1198,7 @@ function load() {
       state.year = p.year || state.year;
     } catch(e) {}
   }
+  ensureBsCats();
 }
 
 // ── ヘルパー ──
@@ -1199,6 +1206,51 @@ function today() { return new Date().toISOString().slice(0, 10); }
 function fmt(n) { return '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP'); }
 function uid() { return 't' + Date.now() + Math.random().toString(36).slice(2, 5); }
 function catById(id) { return state.categories.find(function(c) { return c.id === id; }) || { name: id, icon: '•', type: 'expense', subCategories: [] }; }
+// ── BS科目（資産・負債・純資産）の既定値 ──
+var BS_DEFAULTS = [
+  { id:'b_cash',    name:'現金',             type:'asset',     icon:'💵' },
+  { id:'b_bank',    name:'普通預金',         type:'asset',     icon:'🏦' },
+  { id:'b_toza',    name:'当座預金',         type:'asset',     icon:'🏛️' },
+  { id:'b_ar',      name:'売掛金',           type:'asset',     icon:'📃' },
+  { id:'b_prepaid', name:'前払金',           type:'asset',     icon:'⏩' },
+  { id:'b_ap',      name:'買掛金',           type:'liability', icon:'📄' },
+  { id:'b_unpaid',  name:'未払金',           type:'liability', icon:'🧾' },
+  { id:'b_accrued', name:'未払費用',         type:'liability', icon:'📌' },
+  { id:'b_cc',      name:'クレジットカード', type:'liability', icon:'💳' },
+  { id:'b_deposit', name:'預り金',           type:'liability', icon:'🔒' },
+  { id:'b_advance', name:'前受金',           type:'liability', icon:'⏪' },
+  { id:'b_loan',    name:'短期借入金',       type:'liability', icon:'🏧' },
+  { id:'b_capital', name:'資本金',           type:'liability', icon:'🏢' },
+  { id:'b_retain',  name:'繰越利益剰余金',   type:'liability', icon:'📊' }
+];
+// 旧ハードコード科目IDから新BS科目IDへの読み替え
+var ACC_MIGRATE = {
+  ca_cash:'b_cash', da_cash:'b_cash',
+  ca_bank:'b_bank', da_bank:'b_bank',
+  ca_toza:'b_toza',
+  ca_ar:'b_ar',     da_ar:'b_ar',
+  ca_ap:'b_unpaid',
+  ca_adv:'b_prepaid', da_adv:'b_prepaid',
+  ca_cc:'b_cc'
+};
+// 不足しているBS科目を補う。変更件数を返す
+function ensureBsCats() {
+  if (!state.categories) state.categories = [];
+  var added = 0;
+  BS_DEFAULTS.forEach(function(d) {
+    if (!state.categories.find(function(c) { return c.id === d.id; })) {
+      state.categories.push({ id:d.id, name:d.name, type:d.type, icon:d.icon, subCategories:[] });
+      added++;
+    }
+  });
+  if (state.journals && state.journals.length) {
+    state.journals.forEach(function(j) {
+      if (ACC_MIGRATE[j.dAcc]) { j.dAcc = ACC_MIGRATE[j.dAcc]; added++; }
+      if (ACC_MIGRATE[j.cAcc]) { j.cAcc = ACC_MIGRATE[j.cAcc]; added++; }
+    });
+  }
+  return added;
+}
 // ── 会計年度（期首7月・期末6月） ──
 var FY_START = 7;
 var FY_MONTHS = [7,8,9,10,11,12,1,2,3,4,5,6];
@@ -1206,8 +1258,8 @@ var FY_MONTHS = [7,8,9,10,11,12,1,2,3,4,5,6];
 var PERIOD_BASE = 1990;
 function periodNo(y){ return y - PERIOD_BASE; }
 function fyLabel(y){ return y + '年度 第' + periodNo(y) + '期 (' + y + '/7〜' + (y+1) + '/6)'; }
-function fyStart(y){ return (y||state.year) + '-08-01'; }
-function fyEnd(y){ return ((y||state.year)+1) + '-07-31'; }
+function fyStart(y){ return (y||state.year) + '-07-01'; }
+function fyEnd(y){ return ((y||state.year)+1) + '-06-30'; }
 function fyIndex(m){ return (m - FY_START + 12) % 12; }
 function fyOfDate(d){ var yr=parseInt(d.slice(0,4)), mo=parseInt(d.slice(5,7)); return mo>=FY_START ? yr : yr-1; }
 function currentFY(){ var d=new Date(); return (d.getMonth()+1)>=FY_START ? d.getFullYear() : d.getFullYear()-1; }
@@ -1228,8 +1280,10 @@ function journalsToTx(y) {
         note: j.memo||'', amount: j.dAmt, taxRate: j.rate||10, excl: j.dExcl||j.dAmt, tax: j.dTax||0 });
     }
     if (cCat && j.cAmt > 0) {
+      var cRate = (j.cRate !== undefined) ? j.cRate : (j.rate !== undefined ? j.rate : 10);
+      var cr = calcTax(j.cAmt, cRate);
       result.push({ id: 'j_'+j.id+'_c', date: j.date, type: cCat.type, catId: j.cAcc,
-        note: j.memo||'', amount: j.cAmt, taxRate: j.rate||10, excl: j.cAmt, tax: 0 });
+        note: j.memo||'', amount: j.cAmt, taxRate: cRate, excl: cr.excl, tax: cr.tax });
     }
   });
   return result;
@@ -1553,6 +1607,7 @@ function addCategory() {
 
 function deleteCategory(id) {
   if (state.transactions.find(function(t) { return t.catId === id; })) { alert('この科目は取引で使用中です。'); return; }
+  if ((state.journals||[]).find(function(j) { return j.dAcc === id || j.cAcc === id; })) { alert('この科目は仕訳で使用中です。'); return; }
   if (!confirm('削除しますか？')) return;
   state.categories = state.categories.filter(function(c) { return c.id !== id; });
   saveToFb().then(function() { updateCatSelect(); renderCategories(); });
@@ -1922,7 +1977,8 @@ function renderCategories() {
       var icon = document.createElement('span'); icon.style.fontSize = '18px'; icon.textContent = c.icon;
       var nameDiv = document.createElement('div');
       var n = document.createElement('div'); n.className = 'cat-name'; n.textContent = c.name;
-      var t = document.createElement('div'); t.className = 'cat-type'; t.textContent = (type === 'expense' ? '経費' : '収入') + (subs.length ? ' (' + subs.length + '件の補助科目)' : '');
+      var TYPE_LABEL = { expense:'費用', income:'収益', asset:'資産', liability:'負債・純資産' };
+      var t = document.createElement('div'); t.className = 'cat-type'; t.textContent = (TYPE_LABEL[type] || type) + (subs.length ? ' (' + subs.length + '件の補助科目)' : '');
       nameDiv.appendChild(n); nameDiv.appendChild(t);
       info.appendChild(icon); info.appendChild(nameDiv);
 
@@ -1959,6 +2015,8 @@ function renderCategories() {
       container.appendChild(card);
     });
   }
+  renderGrid('asset', 'assetCatGrid');
+  renderGrid('liability', 'liabilityCatGrid');
   renderGrid('expense', 'expenseCatGrid');
   renderGrid('income', 'incomeCatGrid');
 }
@@ -2386,35 +2444,42 @@ function jName(id) {
   if (da) return da.name;
   return id;
 }
+var ACC_GROUPS = [
+  { type:'asset',     label:'資産' },
+  { type:'liability', label:'負債・純資産' },
+  { type:'income',    label:'収益' },
+  { type:'expense',   label:'費用' }
+];
+// 借方・貸方どちらのセレクトも全科目から選べるようにする
+function fillAccSelect(sel, keep) {
+  if (!sel) return;
+  var cur = (keep !== undefined && keep !== null) ? keep : sel.value;
+  sel.innerHTML = '';
+  ACC_GROUPS.forEach(function(g) {
+    var list = state.categories.filter(function(c) { return c.type === g.type && c.visible !== false; });
+    if (!list.length) return;
+    var og = document.createElement('optgroup'); og.label = g.label;
+    list.forEach(function(c) {
+      var o = document.createElement('option');
+      o.value = c.id; o.textContent = (c.icon || '•') + ' ' + c.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  if (cur) {
+    var has = false;
+    for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === cur) { has = true; break; } }
+    if (!has) {
+      var og2 = document.createElement('optgroup'); og2.label = '旧データ';
+      var o2 = document.createElement('option'); o2.value = cur; o2.textContent = jName(cur);
+      og2.appendChild(o2); sel.appendChild(og2);
+    }
+    sel.value = cur;
+  }
+}
 function updateJSelects() {
-  var ds=document.getElementById('jDebitAcc'); if(!ds)return;
-  var dv=ds.value;
-  ds.innerHTML='';
-  var g1=document.createElement('optgroup'); g1.label='\u8cbb\u7528';
-  state.categories.filter(function(c){return c.type==='expense' && c.visible!==false;}).forEach(function(c){
-    var o=document.createElement('option');o.value=c.id;o.textContent=c.icon+' '+c.name;g1.appendChild(o);
-  });
-  var g2=document.createElement('optgroup'); g2.label='\u53ce\u76ca';
-  state.categories.filter(function(c){return c.type==='income' && c.visible!==false;}).forEach(function(c){
-    var o=document.createElement('option');o.value=c.id;o.textContent=c.icon+' '+c.name;g2.appendChild(o);
-  });
-  var g3=document.createElement('optgroup'); g3.label='\u8cc7\u7523\u30fb\u305d\u306e\u4ed6';
-  DEBIT_EXTRA.forEach(function(a){
-    var o=document.createElement('option');o.value=a.id;o.textContent=a.name;g3.appendChild(o);
-  });
-  ds.appendChild(g1);ds.appendChild(g2);ds.appendChild(g3);
-  if(dv)ds.value=dv;
-  var cs=document.getElementById('jCreditAcc');
-  var cv=cs.value; cs.innerHTML='';
-  CREDIT_ACCS.forEach(function(a){
-    var o=document.createElement('option');o.value=a.id;o.textContent=a.name;cs.appendChild(o);
-  });
-  var g4=document.createElement('optgroup'); g4.label='\u53ce\u76ca\u79d1\u76ee';
-  state.categories.filter(function(c){return c.type==='income' && c.visible!==false;}).forEach(function(c){
-    var o=document.createElement('option');o.value=c.id;o.textContent=c.icon+' '+c.name;g4.appendChild(o);
-  });
-  cs.appendChild(g4);
-  if(cv)cs.value=cv;
+  fillAccSelect(document.getElementById('jDebitAcc'));
+  fillAccSelect(document.getElementById('jCreditAcc'));
 }
 function jPreviewUpdate() {
   var amt=parseInt(document.getElementById('jDebitAmt').value)||0;
@@ -2435,6 +2500,11 @@ function addJournal() {
   var cAcc=document.getElementById('jCreditAcc').value;
   var cAmt=parseInt(document.getElementById('jCreditAmt').value)||dAmt;
   if(!date||!dAcc||!cAcc||isNaN(dAmt)||dAmt<=0){alert('\u65e5\u4ed8\u30fb\u501f\u65b9\u79d1\u76ee\u30fb\u91d1\u984d\u30fb\u8cb8\u65b9\u79d1\u76ee\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002');return;}
+  // 借方・貸方とも損益科目でない（BS科目どうしの振替）場合は非課税として扱う
+  var _dT=(state.categories.find(function(c){return c.id===dAcc;})||{}).type;
+  var _cT=(state.categories.find(function(c){return c.id===cAcc;})||{}).type;
+  var _isPL=function(t){return t==='income'||t==='expense';};
+  if(!_isPL(_dT)&&!_isPL(_cT)) rate=0;
   var r=calcTax(dAmt,rate);
   if(!state.journals)state.journals=[];
   state.journals.push({id:uid(),date:date,memo:memo,dAcc:dAcc,dAmt:dAmt,dExcl:r.excl,dTax:r.tax,rate:rate,cAcc:cAcc,cAmt:cAmt,src:'manual'});
@@ -2463,8 +2533,8 @@ function convertFromTx() {
     var rate=t.taxRate!==undefined?t.taxRate:10;
     var r=calcTax(t.amount,rate);
     var j={id:uid(),date:t.date,memo:t.note||(catById(t.catId).name),rate:rate,dExcl:r.excl,dTax:r.tax,src:'auto',srcId:t.id};
-    if(t.type==='expense'){j.dAcc=t.catId;j.dAmt=t.amount;j.cAcc='ca_cash';j.cAmt=t.amount;}
-    else{j.dAcc='da_cash';j.dAmt=t.amount;j.cAcc=t.catId;j.cAmt=t.amount;}
+    if(t.type==='expense'){j.dAcc=t.catId;j.dAmt=t.amount;j.cAcc='b_cash';j.cAmt=t.amount;}
+    else{j.dAcc='b_cash';j.dAmt=t.amount;j.cAcc=t.catId;j.cAmt=t.amount;}
     state.journals.push(j);
   });
   state.journals.sort(function(a,b){return b.date.localeCompare(a.date);});
@@ -3126,7 +3196,7 @@ function execPdfImport() {
       var salesCat = state.categories.find(function(c){ return c.name === '売上高' && c.type === 'income'; });
       state.journals.push({
         id: uid(), date: r.date, memo: r.note,
-        dAcc: 'da_ar',
+        dAcc: 'b_ar',
         dAmt: r.amount, dExcl: r.excl, dTax: r.tax, rate: r.taxRate,
         cAcc: salesCat ? salesCat.id : 'i01', cAmt: r.amount,
         src: 'pdf'
@@ -3209,43 +3279,11 @@ function openJournalEdit(id) {
   document.getElementById('jEditDebitAmt').value = j.dAmt;
   document.getElementById('jEditCreditAmt').value = j.cAmt;
   document.getElementById('jEditTaxRate').value = j.rate !== undefined ? j.rate : 10;
-  // 借方・貸方セレクト更新
-  var ds = document.getElementById('jEditDebitAcc');
-  var cs = document.getElementById('jEditCreditAcc');
-  ds.innerHTML = ''; cs.innerHTML = '';
-  var g1 = document.createElement('optgroup'); g1.label = '費用';
-  var g2 = document.createElement('optgroup'); g2.label = '収益';
-  var g3 = document.createElement('optgroup'); g3.label = '資産・その他';
-  state.categories.filter(function(c){ return c.type === 'expense' && c.visible !== false; }).forEach(function(c){
-    var o = document.createElement('option'); o.value = c.id; o.textContent = c.icon + ' ' + c.name;
-    if (c.id === j.dAcc) o.selected = true;
-    g1.appendChild(o);
-  });
-  state.categories.filter(function(c){ return c.type === 'income' && c.visible !== false; }).forEach(function(c){
-    var o = document.createElement('option'); o.value = c.id; o.textContent = c.icon + ' ' + c.name;
-    if (c.id === j.dAcc) o.selected = true;
-    g2.appendChild(o);
-  });
-  DEBIT_EXTRA.forEach(function(a){
-    var o = document.createElement('option'); o.value = a.id; o.textContent = a.name;
-    if (a.id === j.dAcc) o.selected = true;
-    g3.appendChild(o);
-  });
-  ds.appendChild(g1); ds.appendChild(g2); ds.appendChild(g3);
-  CREDIT_ACCS.forEach(function(a){
-    var o = document.createElement('option'); o.value = a.id; o.textContent = a.name;
-    if (a.id === j.cAcc) o.selected = true;
-    cs.appendChild(o);
-  });
-  var g4 = document.createElement('optgroup'); g4.label = '収益科目';
-  state.categories.filter(function(c){ return c.type === 'income' && c.visible !== false; }).forEach(function(c){
-    var o = document.createElement('option'); o.value = c.id; o.textContent = c.icon + ' ' + c.name;
-    if (c.id === j.cAcc) o.selected = true;
-    g4.appendChild(o);
-  });
-  cs.appendChild(g4);
+  // 借方・貸方セレクト更新（全科目から選択可）
+  fillAccSelect(document.getElementById('jEditDebitAcc'), j.dAcc);
+  fillAccSelect(document.getElementById('jEditCreditAcc'), j.cAcc);
   document.getElementById('jEditMsg').textContent = '';
-  document.getElementById('jEditModal').classList.remove('hidden');
+  document.getElementById('journalEditModal').classList.remove('hidden');
 }
 function saveJournalEdit() {
   var id = document.getElementById('jEditId').value;
@@ -3269,7 +3307,7 @@ function saveJournalEdit() {
   j.cAcc = cAcc; j.cAmt = cAmt;
   state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
   saveToFb().then(function(){ renderJournal(); renderTrial(); });
-  document.getElementById('jEditModal').classList.add('hidden');
+  document.getElementById('journalEditModal').classList.add('hidden');
 }
 
 // ── 全データ消去（管理者専用）──
@@ -3393,7 +3431,7 @@ function renderCashbook() {
   var openBal = (month === 'all') ? cashOpenOf(state.year) : carry;
 
   var html = '<tr style="background:var(--paper-alt);font-weight:600">'
-    + '<td>' + (month === 'all' ? state.year + '/08/01' : '') + '</td>'
+    + '<td>' + (month === 'all' ? state.year + '/07/01' : '') + '</td>'
     + '<td>' + openLabel + '</td><td></td>'
     + '<td style="text-align:right">—</td><td style="text-align:right">—</td>'
     + '<td style="text-align:right">' + fmt(openBal) + '</td>'
