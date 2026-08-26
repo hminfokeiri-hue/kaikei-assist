@@ -408,8 +408,10 @@ td{padding:9px 14px;font-size:13px;}
     <div class="export-grid">
       <div class="export-card" id="importCsvBtn"><div class="export-icon">📊</div><div class="export-label">Excelから一括入力</div><div class="export-desc">CSV/Excelファイルを読み込む</div></div>
       <div class="export-card" id="importPdfBtn"><div class="export-icon">📄</div><div class="export-label">PDFから自動入力</div><div class="export-desc">請求書PDF・写真を読取</div></div>
+      <div class="export-card wide" id="importJCsvBtn"><div class="export-icon">📓</div><div class="export-label">仕訳CSVから一括取込</div><div class="export-desc">日付,借方科目,貸方科目,税込金額,消費税率,摘要</div></div>
     </div>
     <input type="file" id="importCsvFile" accept=".csv,.xlsx,.xls" style="display:none">
+    <input type="file" id="importJCsvFile" accept=".csv" style="display:none">
     <input type="file" id="importPdfFile" accept=".pdf,.jpg,.jpeg,.png,image/*" multiple style="display:none">
     <div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;margin:14px 0 8px">Excelエクスポート</div>
     <div class="export-grid">
@@ -508,6 +510,46 @@ td{padding:9px 14px;font-size:13px;}
       <button class="btn btn-primary" id="csvImportExecBtn" style="display:none">✅ 取り込む</button>
     </div>
     <div class="modal-msg" id="csvImportMsg"></div>
+  </div>
+</div>
+
+<!-- JOURNAL CSV IMPORT MODAL -->
+<div class="modal-bg hidden" id="jCsvModal">
+  <div class="modal-box" style="width:660px">
+    <div class="modal-title">📓 仕訳CSVから一括取込</div>
+    <div class="disclaimer">
+      列の順番：<b>日付 , 借方科目 , 貸方科目 , 税込金額 , 消費税率 , 摘要</b><br>
+      例：2026-07-10,当座預金,売掛金,342800,0,振込受入<br>
+      ・科目名は「科目管理」の名称と完全に一致させてください（一致しない行があると取込できません）<br>
+      ・文字コードは UTF-8（Excelなら「CSV UTF-8(コンマ区切り)」で保存）
+    </div>
+    <div id="jCsvPreviewArea" style="display:none">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px" id="jCsvPreviewTitle"></div>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--rule);border-radius:6px">
+        <table style="width:100%;font-size:12px;border-collapse:collapse" id="jCsvPreviewTable"></table>
+      </div>
+      <div style="margin-top:10px;font-size:12px" id="jCsvPreviewNote"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="jCsvCancelBtn">キャンセル</button>
+      <button class="btn btn-secondary" id="jCsvFileBtn">📂 ファイルを選択</button>
+      <button class="btn btn-primary" id="jCsvExecBtn" style="display:none">✅ 取り込む</button>
+    </div>
+    <div class="modal-msg" id="jCsvMsg"></div>
+  </div>
+</div>
+
+<!-- OPENING BALANCE MODAL -->
+<div class="modal-bg hidden" id="openBalModal">
+  <div class="modal-box" style="width:560px">
+    <div class="modal-title">🏁 期首残高の登録</div>
+    <div class="disclaimer" id="openBalHint"></div>
+    <div id="openBalList" style="max-height:360px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="openBalCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="openBalSaveBtn">✅ 保存する</button>
+    </div>
+    <div class="modal-msg" id="openBalMsg"></div>
   </div>
 </div>
 
@@ -872,7 +914,10 @@ td{padding:9px 14px;font-size:13px;}
   <div class="print-header"><h2>試算表</h2><p id="ph-trial"></p></div>
   <div class="page-header">
     <div><div class="page-title">試算表</div><div class="page-sub" id="trialSub">科目別の借方・貸方・残高</div></div>
-    <button class="btn btn-secondary btn-sm print-hide" id="printTrialBtn">🖨️ 印刷</button>
+    <div class="print-hide" style="display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" id="openBalBtn">🏁 期首残高</button>
+      <button class="btn btn-secondary btn-sm" id="printTrialBtn">🖨️ 印刷</button>
+    </div>
   </div>
   <div id="trialContent"></div>
 </div>
@@ -1059,6 +1104,7 @@ function initFirebase() {
       if (data.transactions && data.transactions.length) state.transactions = data.transactions;
       if (data.journals && data.journals.length) state.journals = data.journals;
       if (data.cashOpen) state.cashOpen = data.cashOpen;
+      if (data.openBal) state.openBal = data.openBal;
       save();
     }
     setSyncBadge('sync-ok', '✓ 同期済み 🔒');
@@ -1082,6 +1128,7 @@ function startPolling() {
         if (data.transactions && data.transactions.length) state.transactions = data.transactions;
         if (data.journals && data.journals.length) state.journals = data.journals;
         if (data.cashOpen) state.cashOpen = data.cashOpen;
+        if (data.openBal) state.openBal = data.openBal;
         ensureBsCats();
         save();
         setSyncBadge('sync-ok', '✓ 同期済み 🔒');
@@ -1096,7 +1143,7 @@ function saveToFb() {
   var url = getFbUrl();
   if (!url) return Promise.resolve();
   setSyncBadge('sync-wait', '⟳ 保存中...');
-  return fbFetch(FB_PATH, 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{} })
+  return fbFetch(FB_PATH, 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{}, openBal: state.openBal||{} })
     .then(function() {
       setSyncBadge('sync-ok', '✓ 保存済み 🔒');
       lastHash = JSON.stringify({ categories: state.categories, transactions: state.transactions });
@@ -1107,6 +1154,7 @@ function saveToFb() {
 var state = {
   year: (function(){var d=new Date();return (d.getMonth()+1)>=7?d.getFullYear():d.getFullYear()-1;})(),
   cashOpen: {},
+  openBal: {},
   categories: [
     // ══ 収入 ══
     { id: 'i01', name: '売上高',            type: 'income',  icon: '💰', subCategories: [
@@ -1195,6 +1243,7 @@ function load() {
       state.transactions = p.transactions || state.transactions;
       state.journals = p.journals || [];
       state.cashOpen = p.cashOpen || {};
+      state.openBal = p.openBal || {};
       state.year = p.year || state.year;
     } catch(e) {}
   }
@@ -1494,6 +1543,19 @@ function bindEvents() {
   safeOn('pdfImportExecBtn','click',execPdfImport);
   safeOn('pdfTypeSales','click',function(){ setPdfType('sales'); });
   safeOn('pdfTypePurchase','click',function(){ setPdfType('purchase'); });
+  // 仕訳CSV取込
+  safeOn('importJCsvBtn','click',function(){ document.getElementById('exportModal').classList.add('hidden'); openJCsvImport(); });
+  safeOn('importJCsvFile','change',onJCsvFileSelected);
+  safeOn('jCsvCancelBtn','click',function(){ document.getElementById('jCsvModal').classList.add('hidden'); });
+  safeOn('jCsvFileBtn','click',function(){ document.getElementById('importJCsvFile').click(); });
+  safeOn('jCsvExecBtn','click',execJCsvImport);
+  // 期首残高
+  safeOn('openBalBtn','click',openOpenBalModal);
+  safeOn('openBalCancelBtn','click',function(){ document.getElementById('openBalModal').classList.add('hidden'); });
+  safeOn('openBalSaveBtn','click',saveOpenBal);
+  // 仕訳の科目変更でプレビューを更新
+  safeOn('jDebitAcc','change',jPreviewUpdate);
+  safeOn('jCreditAcc','change',jPreviewUpdate);
 
   safeOn('exportCloseBtn','click',function() { document.getElementById('exportModal').classList.add('hidden'); });
   safeOn('expJsonBtn','click',backupJSON);
@@ -2159,7 +2221,7 @@ function dlCSV(filename, rows) {
 }
 
 function backupJSON() {
-  var data = { version: 4, exportedAt: new Date().toISOString(), categories: state.categories, transactions: state.transactions };
+  var data = { version: 5, exportedAt: new Date().toISOString(), categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{}, openBal: state.openBal||{} };
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = '帳簿アシスト_バックアップ_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.json'; a.click();
@@ -2175,6 +2237,10 @@ function restoreJSON(e) {
       if (!data.categories || !data.transactions) throw new Error('形式エラー');
       if (!confirm('復元しますか？現在のデータは上書きされます。')) return;
       state.categories = data.categories; state.transactions = data.transactions;
+      state.journals = data.journals || [];
+      state.cashOpen = data.cashOpen || {};
+      state.openBal = data.openBal || {};
+      ensureBsCats();
       saveToFb().then(function() { renderAll(); });
       showExportMsg('✅ 復元しました。');
     } catch(err) { showExportMsg('❌ ' + err.message, true); }
@@ -2481,14 +2547,34 @@ function updateJSelects() {
   fillAccSelect(document.getElementById('jDebitAcc'));
   fillAccSelect(document.getElementById('jCreditAcc'));
 }
+// 借方・貸方とも損益科目でなければ true（BS科目どうしの振替）
+function isBsTransfer(dAcc, cAcc) {
+  var f = function(id) {
+    var c = state.categories.find(function(x){ return x.id === id; });
+    var t = c ? c.type : '';
+    return t === 'income' || t === 'expense';
+  };
+  return !f(dAcc) && !f(cAcc);
+}
 function jPreviewUpdate() {
   var amt=parseInt(document.getElementById('jDebitAmt').value)||0;
   var rate=parseInt(document.getElementById('jTaxRate').value);
+  var dAcc=(document.getElementById('jDebitAcc')||{}).value;
+  var cAcc=(document.getElementById('jCreditAcc')||{}).value;
+  var auto=isBsTransfer(dAcc,cAcc);
+  if(auto) rate=0;
   var prev=document.getElementById('jPreview');
-  if(!amt){prev.textContent='\u91d1\u984d\u3092\u5165\u529b\u3059\u308b\u3068\u7a0e\u984d\u3092\u8868\u793a\u3057\u307e\u3059';return;}
+  if(!amt){
+    prev.textContent=auto
+      ?'BS科目どうしの振替のため、非課税で登録されます'
+      :'金額を入力すると税額を表示します';
+    document.getElementById('jCreditAmt').value=amt||'';
+    return;
+  }
   var r=calcTax(amt,rate);
-  prev.textContent=rate===0?('\u975e\u8ab2\u7a0e \u2014 \u7a0e\u629c:'+fmt(r.excl)+' / \u6d88\u8cbb\u7a0e:\u00a50'):
-    ('\u7a0e\u629c:'+fmt(r.excl)+' / \u6d88\u8cbb\u7a0e('+rate+'%):'+fmt(r.tax)+' / \u7a0e\u8fbc:'+fmt(amt));
+  prev.textContent=rate===0
+    ?((auto?'BS科目どうしの振替（自動で非課税） — ':'非課税 — ')+'税抜:'+fmt(r.excl)+' / 消費税:¥0')
+    :('税抜:'+fmt(r.excl)+' / 消費税('+rate+'%):'+fmt(r.tax)+' / 税込:'+fmt(amt));
   document.getElementById('jCreditAmt').value=amt;
 }
 function addJournal() {
@@ -2600,28 +2686,52 @@ function renderJournal() {
     cont.appendChild(card);
   });
 }
+function openBalOf(y) {
+  return (state.openBal || {})[String(y || state.year)] || {};
+}
+// 資産・費用は借方残、負債・純資産・収益は貸方残
+function normalSide(id) {
+  var c = state.categories.find(function(x){ return x.id === id; });
+  var t = c ? c.type : 'asset';
+  return (t === 'liability' || t === 'income') ? 'credit' : 'debit';
+}
 function renderTrial() {
-  document.getElementById('trialSub').textContent=state.year+'\u5e74\u5ea6 \u8a66\u7b97\u8868';
+  document.getElementById('trialSub').textContent=state.year+'\u5e74\u5ea6 \u8a66\u7b97\u8868\uff08\u671f\u9996\u6b8b\u9ad8\u3092\u542b\u3080\uff09';
   if(!state.journals)state.journals=[];
   var js=state.journals.filter(function(j){return j.date&&j.date>=fyStart()&&j.date<=fyEnd();});
+  var ob=openBalOf(state.year);
   var cont=document.getElementById('trialContent');cont.innerHTML='';
-  if(!js.length){cont.innerHTML='<div class="empty-state">\u4ed5\u8a33\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093\u3002</div>';return;}
   var accs={};
-  function ensure(id){if(!accs[id])accs[id]={name:jName(id),d:0,c:0};}
-  js.forEach(function(j){ensure(j.dAcc);ensure(j.cAcc);accs[j.dAcc].d+=j.dAmt;accs[j.cAcc].c+=j.cAmt;});
-  var rows=Object.values(accs).sort(function(a,b){return a.name.localeCompare(b.name,'ja');});
-  var tD=0,tC=0;
-  var html='<div class="table-card"><table class="trial-tbl"><thead><tr>'
-    +'<th style="text-align:left">\u52d8\u5b9a\u79d1\u76ee</th><th>\u501f\u65b9\u5408\u8a08</th><th>\u8cb8\u65b9\u5408\u8a08</th><th>\u5dee\u5f15\u6b8b\u9ad8</th></tr></thead><tbody>';
-  rows.forEach(function(a){
-    var bal=a.d-a.c;tD+=a.d;tC+=a.c;
-    html+='<tr><td>'+a.name+'</td>'
-      +'<td style="color:var(--accent)">'+fmt(a.d)+'</td>'
-      +'<td style="color:var(--red)">'+fmt(a.c)+'</td>'
-      +'<td style="font-weight:600;color:'+(bal>=0?'var(--green)':'var(--red)')+'">'+fmt(bal)+'</td></tr>';
+  function ensure(id){if(!accs[id])accs[id]={id:id,name:jName(id),od:0,oc:0,d:0,c:0};}
+  Object.keys(ob).forEach(function(id){
+    var v=parseInt(ob[id])||0; if(!v)return;
+    ensure(id);
+    if(normalSide(id)==='credit') accs[id].oc+=v; else accs[id].od+=v;
   });
-  var ok=tD===tC;
+  js.forEach(function(j){ensure(j.dAcc);ensure(j.cAcc);accs[j.dAcc].d+=j.dAmt;accs[j.cAcc].c+=j.cAmt;});
+  if(!Object.keys(accs).length){cont.innerHTML='<div class="empty-state">\u4ed5\u8a33\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093\u3002</div>';return;}
+  var rows=Object.values(accs).sort(function(a,b){return a.name.localeCompare(b.name,'ja');});
+  var tOD=0,tOC=0,tD=0,tC=0;
+  function sideCell(od,oc){
+    if(!od&&!oc)return '\u2014';
+    if(od)return '<span style="color:var(--accent)">\u501f 	</span>'+fmt(od);
+    return '<span style="color:var(--red)">\u8cb8 	</span>'+fmt(oc);
+  }
+  var html='<div class="table-card"><table class="trial-tbl"><thead><tr>'
+    +'<th style="text-align:left">\u52d8\u5b9a\u79d1\u76ee</th><th>\u671f\u9996\u6b8b\u9ad8</th><th>\u501f\u65b9\u5408\u8a08</th><th>\u8cb8\u65b9\u5408\u8a08</th><th>\u5dee\u5f15\u6b8b\u9ad8</th></tr></thead><tbody>';
+  rows.forEach(function(a){
+    var bal=(a.od+a.d)-(a.oc+a.c);
+    tOD+=a.od;tOC+=a.oc;tD+=a.d;tC+=a.c;
+    html+='<tr><td>'+a.name+'</td>'
+      +'<td>'+sideCell(a.od,a.oc)+'</td>'
+      +'<td style="color:var(--accent)">'+(a.d?fmt(a.d):'\u2014')+'</td>'
+      +'<td style="color:var(--red)">'+(a.c?fmt(a.c):'\u2014')+'</td>'
+      +'<td style="font-weight:600;color:'+(bal>=0?'var(--accent)':'var(--red)')+'">'
+      +(bal>=0?'\u501f 	':'\u8cb8 	')+fmt(bal)+'</td></tr>';
+  });
+  var ok=(tOD+tD)===(tOC+tC);
   html+='</tbody><tfoot><tr><td>\u5408\u8a08</td>'
+    +'<td>'+(tOD||tOC?('\u501f '+fmt(tOD)+' / \u8cb8 '+fmt(tOC)):'\u2014')+'</td>'
     +'<td style="color:var(--accent)">'+fmt(tD)+'</td>'
     +'<td style="color:var(--red)">'+fmt(tC)+'</td>'
     +'<td style="color:'+(ok?'var(--green)':'var(--red)')+'">'+(ok?'\u2705 \u4e00\u81f4':'\u26a0\ufe0f \u4e0d\u4e00\u81f4')+'</td></tr></tfoot></table></div>';
@@ -2992,6 +3102,209 @@ function execCsvImport() {
   saveToFb().then(function(){ renderAll(); });
   document.getElementById('csvImportModal').classList.add('hidden');
   alert('\u2705 ' + added + '\u4ef6\u3092\u53d6\u308a\u8fbc\u307f\u307e\u3057\u305f\uff01');
+}
+
+// ── 仕訳CSVインポート ──
+var jCsvRows = [];
+
+function openJCsvImport() {
+  jCsvRows = [];
+  document.getElementById('jCsvPreviewArea').style.display = 'none';
+  document.getElementById('jCsvExecBtn').style.display = 'none';
+  document.getElementById('jCsvMsg').textContent = '';
+  document.getElementById('importJCsvFile').value = '';
+  document.getElementById('jCsvModal').classList.remove('hidden');
+}
+
+// 科目名→科目ID（完全一致優先、次に前後空白・全角英数を調整して一致）
+function findAccByName(name) {
+  if (!name) return null;
+  var raw = String(name).trim();
+  var hit = state.categories.find(function(c){ return c.name === raw; });
+  if (hit) return hit;
+  var norm = function(x){ return String(x).replace(/[\s\u3000]/g,'').replace(/[！-～]/g, function(ch){
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0); }); };
+  var n = norm(raw);
+  hit = state.categories.find(function(c){ return norm(c.name) === n; });
+  return hit || null;
+}
+
+function onJCsvFileSelected(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var text = ev.target.result;
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      var lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(function(l){ return l.trim(); });
+
+      jCsvRows = [];
+      var skipped = 0;
+
+      lines.forEach(function(line, idx) {
+        if (idx === 0 && (line.indexOf('\u65e5\u4ed8') !== -1 || line.indexOf('\u501f\u65b9') !== -1)) { skipped++; return; }
+        var cols = line.split(',').map(function(v){ return v.replace(/^"|"$/g,'').trim(); });
+        if (cols.length < 4) { skipped++; return; }
+
+        var date = cols[0].replace(/\//g,'-').replace(/\u5e74/g,'-').replace(/\u6708/g,'-').replace(/\u65e5/g,'');
+        if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(date)) {
+          var p = date.split('-');
+          date = p[0]+'-'+('0'+p[1]).slice(-2)+'-'+('0'+p[2]).slice(-2);
+        }
+        var dName = cols[1], cName = cols[2];
+        var amount = parseInt(String(cols[3]).replace(/[^\d]/g,'')) || 0;
+        var rate = parseInt(cols[4]);
+        if ([0,8,10].indexOf(rate) === -1) rate = 10;
+        var memo = cols[5] || '';
+
+        var dCat = findAccByName(dName);
+        var cCat = findAccByName(cName);
+        var err = [];
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) err.push('\u65e5\u4ed8');
+        if (!dCat) err.push('\u501f\u65b9\u79d1\u76ee');
+        if (!cCat) err.push('\u8cb8\u65b9\u79d1\u76ee');
+        if (amount <= 0) err.push('\u91d1\u984d');
+
+        if (dCat && cCat && isBsTransfer(dCat.id, cCat.id)) rate = 0;
+
+        jCsvRows.push({
+          line: idx + 1, date: date,
+          dAcc: dCat ? dCat.id : '', dName: dCat ? dCat.name : dName,
+          cAcc: cCat ? cCat.id : '', cName: cCat ? cCat.name : cName,
+          amount: amount, rate: rate, memo: memo,
+          err: err
+        });
+      });
+
+      var bad = jCsvRows.filter(function(r){ return r.err.length; });
+      var outFy = jCsvRows.filter(function(r){ return !r.err.length && (r.date < fyStart() || r.date > fyEnd()); });
+      var total = jCsvRows.reduce(function(s2,r){ return s2 + r.amount; }, 0);
+
+      var area = document.getElementById('jCsvPreviewArea');
+      area.style.display = 'block';
+      document.getElementById('jCsvPreviewTitle').textContent =
+        '\u8aad\u307f\u8fbc\u307f\u5185\u5bb9\u306e\u78ba\u8a8d\uff08' + jCsvRows.length + '\u4ef6\uff09';
+
+      document.getElementById('jCsvPreviewTable').innerHTML =
+        '<thead><tr style="background:var(--paper-alt)">'
+        + '<th style="padding:6px 8px;text-align:left">\u65e5\u4ed8</th>'
+        + '<th style="padding:6px 8px;text-align:left">\u501f\u65b9</th>'
+        + '<th style="padding:6px 8px;text-align:left">\u8cb8\u65b9</th>'
+        + '<th style="padding:6px 8px;text-align:right">\u91d1\u984d</th>'
+        + '<th style="padding:6px 8px">\u7a0e\u7387</th>'
+        + '<th style="padding:6px 8px;text-align:left">\u6458\u8981</th></tr></thead><tbody>'
+        + jCsvRows.map(function(r) {
+          var ng = r.err.length > 0;
+          return '<tr style="border-bottom:1px solid #f0eeeb;' + (ng?'background:#fee2e2':'') + '">'
+            + '<td style="padding:4px 8px;font-size:11px">' + r.date + '</td>'
+            + '<td style="padding:4px 8px;font-size:11px' + (r.dAcc?'':';color:var(--red);font-weight:700') + '">' + r.dName + '</td>'
+            + '<td style="padding:4px 8px;font-size:11px' + (r.cAcc?'':';color:var(--red);font-weight:700') + '">' + r.cName + '</td>'
+            + '<td style="padding:4px 8px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
+            + '<td style="padding:4px 8px;text-align:center;font-size:11px">' + (r.rate===0?'\u975e\u8ab2\u7a0e':r.rate+'%') + '</td>'
+            + '<td style="padding:4px 8px;font-size:11px;color:var(--ink-soft)">' + (r.memo||'\u2014') + '</td></tr>';
+        }).join('') + '</tbody>';
+
+      var note = '<div>\u501f\u65b9\u5408\u8a08\uff1a<b>' + fmt(total) + '</b>\u3000\u8cb8\u65b9\u5408\u8a08\uff1a<b>' + fmt(total) + '</b>\u3000\u2705 \u8cb8\u501f\u4e00\u81f4</div>';
+      if (bad.length) {
+        note += '<div style="color:var(--red);margin-top:6px">\u26a0\ufe0f ' + bad.length
+          + '\u4ef6\u306b\u554f\u984c\u304c\u3042\u308a\u307e\u3059\uff08\u8d64\u3044\u884c\uff09\u3002CSV\u3092\u4fee\u6b63\u3057\u3066\u304b\u3089\u518d\u5ea6\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044\u3002<br>'
+          + bad.slice(0,5).map(function(r){ return r.line + '\u884c\u76ee\uff1a' + r.err.join('\u30fb') + ' \u304c\u4e0d\u6b63'; }).join('<br>')
+          + (bad.length > 5 ? '<br>\u307b\u304b ' + (bad.length-5) + '\u4ef6' : '') + '</div>';
+      } else {
+        note += '<div style="color:var(--green);margin-top:6px">\u2705 \u5168\u3066\u306e\u79d1\u76ee\u304c\u4e00\u81f4\u3057\u307e\u3057\u305f\u3002</div>';
+      }
+      if (outFy.length) {
+        note += '<div style="color:var(--yellow);margin-top:6px">\u26a0\ufe0f ' + outFy.length
+          + '\u4ef6\u304c\u5bfe\u8c61\u5e74\u5ea6\uff08' + fyStart() + '\u301c' + fyEnd()
+          + '\uff09\u306e\u7bc4\u56f2\u5916\u3067\u3059\u3002\u53d6\u8fbc\u3081\u307e\u3059\u304c\u3001\u5e74\u5ea6\u3092\u5207\u308a\u66ff\u3048\u306a\u3044\u3068\u8868\u793a\u3055\u308c\u307e\u305b\u3093\u3002</div>';
+      }
+      document.getElementById('jCsvPreviewNote').innerHTML = note;
+
+      document.getElementById('jCsvExecBtn').style.display = (jCsvRows.length && !bad.length) ? '' : 'none';
+    } catch(err) {
+      document.getElementById('jCsvMsg').textContent = '\u274c \u8aad\u307f\u8fbc\u307f\u30a8\u30e9\u30fc: ' + err.message;
+      document.getElementById('jCsvMsg').className = 'modal-msg err';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function execJCsvImport() {
+  if (!jCsvRows.length) return;
+  if (jCsvRows.filter(function(r){ return r.err.length; }).length) return;
+  if (!confirm(jCsvRows.length + '\u4ef6\u306e\u4ed5\u8a33\u3092\u53d6\u308a\u8fbc\u307f\u307e\u3059\u3002\u3088\u308d\u3057\u3044\u3067\u3059\u304b\uff1f')) return;
+  if (!state.journals) state.journals = [];
+  var added = 0;
+  jCsvRows.forEach(function(r) {
+    var t = calcTax(r.amount, r.rate);
+    state.journals.push({
+      id: uid(), date: r.date, memo: r.memo,
+      dAcc: r.dAcc, dAmt: r.amount, dExcl: t.excl, dTax: t.tax, rate: r.rate,
+      cAcc: r.cAcc, cAmt: r.amount, src: 'csv'
+    });
+    added++;
+  });
+  state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  saveToFb().then(function(){ renderAll(); });
+  document.getElementById('jCsvModal').classList.add('hidden');
+  alert('\u2705 ' + added + '\u4ef6\u306e\u4ed5\u8a33\u3092\u53d6\u308a\u8fbc\u307f\u307e\u3057\u305f\uff01');
+}
+
+// \u2500\u2500 \u671f\u9996\u6b8b\u9ad8 \u2500\u2500
+function openOpenBalModal() {
+  var ob = openBalOf(state.year);
+  document.getElementById('openBalHint').innerHTML =
+    '<b>' + state.year + '\u5e74\u5ea6\uff08' + fyStart() + '\uff09\u6642\u70b9\u306e\u6b8b\u9ad8</b>\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002<br>'
+    + '\u8cc7\u7523\u306f\u501f\u65b9\u6b8b\u3001\u8ca0\u50b5\u30fb\u7d14\u8cc7\u7523\u306f\u8cb8\u65b9\u6b8b\u3068\u3057\u3066\u6271\u3044\u307e\u3059\uff08\u3044\u305a\u308c\u3082\u30d7\u30e9\u30b9\u306e\u6570\u5024\u3067\u5165\u529b\uff09\u3002';
+  var bs = state.categories.filter(function(c){ return c.type === 'asset' || c.type === 'liability'; });
+  var html = '';
+  ['asset','liability'].forEach(function(tp) {
+    var list = bs.filter(function(c){ return c.type === tp; });
+    if (!list.length) return;
+    html += '<div class="cat-section-title">' + (tp==='asset'?'\u8cc7\u7523\uff08\u501f\u65b9\u6b8b\uff09':'\u8ca0\u50b5\u30fb\u7d14\u8cc7\u7523\uff08\u8cb8\u65b9\u6b8b\uff09') + '</div>';
+    list.forEach(function(c) {
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:5px 0">'
+        + '<div style="flex:1;font-size:13px">' + (c.icon||'') + ' ' + c.name + '</div>'
+        + '<input type="number" min="0" data-ob="' + c.id + '" value="' + (parseInt(ob[c.id])||'') + '"'
+        + ' placeholder="0" style="width:150px;padding:6px 10px;border:1px solid var(--rule);border-radius:6px;font-family:monospace;text-align:right;outline:none">'
+        + '</div>';
+    });
+  });
+  document.getElementById('openBalList').innerHTML = html;
+  document.getElementById('openBalMsg').textContent = '';
+  document.getElementById('openBalModal').classList.remove('hidden');
+}
+
+function saveOpenBal() {
+  var inputs = document.querySelectorAll('#openBalList input[data-ob]');
+  var obj = {};
+  var td = 0, tc = 0;
+  for (var i = 0; i < inputs.length; i++) {
+    var id = inputs[i].getAttribute('data-ob');
+    var v = parseInt(inputs[i].value);
+    if (isNaN(v) || v === 0) continue;
+    if (v < 0) {
+      var m0 = document.getElementById('openBalMsg');
+      m0.textContent = '\u30de\u30a4\u30ca\u30b9\u306e\u91d1\u984d\u306f\u5165\u529b\u3067\u304d\u307e\u305b\u3093\u3002';
+      m0.className = 'modal-msg err'; return;
+    }
+    obj[id] = v;
+    if (normalSide(id) === 'credit') tc += v; else td += v;
+  }
+  if (!state.openBal) state.openBal = {};
+  state.openBal[String(state.year)] = obj;
+  saveToFb().then(function(){ renderAll(); });
+  var msg = document.getElementById('openBalMsg');
+  if (td !== tc) {
+    msg.innerHTML = '\u2705 \u4fdd\u5b58\u3057\u307e\u3057\u305f\u3002<span style="color:var(--yellow)">\uff08\u501f\u65b9 '
+      + fmt(td) + ' / \u8cb8\u65b9 ' + fmt(tc) + ' \u3067\u4e0d\u4e00\u81f4\u3067\u3059\uff09</span>';
+    msg.className = 'modal-msg ok';
+  } else {
+    msg.textContent = '\u2705 \u4fdd\u5b58\u3057\u307e\u3057\u305f\uff08\u8cb8\u501f\u4e00\u81f4\uff09\u3002';
+    msg.className = 'modal-msg ok';
+  }
+  setTimeout(function(){ document.getElementById('openBalModal').classList.add('hidden'); }, 1500);
 }
 
 // ── PDFインポート ──
