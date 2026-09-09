@@ -1297,7 +1297,8 @@ var state = {
     // ══ その他 ══
     { id: 'e59', name: '仮払金', type: 'expense', icon: '💴', subCategories: [] },
     { id: 'e60', name: '雑費',              type: 'expense', icon: '📁', subCategories: [] },
-    { id: 'e61', name: '消費税等',          type: 'expense', icon: '🧾', subCategories: [] }
+    { id: 'e61', name: '消費税等',          type: 'expense', icon: '🧾', subCategories: [] },
+    { id: 'e70', name: '創立費',            type: 'expense', icon: '🏛️', subCategories: [] }
   ],
   transactions: [],
   journals: []
@@ -1360,9 +1361,28 @@ var ACC_MIGRATE = {
   ca_cc:'b_cc'
 };
 // 不足しているBS科目を補う。変更件数を返す
-function ensureBsCats() {
+// 既存データに後から追加した損益科目を補う（B/S科目より前に差し込む）
+var PL_DEFAULTS = [
+  { id:'e70', name:'創立費', type:'expense', icon:'🏛️' }
+];
+function ensurePlCats() {
   if (!state.categories) state.categories = [];
   var added = 0;
+  PL_DEFAULTS.forEach(function(d) {
+    if (state.categories.find(function(c){ return c.id === d.id; })) return;
+    var item = { id:d.id, name:d.name, type:d.type, icon:d.icon, subCategories:[] };
+    var at = state.categories.findIndex(function(c){
+      return c.type !== 'income' && c.type !== 'expense';
+    });
+    if (at < 0) state.categories.push(item);
+    else state.categories.splice(at, 0, item);
+    added++;
+  });
+  return added;
+}
+function ensureBsCats() {
+  if (!state.categories) state.categories = [];
+  var added = ensurePlCats();
   BS_DEFAULTS.forEach(function(d) {
     if (!state.categories.find(function(c) { return c.id === d.id; })) {
       state.categories.push({ id:d.id, name:d.name, type:d.type, icon:d.icon, subCategories:[] });
@@ -1931,6 +1951,7 @@ function deleteSubCategory(parentId, subId) {
 
 // ── renderAll ──
 function renderAll() {
+  healJournals();
   renderDashboard();
   renderTransactions();
   renderCashbook();
@@ -2904,6 +2925,23 @@ function removeJournalOfTx(id){
   if(state.journals)state.journals=state.journals.filter(function(j){ return j.srcId !== id; });
 }
 function pushTx(t){ state.transactions.push(t); syncJournalOfTx(t); return t; }
+// 収支記録にあって仕訳がないものを自動で補う（srcIdで重複しない）
+function healJournals(){
+  if(!state.journals) state.journals=[];
+  if(!state.transactions) return 0;
+  var have={};
+  state.journals.forEach(function(j){ if(j && j.srcId) have[j.srcId]=1; });
+  var n=0;
+  state.transactions.forEach(function(t){
+    if(!t || !t.id || !t.date || !t.catId) return;
+    if(have[t.id]) return;
+    if(!catById(t.catId)) return;
+    state.journals.push(makeJournalFromTx(t));
+    have[t.id]=1; n++;
+  });
+  if(n){ state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); }); save(); }
+  return n;
+}
 function convertFromTx() {
   var txs=txOfYear();
   if(!txs.length){alert('\u53ce\u652f\u8a18\u9332\u304c\u3042\u308a\u307e\u305b\u3093\u3002');return;}
@@ -4015,6 +4053,13 @@ function showPdfPreview() {
   area.style.display = 'block';
   document.getElementById('pdfPreviewTitle').textContent =
     '\u8a8d\u8b58\u7d50\u679c\u306e\u78ba\u8a8d\uff08' + pdfImportRows.length + '\u4ef6\uff09\u2014\u53d6\u308a\u8fbc\u307f\u5f8c\u306b\u4fee\u6b63\u53ef\u80fd';
+  var _outN = pdfImportRows.filter(function(r){ return r.date && (r.date < fyStart() || r.date > fyEnd()); }).length;
+  if (_outN) {
+    msg.className = 'modal-msg err';
+    msg.textContent = '⚠ ' + _outN + '件は選択中の会計年度（' + fyStart() + '〜' + fyEnd() + '）の範囲外です。'
+      + 'このまま取り込むと、仕訳帳・総勘定元帳・収支記録には表示されません。'
+      + '日付を直すか、画面上部の年度セレクトを切り替えてご確認ください。';
+  }
 
   var tbl = document.getElementById('pdfPreviewTable');
   tbl.innerHTML = '<thead><tr style="background:var(--paper-alt)">'
@@ -4025,9 +4070,11 @@ function showPdfPreview() {
     + '<th style="padding:6px 10px;text-align:right">\u91d1\u984d</th>'
     + '<th style="padding:6px 10px">\u7a0e\u7387</th></tr></thead><tbody>'
     + pdfImportRows.map(function(r, i) {
+      var _out = !!(r.date && (r.date < fyStart() || r.date > fyEnd()));
       return '<tr style="border-bottom:1px solid #f0eeeb">'
         + '<td style="padding:5px 10px;font-size:11px;color:var(--ink-soft)">' + r.filename + '</td>'
-        + '<td style="padding:5px 10px;font-size:11px">' + r.date + '</td>'
+        + '<td style="padding:5px 10px;font-size:11px' + (_out ? ';color:var(--red);font-weight:700' : '') + '"'
+        + (_out ? ' title="選択中の会計年度の範囲外です"' : '') + '>' + r.date + (_out ? ' ⚠' : '') + '</td>'
         + '<td style="padding:4px 8px">' + pdfCatSelect(i, r) + '</td>'
         + '<td style="padding:4px 8px">' + pdfPaySelect(i, r) + '</td>'
         + '<td style="padding:5px 10px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
@@ -4040,6 +4087,7 @@ function showPdfPreview() {
 function execPdfImport() {
   if (!pdfImportRows.length) return;
   var added = 0;
+  var outN = pdfImportRows.filter(function(r){ return r.date && (r.date < fyStart() || r.date > fyEnd()); }).length;
   if (!state.journals) state.journals = [];
   pdfImportRows.forEach(function(r) {
     if (pdfType === 'sales') {
@@ -4071,7 +4119,8 @@ function execPdfImport() {
   saveToFb().then(function(){ renderAll(); });
   document.getElementById('pdfImportModal').classList.add('hidden');
   var dest = pdfType === 'sales' ? '\u4ed5\u8a33\u5e33\uff08\u501f:\u58f2\u639b\u91d1 / \u8cb8:\u58f2\u4e0a\u9ad8\uff09' : '\u53ce\u652f\u8a18\u9332';
-  alert('\u2705 ' + added + '\u4ef6\u3092' + dest + '\u306b\u53d6\u308a\u8fbc\u307f\u307e\u3057\u305f\uff01\n\u5185\u5bb9\u3092\u78ba\u8a8d\u3057\u3066\u5fc5\u8981\u306b\u5fdc\u3058\u3066\u4fee\u6b63\u3057\u3066\u304f\u3060\u3055\u3044\u3002');
+  alert('✅ ' + added + '件を' + dest + 'に取り込みました！\n内容を確認して必要に応じて修正してください。'
+    + (outN ? '\n\n⚠ うち' + outN + '件は選択中の会計年度（' + fyStart() + '〜' + fyEnd() + '）の範囲外の日付です。\n画面上部の年度セレクトを切り替えるか、日付を直すと表示されます。' : ''));
 }
 
 // ── 収支記録 編集 ──
@@ -4326,6 +4375,12 @@ function renderCashbook() {
 }
 
 window.initFirebase = initFirebase;
+// サポート用フック（画面からは使いません）
+window.kaikeiApp = function(){ return {
+  state: state, save: save, saveToFb: saveToFb, renderAll: renderAll,
+  syncJournalOfTx: syncJournalOfTx, makeJournalFromTx: makeJournalFromTx,
+  healJournals: healJournals, fyStart: fyStart, fyEnd: fyEnd
+}; };
 window.kaikeiStopSync = function(){ if (pollTimer) clearInterval(pollTimer); };
 init();
 })();
