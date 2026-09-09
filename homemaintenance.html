@@ -448,7 +448,7 @@ td{padding:9px 14px;font-size:13px;}
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txEditAmount" min="0"></div>
       <div class="fg"><label>消費税率</label><select id="txEditTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
     </div>
-    <div class="fg"><label>支払方法</label><select id="txEditPay"><option value="other">現金以外</option><option value="cash">現金</option></select></div>
+    <div class="fg"><label>支払方法</label><select id="txEditPay"><option value="b_cash">現金</option><option value="b_bank">普通預金</option><option value="b_cc">クレジットカード</option><option value="b_ap">買掛金</option><option value="b_unpaid">未払金</option><option value="b_ar">売掛金</option></select></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" id="txEditCancelBtn">キャンセル</button>
       <button class="btn btn-primary" id="txEditSaveBtn">✅ 更新する</button>
@@ -679,6 +679,7 @@ td{padding:9px 14px;font-size:13px;}
     <span class="sync-badge sync-wait" id="syncBadge">⟳ 未接続</span>
     対象年度: <select id="yearSelect"></select>
     <button class="hbtn" id="yuBtn" style="background:#166534;color:#bbf7d0;border-color:#166534">📅 年度更新</button>
+    <button class="hbtn" id="convertHdrBtn" style="background:#1e3a5f;color:#bfdbfe;border-color:#1e3a5f">🔄 仕訳に反映</button>
     <button class="hbtn hbtn-green" id="exportModalBtn">💾 バックアップ</button>
     <button class="hbtn" id="resetModalBtn" style="background:#4a0000;color:#fca5a5;border-color:#7f1d1d">🗑️ 全消去</button>
     <button class="hbtn hbtn-blue" id="fbModalBtn">☁️ Firebase</button>
@@ -760,7 +761,7 @@ td{padding:9px 14px;font-size:13px;}
       <div class="fg"><label>摘要</label><input type="text" id="txNote" placeholder="例：〇〇様 作業代"></div>
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txAmount" placeholder="0" min="0"></div>
       <div class="fg"><label>消費税率</label><select id="txTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
-      <div class="fg"><label>支払方法</label><select id="txPay"><option value="other">現金以外</option><option value="cash">現金</option></select></div>
+      <div class="fg"><label>支払方法</label><select id="txPay"><option value="b_cash">現金</option><option value="b_bank">普通預金</option><option value="b_cc">クレジットカード</option><option value="b_ap">買掛金</option><option value="b_unpaid">未払金</option><option value="b_ar">売掛金</option></select></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-primary" id="addTxBtn">追加</button></div>
     </div>
     <div style="margin-top:10px;padding:8px 14px;background:var(--paper-alt);border-radius:6px;font-size:12px;color:var(--ink-soft)" id="txPreview">金額を入力すると税額を表示します</div>
@@ -1703,6 +1704,7 @@ function bindEvents() {
   function safeOn(id, ev, fn) { var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
   safeOn('addJournalBtn', 'click', addJournal);
   safeOn('convertBtn', 'click', convertFromTx);
+  safeOn('convertHdrBtn', 'click', convertFromTx);
   safeOn('jDebitAmt', 'input', jPreviewUpdate);
   safeOn('jTaxRate', 'change', jPreviewUpdate);
   bindPrint('printDashBtn', 'dashboard'); bindPrint('printDashBtn2', 'dashboard');
@@ -1752,10 +1754,11 @@ function addTransaction() {
   var amount = parseInt(document.getElementById('txAmount').value);
   var taxRate = parseInt(document.getElementById('txTaxRate').value);
   var payEl = document.getElementById('txPay');
-  var pay = payEl ? payEl.value : 'other';
+  var payAcc = payEl ? payEl.value : 'b_bank';
+  var pay = (payAcc === 'b_cash') ? 'cash' : 'other';
   if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
   var r = calcTax(amount, taxRate);
-  state.transactions.push({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: pay });
+  pushTx({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: pay, payAcc: payAcc });
   state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
   saveToFb().then(function() { renderAll(); });
   document.getElementById('txNote').value = '';
@@ -1764,8 +1767,9 @@ function addTransaction() {
 }
 
 function deleteTx(id) {
-  if (!confirm('この取引を削除しますか？')) return;
+  if (!confirm('この取引を削除しますか？\n（この取引から作られた仕訳も一緒に削除されます）')) return;
   state.transactions = state.transactions.filter(function(t) { return t.id !== id; });
+  removeJournalOfTx(id);
   saveToFb().then(function() { renderAll(); });
 }
 
@@ -2859,17 +2863,47 @@ function addJournal() {
   var cSub=(document.getElementById('jCreditSub')||{}).value||'';
   state.journals.push({id:uid(),date:date,memo:memo,dAcc:dAcc,dSub:dSub,dAmt:dAmt,dExcl:r.excl,dTax:r.tax,rate:rate,cAcc:cAcc,cSub:cSub,cAmt:cAmt,src:'manual'});
   state.journals.sort(function(a,b){return b.date.localeCompare(a.date);});
-  saveToFb().then(function(){renderJournal();renderTrial();});
+  saveToFb().then(function(){renderAll();});
   document.getElementById('jMemo').value='';
   document.getElementById('jDebitAmt').value='';
   document.getElementById('jCreditAmt').value='';
   document.getElementById('jPreview').textContent='\u91d1\u984d\u3092\u5165\u529b\u3059\u308b\u3068\u7a0e\u984d\u3092\u8868\u793a\u3057\u307e\u3059';
 }
 function delJournal(id) {
-  if(!confirm('\u3053\u306e\u4ed5\u8a33\u3092\u524a\u9664\u3057\u307e\u3059\u304b\uff1f'))return;
+  var _j=(state.journals||[]).find(function(x){return x.id===id;});
+  var _t=_j&&_j.srcId?state.transactions.find(function(t){return t.id===_j.srcId;}):null;
+  if(_t){
+    if(!confirm('\u3053\u306e\u4ed5\u8a33\u306f\u53ce\u652f\u8a18\u9332\u304b\u3089\u4f5c\u3089\u308c\u3066\u3044\u307e\u3059\u3002\n\uff3bOK\uff3d\u5143\u306e\u53ce\u652f\u8a18\u9332\u3054\u3068\u524a\u9664\u3059\u308b\n\uff3b\u30ad\u30e3\u30f3\u30bb\u30eb\uff3d\u524a\u9664\u3057\u306a\u3044'))return;
+    state.transactions=state.transactions.filter(function(t){return t.id!==_j.srcId;});
+  } else {
+    if(!confirm('\u3053\u306e\u4ed5\u8a33\u3092\u524a\u9664\u3057\u307e\u3059\u304b\uff1f'))return;
+  }
   state.journals=state.journals.filter(function(j){return j.id!==id;});
-  saveToFb().then(function(){renderJournal();renderTrial();});
+  saveToFb().then(function(){renderAll();});
 }
+function journalOfTx(id){ return (state.journals||[]).find(function(j){ return j.srcId === id; }); }
+function makeJournalFromTx(t){
+  var isCash=(t.pay==='cash');
+  var _c=catById(t.catId);
+  var isShiire=!!_c&&['\u4ed5\u5165\u9ad8','\u5916\u6ce8\u52a0\u5de5\u8cbb','\u6750\u6599\u8cbb\u30fb\u8cc7\u6750\u8cbb'].indexOf(_c.name)>=0;
+  var rate=t.taxRate!==undefined?t.taxRate:10;
+  var r=calcTax(t.amount,rate);
+  var acc=t.payAcc||(isCash?'b_cash':(t.type==='expense'&&isShiire?'b_ap':'b_bank'));
+  var j={id:uid(),date:t.date,memo:t.note||_c.name,rate:rate,dExcl:r.excl,dTax:r.tax,src:'auto',srcId:t.id};
+  if(t.type==='expense'){j.dAcc=t.catId;j.dAmt=t.amount;j.cAcc=acc;j.cAmt=t.amount;}
+  else{j.dAcc=acc;j.dAmt=t.amount;j.cAcc=t.catId;j.cAmt=t.amount;}
+  return j;
+}
+function syncJournalOfTx(t){
+  if(!state.journals)state.journals=[];
+  state.journals=state.journals.filter(function(j){ return j.srcId !== t.id; });
+  state.journals.push(makeJournalFromTx(t));
+  state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
+}
+function removeJournalOfTx(id){
+  if(state.journals)state.journals=state.journals.filter(function(j){ return j.srcId !== id; });
+}
+function pushTx(t){ state.transactions.push(t); syncJournalOfTx(t); return t; }
 function convertFromTx() {
   var txs=txOfYear();
   if(!txs.length){alert('\u53ce\u652f\u8a18\u9332\u304c\u3042\u308a\u307e\u305b\u3093\u3002');return;}
@@ -2879,16 +2913,9 @@ function convertFromTx() {
   var news=txs.filter(function(t){return !done[t.id];});
   if(!news.length){alert('\u5168\u3066\u5909\u63db\u6e08\u307f\u3067\u3059\u3002');return;}
   if(!confirm(news.length+'\u4ef6\u3092\u4ed5\u8a33\u306b\u5909\u63db\u3057\u307e\u3059\u3002\u3088\u308d\u3057\u3044\u3067\u3059\u304b\uff1f'))return;
-  news.forEach(function(t){
-    var rate=t.taxRate!==undefined?t.taxRate:10;
-    var r=calcTax(t.amount,rate);
-    var j={id:uid(),date:t.date,memo:t.note||(catById(t.catId).name),rate:rate,dExcl:r.excl,dTax:r.tax,src:'auto',srcId:t.id};
-    if(t.type==='expense'){j.dAcc=t.catId;j.dAmt=t.amount;j.cAcc='b_cash';j.cAmt=t.amount;}
-    else{j.dAcc='b_cash';j.dAmt=t.amount;j.cAcc=t.catId;j.cAmt=t.amount;}
-    state.journals.push(j);
-  });
+  news.forEach(function(t){ state.journals.push(makeJournalFromTx(t)); });
   state.journals.sort(function(a,b){return b.date.localeCompare(a.date);});
-  saveToFb().then(function(){renderJournal();renderTrial();});
+  saveToFb().then(function(){renderAll();});
   alert('\u2705 '+news.length+'\u4ef6\u3092\u5909\u63db\u3057\u307e\u3057\u305f\u3002');
 }
 function renderJournal() {
@@ -3390,7 +3417,7 @@ function execCsvImport() {
   var added = 0;
   csvImportRows.forEach(function(r) {
     if (!r.catId) return;
-    state.transactions.push({
+    pushTx({
       id: uid(), date: r.date, type: r.type, catId: r.catId,
       note: r.note, amount: r.amount, taxRate: r.taxRate,
       excl: r.excl, tax: r.tax
@@ -3937,6 +3964,44 @@ function onPdfFileSelected(e) {
   });
 }
 
+var PAY_ACCS = [
+  {id:'b_cash',   name:'現金'},
+  {id:'b_bank',   name:'普通預金'},
+  {id:'b_cc',     name:'クレジットカード'},
+  {id:'b_ap',     name:'買掛金'},
+  {id:'b_unpaid', name:'未払金'},
+  {id:'b_ar',     name:'売掛金'}
+];
+function pdfPaySelect(i, r) {
+  var cur = r.payAcc || 'b_cash';
+  var opts = PAY_ACCS.map(function(a){ return '<option value="' + a.id + '"' + (a.id === cur ? ' selected' : '') + '>' + a.name + '</option>'; }).join('');
+  return '<select data-pdfpay="' + i + '" onchange="setPdfPay(this)" style="font-size:11px;padding:3px 6px">' + opts + '</select>';
+}
+window.setPdfPay = function(sel) {
+  var i = parseInt(sel.getAttribute('data-pdfpay'), 10);
+  if (!pdfImportRows[i]) return;
+  pdfImportRows[i].payAcc = sel.value;
+};
+window.setPdfPayAll = function(v) {
+  if (!v) return;
+  pdfImportRows.forEach(function(r){ r.payAcc = v; });
+  showPdfPreview();
+};
+function pdfCatSelect(i, r) {
+  var opts = state.categories
+    .filter(function(c){ return c.type === (r.type || 'expense') && c.visible !== false; })
+    .map(function(c){ return '<option value="' + c.id + '"' + (c.id === r.catId ? ' selected' : '') + '>' + c.icon + ' ' + c.name + '</option>'; })
+    .join('');
+  var warn = (r.catName === '\u4eee\u6255\u91d1') ? ';border:1px solid var(--red)' : '';
+  return '<select data-pdfrow="' + i + '" onchange="setPdfCat(this)" style="font-size:11px;padding:3px 6px' + warn + '">' + opts + '</select>';
+}
+window.setPdfCat = function(sel) {
+  var i = parseInt(sel.getAttribute('data-pdfrow'), 10);
+  var c = state.categories.find(function(x){ return x.id === sel.value; });
+  if (!c || !pdfImportRows[i]) return;
+  pdfImportRows[i].catId = c.id;
+  pdfImportRows[i].catName = c.name;
+};
 function showPdfPreview() {
   var msg = document.getElementById('pdfImportMsg');
   if (!pdfImportRows.length) {
@@ -3956,13 +4021,15 @@ function showPdfPreview() {
     + '<th style="padding:6px 10px;text-align:left">\u30d5\u30a1\u30a4\u30eb\u540d</th>'
     + '<th style="padding:6px 10px;text-align:left">\u65e5\u4ed8</th>'
     + '<th style="padding:6px 10px;text-align:left">\u79d1\u76ee</th>'
+    + '<th style="padding:6px 10px;text-align:left">\u8cb8\u65b9\uff08\u652f\u6255\u65b9\u6cd5\uff09<br><select id="pdfPayAll" onchange="setPdfPayAll(this.value)" style="font-size:10px;padding:2px 4px;font-weight:400"><option value="">\u4e00\u62ec\u3067\u5909\u66f4</option>' + PAY_ACCS.map(function(a){ return '<option value="' + a.id + '">' + a.name + '</option>'; }).join('') + '</select></th>'
     + '<th style="padding:6px 10px;text-align:right">\u91d1\u984d</th>'
     + '<th style="padding:6px 10px">\u7a0e\u7387</th></tr></thead><tbody>'
-    + pdfImportRows.map(function(r) {
+    + pdfImportRows.map(function(r, i) {
       return '<tr style="border-bottom:1px solid #f0eeeb">'
         + '<td style="padding:5px 10px;font-size:11px;color:var(--ink-soft)">' + r.filename + '</td>'
         + '<td style="padding:5px 10px;font-size:11px">' + r.date + '</td>'
-        + '<td style="padding:5px 10px;font-size:11px">' + r.catName + '</td>'
+        + '<td style="padding:4px 8px">' + pdfCatSelect(i, r) + '</td>'
+        + '<td style="padding:4px 8px">' + pdfPaySelect(i, r) + '</td>'
         + '<td style="padding:5px 10px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
         + '<td style="padding:5px 10px;text-align:center">' + (r.taxRate===0?'\u975e\u8ab2\u7a0e':r.taxRate+'%') + '</td></tr>';
     }).join('') + '</tbody>';
@@ -3989,10 +4056,12 @@ function execPdfImport() {
     } else {
       // 仕入先請求書 → 収支記録へ（仮払金など）
       if (!r.catId) return;
-      state.transactions.push({
+      pushTx({
         id: uid(), date: r.date, type: r.type, catId: r.catId,
         note: r.note, amount: r.amount, taxRate: r.taxRate,
-        excl: r.excl, tax: r.tax
+        excl: r.excl, tax: r.tax,
+        payAcc: r.payAcc || 'b_cash',
+        pay: (r.payAcc || 'b_cash') === 'b_cash' ? 'cash' : 'other'
       });
       added++;
     }
@@ -4015,7 +4084,7 @@ function openTxEdit(id) {
   document.getElementById('txEditNote').value = t.note || '';
   document.getElementById('txEditAmount').value = t.amount;
   document.getElementById('txEditTaxRate').value = t.taxRate !== undefined ? t.taxRate : 10;
-  document.getElementById('txEditPay').value = t.pay === 'cash' ? 'cash' : 'other';
+  document.getElementById('txEditPay').value = t.payAcc || (t.pay === 'cash' ? 'b_cash' : 'b_bank');
   // 科目セレクト更新
   var sel = document.getElementById('txEditCategory');
   sel.innerHTML = '';
@@ -4047,7 +4116,9 @@ function saveTxEdit() {
   t.date = date; t.type = type; t.catId = catId;
   t.note = note; t.amount = amount; t.taxRate = taxRate;
   t.excl = r.excl; t.tax = r.tax;
-  t.pay = document.getElementById('txEditPay').value;
+  t.payAcc = document.getElementById('txEditPay').value;
+  t.pay = (t.payAcc === 'b_cash') ? 'cash' : 'other';
+  if (journalOfTx(t.id)) syncJournalOfTx(t);
   state.transactions.sort(function(a,b){ return b.date.localeCompare(a.date); });
   saveToFb().then(function(){ renderAll(); });
   document.getElementById('txEditModal').classList.add('hidden');
@@ -4098,7 +4169,7 @@ function saveJournalEdit() {
   j.dSub = (document.getElementById('jEditDebitSub')||{}).value || '';
   j.cSub = (document.getElementById('jEditCreditSub')||{}).value || '';
   state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
-  saveToFb().then(function(){ renderJournal(); renderTrial(); });
+  saveToFb().then(function(){ renderAll(); });
   document.getElementById('journalEditModal').classList.add('hidden');
 }
 
@@ -4174,7 +4245,7 @@ function addCashTx() {
   var taxRate = parseInt(document.getElementById('cbTaxRate').value);
   if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
   var r = calcTax(amount, taxRate);
-  state.transactions.push({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: 'cash' });
+  pushTx({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: 'cash', payAcc: 'b_cash' });
   state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
   saveToFb().then(function() { renderAll(); });
   document.getElementById('cbNote').value = '';
