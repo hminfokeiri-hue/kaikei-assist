@@ -2097,10 +2097,11 @@ function renderLedger_inner(txs) {
       + '<span class="ledger-card-title">' + cat.name + '</span>'
       + '<span class="ledger-card-total">' + (isInc ? '収入計: ' + fmt(tI) : '支出計: ' + fmt(tE)) + '</span>';
     var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right">税込</th><th style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th></tr></thead>';
+    tbl.innerHTML = '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right">税込</th><th style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>';
     var tbody2 = document.createElement('tbody');
     ctxs.forEach(function(t) {
       var r = t.taxRate !== undefined ? t.taxRate : 10;
+      var jid = (t.id && String(t.id).indexOf('j_') === 0) ? String(t.id).slice(2).replace(/_[dc]\d+$/, '') : '';
       var tr = document.createElement('tr');
       tr.innerHTML = '<td class="td-date">' + t.date + '</td>'
         + '<td style="font-size:11px;color:var(--ink-soft)">' + (t.subCatName || '—') + '</td>'
@@ -2108,7 +2109,13 @@ function renderLedger_inner(txs) {
         + '<td class="td-amount ' + (t.type === 'income' ? 'td-inc' : 'td-exp') + '">' + (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '</td>'
         + '<td class="td-num">' + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
         + '<td class="td-num" style="color:var(--yellow)">' + fmt(t.tax||0) + '</td>'
-        + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + (r===0?'非課税':r+'%') + '</span></td>';
+        + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + (r===0?'非課税':r+'%') + '</span></td>'
+        + '<td class="print-hide" style="text-align:center;font-size:11px;color:var(--accent);white-space:nowrap">' + (jid ? '✏️ 仕訳へ' : '') + '</td>';
+      if (jid) {
+        tr.style.cursor = 'pointer';
+        tr.title = 'クリックすると仕訳帳のこの仕訳へ移動します';
+        tr.addEventListener('click', (function(id){ return function(){ jumpToJournal(id); }; })(jid));
+      }
       tbody2.appendChild(tr);
     });
     tbl.appendChild(tbody2);
@@ -2952,7 +2959,7 @@ function renderJournal() {
     +'<div class="jlh-del"></div>';
   cont.appendChild(hdrRow);
   js.forEach(function(j){
-    var card=document.createElement('div');card.className='jcard';
+    var card=document.createElement('div');card.className='jcard';card.id='jcard_'+j.id;
     var autoBadge=j.src==='auto'?'<span class="jautobadge">\u81ea\u52d5</span>':'';
 
     var L=jLines(j);
@@ -2993,6 +3000,26 @@ function renderJournal() {
     cont.appendChild(card);
   });
 }
+window.jumpToJournal = function(jid) {
+  var nav = document.querySelector('.nav-item[data-page="journal"]');
+  if (nav) nav.click();
+  setTimeout(function(){
+    var el = document.getElementById('jcard_' + jid);
+    if (!el) {
+      var f = document.getElementById('jDateFrom'), t2 = document.getElementById('jDateTo');
+      if (f) f.value = ''; if (t2) t2.value = '';
+      renderJournal();
+      el = document.getElementById('jcard_' + jid);
+    }
+    if (!el) { alert('この仕訳が見つかりませんでした。対象年度をご確認ください。'); return; }
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    var ob = el.style.boxShadow;
+    el.style.transition = 'background .4s, box-shadow .4s';
+    el.style.background = '#fef3c7';
+    el.style.boxShadow = '0 0 0 2px var(--accent)';
+    setTimeout(function(){ el.style.background=''; el.style.boxShadow=ob; }, 2600);
+  }, 200);
+};
 function openBalOf(y) {
   return (state.openBal || {})[String(y || state.year)] || {};
 }
