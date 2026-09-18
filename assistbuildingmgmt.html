@@ -1983,6 +1983,19 @@ function renderDashboard() {
     chart.appendChild(g);
   });
 
+  [['d-inc','pl'],['d-exp','pl'],['d-prf','pl'],['d-tax','tax']].forEach(function(pair){
+    var el = document.getElementById(pair[0]);
+    if (!el || el.dataset.jump) return;
+    var card = el.closest ? el.closest('.card') : null;
+    var tgt = card || el;
+    tgt.style.cursor = 'pointer';
+    tgt.title = 'クリックで詳細ページへ';
+    tgt.addEventListener('click', (function(pg){ return function(){
+      var nav = document.querySelector('.nav-item[data-page="' + pg + '"]');
+      if (nav) nav.click();
+    }; })(pair[1]));
+    el.dataset.jump = '1';
+  });
   var bd = document.getElementById('catBreakdown'); bd.innerHTML = '';
   var ct = state.categories.filter(function(c) { return c.type === 'expense'; }).map(function(c) {
     return { cat: c, total: exp.filter(function(t) { return t.catId === c.id; }).reduce(function(s,t) { return s+t.amount; }, 0) };
@@ -1996,6 +2009,9 @@ function renderDashboard() {
     var fill = document.createElement('div'); fill.className = 'brow-fill'; fill.style.width = Math.round(x.total/mx*100) + '%';
     track.appendChild(fill);
     var amt = document.createElement('div'); amt.className = 'brow-amount'; amt.textContent = fmt(x.total);
+    row.style.cursor = 'pointer';
+    row.title = 'クリックで総勘定元帳へ';
+    row.addEventListener('click', (function(id){ return function(){ jumpToLedger(id); }; })(x.cat.id));
     row.appendChild(lbl); row.appendChild(track); row.appendChild(amt);
     bd.appendChild(row);
   });
@@ -2141,7 +2157,7 @@ function renderPL() {
     return cats.map(function(c) {
       var tot = arr.filter(function(t) { return t.catId === c.id; }).reduce(function(s,t) { return s+t.amount; }, 0);
       if (!tot) return '';
-      return '<div class="report-row"><span class="report-row-label">' + c.icon + ' ' + c.name + '</span><span class="report-row-value" style="color:' + color + '">' + fmt(tot) + '</span></div>';
+      return '<div class="report-row" onclick="jumpToLedger(\'' + c.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer"><span class="report-row-label">' + c.icon + ' ' + c.name + ' <span style="font-size:10px;color:var(--accent)">›</span></span><span class="report-row-value" style="color:' + color + '">' + fmt(tot) + '</span></div>';
     }).join('');
   }
   var incCats = state.categories.filter(function(c) { return c.type === 'income'; });
@@ -2970,7 +2986,7 @@ function renderJournal() {
         var tn = (cls === 'jamt-d' && t) ? ('<span class="jtax"> \u7a0e' + fmt(t) + '</span>') : '';
         var sn = subNameOf(ln.acc, ln.sub);
         return '<div style="display:flex;align-items:center;gap:6px;width:100%">'
-          + '<span class="jacc">' + jName(ln.acc) + '</span>'
+          + '<span class="jacc" onclick="jumpToLedger(\'' + ln.acc + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + jName(ln.acc) + '</span>'
           + (sn ? '<span style="font-size:10px;color:var(--ink-soft)">› ' + sn + '</span>' : '') + tn
           + '<span class="' + cls + '">' + fmt(ln.amt) + '</span></div>';
       }).join('');
@@ -3000,6 +3016,24 @@ function renderJournal() {
     cont.appendChild(card);
   });
 }
+window.jumpToLedger = function(catId, month) {
+  var nav = document.querySelector('.nav-item[data-page="ledger"]');
+  if (nav) nav.click();
+  setTimeout(function(){
+    var sel = document.getElementById('ledgerCat');
+    if (sel) {
+      var ms = document.getElementById('ledgerMonth'); if (ms) ms.value = month ? String(month) : 'all';
+      var ts = document.getElementById('ledgerType');  if (ts) ts.value = 'all';
+      var sw = document.getElementById('ledgerSearch'); if (sw) sw.value = '';
+      var f1 = document.getElementById('lDateFrom'); if (f1) f1.value = '';
+      var f2 = document.getElementById('lDateTo');   if (f2) f2.value = '';
+      sel.value = catId;
+      if (sel.value !== catId) { renderLedger(); sel.value = catId; }
+      renderLedger();
+      sel.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }, 200);
+};
 window.jumpToJournal = function(jid) {
   var nav = document.querySelector('.nav-item[data-page="journal"]');
   if (nav) nav.click();
@@ -3067,7 +3101,7 @@ function renderTrial() {
   rows.forEach(function(a){
     var bal=(a.od+a.d)-(a.oc+a.c);
     tOD+=a.od;tOC+=a.oc;tD+=a.d;tC+=a.c;
-    html+='<tr><td>'+a.name+'</td>'
+    html+='<tr><td onclick="jumpToLedger(\''+a.id+'\')" title="クリックで総勘定元帳へ" style="cursor:pointer">'+a.name+' <span style="font-size:10px;color:var(--accent)">›</span></td>'
       +'<td>'+sideCell(a.od,a.oc)+'</td>'
       +'<td style="color:var(--accent)">'+(a.d?fmt(a.d):'\u2014')+'</td>'
       +'<td style="color:var(--red)">'+(a.c?fmt(a.c):'\u2014')+'</td>'
@@ -3156,13 +3190,13 @@ function renderMonthlyPL() {
   incCats.forEach(function(cat) {
     var rowTotal = 0;
     var hasData = false;
-    var rowHtml = '<tr><td>' + cat.icon + ' ' + cat.name + '</td>';
+    var rowHtml = '<tr><td class="print-nolink" onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + cat.icon + ' ' + cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></td>';
     months.forEach(function(m, i) {
       var v = sumByCat(cat.id, m, 'income');
       if (v) hasData = true;
       incTotals[i] += v;
       rowTotal += v;
-      rowHtml += '<td>' + (v ? '<span class="monthly-val-pos">' + fmt(v) + '</span>' : '\u2014') + '</td>';
+      rowHtml += '<td' + (v ? ' onclick="jumpToLedger(\'' + cat.id + '\',' + m + ')"' + ' title="クリックでこの月の総勘定元帳へ" style="cursor:pointer"' : '') + '>' + (v ? '<span class="monthly-val-pos">' + fmt(v) + '</span>' : '\u2014') + '</td>';
     });
     rowHtml += '<td><b>' + (rowTotal ? fmt(rowTotal) : '\u2014') + '</b></td></tr>';
     if (hasData) html += rowHtml;
@@ -3184,13 +3218,13 @@ function renderMonthlyPL() {
   expCats.forEach(function(cat) {
     var rowTotal = 0;
     var hasData = false;
-    var rowHtml = '<tr><td>' + cat.icon + ' ' + cat.name + '</td>';
+    var rowHtml = '<tr><td class="print-nolink" onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + cat.icon + ' ' + cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></td>';
     months.forEach(function(m, i) {
       var v = sumByCat(cat.id, m, 'expense');
       if (v) hasData = true;
       expTotals[i] += v;
       rowTotal += v;
-      rowHtml += '<td>' + (v ? '<span class="monthly-val-neg">' + fmt(v) + '</span>' : '\u2014') + '</td>';
+      rowHtml += '<td' + (v ? ' onclick="jumpToLedger(\'' + cat.id + '\',' + m + ')"' + ' title="クリックでこの月の総勘定元帳へ" style="cursor:pointer"' : '') + '>' + (v ? '<span class="monthly-val-neg">' + fmt(v) + '</span>' : '\u2014') + '</td>';
     });
     rowHtml += '<td><b>' + (rowTotal ? fmt(rowTotal) : '\u2014') + '</b></td></tr>';
     if (hasData) html += rowHtml;
@@ -3247,7 +3281,7 @@ function renderMonthlyBS() {
   var incRowTotals = [];
   incCats.forEach(function(cat) {
     var hasData = false;
-    var rowHtml = '<tr><td>' + cat.icon + ' ' + cat.name + '</td>';
+    var rowHtml = '<tr><td class="print-nolink" onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + cat.icon + ' ' + cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></td>';
     var lastVal = 0;
     months.forEach(function(m) {
       var v = cumByMonth(cat.id, m, 'income');
@@ -3272,7 +3306,7 @@ function renderMonthlyBS() {
   html += '<tr class="cat-section"><td colspan="' + (months.length+2) + '">\u25bc \u652f\u51fa\u7d2f\u8a08</td></tr>';
   expCats.forEach(function(cat) {
     var hasData = false;
-    var rowHtml = '<tr><td>' + cat.icon + ' ' + cat.name + '</td>';
+    var rowHtml = '<tr><td class="print-nolink" onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + cat.icon + ' ' + cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></td>';
     var lastVal = 0;
     months.forEach(function(m) {
       var v = cumByMonth(cat.id, m, 'expense');
@@ -3349,6 +3383,29 @@ function onCsvFileSelected(e) {
     try {
       var lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(function(l){return l.trim();});
       var delim = detectDelim(lines);
+
+      // ── 仕訳CSVを誤って入れたときは止める ──
+      var jLike = 0, chk = 0;
+      lines.forEach(function(line, idx) {
+        if (idx === 0 && (line.indexOf('日付') !== -1 || line.indexOf('借方') !== -1)) return;
+        var c = line.split(delim).map(function(v){ return v.replace(/^"|"$/g,'').trim(); });
+        if (c.length < 4) return;
+        chk++;
+        var t = c[1];
+        if (t === '収入' || t === '支出' || t === 'income' || t === 'expense') return;
+        if (findAccByName(c[1]) && findAccByName(c[2])) jLike++;
+      });
+      if (chk && jLike >= Math.max(2, Math.ceil(chk * 0.6))) {
+        document.getElementById('csvPreviewArea').style.display = 'none';
+        var mj = document.getElementById('csvImportMsg');
+        mj.innerHTML = '⚠️ これは<b>仕訳CSV</b>のようです（2列目・3列目が勘定科目名になっています）。<br>'
+          + 'この画面は「日付, 種別, 科目名, 摘要, 税込金額, 消費税率」の収支記録用です。<br>'
+          + '左メニューの<b>「仕訳帳」→「📓 仕訳CSVから一括取込」</b>から取り込んでください。';
+        mj.className = 'modal-msg err';
+        document.getElementById('csvImportExecBtn').style.display = 'none';
+        csvImportRows = [];
+        return;
+      }
 
       csvImportRows = [];
       var errors = [];
@@ -4241,7 +4298,9 @@ function execReset() {
 function cashOpenOf(y) {
   var yr = String(y || state.year);
   var v = (state.cashOpen || {})[yr];
-  return isNaN(parseInt(v)) ? 0 : parseInt(v);
+  if (!isNaN(parseInt(v))) return parseInt(v);
+  var ob = openBalOf(y || state.year) || {};
+  return parseInt(ob['b_cash']) || 0;
 }
 function cashTxOfYear() {
   var ys = fyStart(), ye = fyEnd();
@@ -4286,6 +4345,34 @@ function saveCashOpen() {
   saveToFb().then(function() { renderCashbook(); });
   alert('✅ ' + state.year + '年度の期首残高を保存しました。');
 }
+function cashRowsOfYear() {
+  var CASH = 'b_cash';
+  var out = cashTxOfYear().map(function(t) {
+    var c = catById(t.catId);
+    return { date: t.date, isIn: t.type === 'income', amount: t.amount,
+             name: (c.icon ? c.icon + ' ' : '') + c.name, note: t.note || '',
+             txId: t.id, jId: '' };
+  });
+  (state.journals || []).forEach(function(j) {
+    if (j.srcId) return;
+    if (!j.date || j.date < fyStart() || j.date > fyEnd()) return;
+    var L = jLines(j);
+    var dHit = L.d.filter(function(l){ return l.acc === CASH; });
+    var cHit = L.c.filter(function(l){ return l.acc === CASH; });
+    if (!dHit.length && !cHit.length) return;
+    function other(side) {
+      var names = side.filter(function(l){ return l.acc && l.acc !== CASH; })
+                      .map(function(l){ return jName(l.acc); });
+      return names.length ? names.join('・') : '現金';
+    }
+    dHit.forEach(function(l){ out.push({ date: j.date, isIn: true,  amount: parseInt(l.amt)||0,
+      name: other(L.c), note: j.memo || '', txId: '', jId: j.id }); });
+    cHit.forEach(function(l){ out.push({ date: j.date, isIn: false, amount: parseInt(l.amt)||0,
+      name: other(L.d), note: j.memo || '', txId: '', jId: j.id }); });
+  });
+  out.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  return out;
+}
 function renderCashbook() {
   var body = document.getElementById('cbBody');
   if (!body) return;
@@ -4295,7 +4382,7 @@ function renderCashbook() {
   if (dateEl && !dateEl.value) dateEl.value = today();
   updateCashCatSelect();
 
-  var txs = cashTxOfYear();
+  var txs = cashRowsOfYear();
   var mEl = document.getElementById('cbMonth');
   var month = mEl ? mEl.value : 'all';
 
@@ -4305,7 +4392,7 @@ function renderCashbook() {
   var totalIn = 0, totalOut = 0;
 
   txs.forEach(function(t) {
-    var isIn = t.type === 'income';
+    var isIn = t.isIn;
     var before = running;
     running = isIn ? running + t.amount : running - t.amount;
     var m = parseInt(String(t.date).slice(5, 7), 10);
@@ -4331,17 +4418,18 @@ function renderCashbook() {
     html += '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:24px">現金取引がありません。上のフォームから入力するか、収支記録で支払方法を「現金」にしてください。</td></tr>';
   } else {
     rows.forEach(function(r) {
-      var cat = catById(r.tx.catId);
+      var btns = r.tx.jId
+        ? '<button class="btn btn-secondary btn-sm" onclick="jumpToJournal(\'' + r.tx.jId + '\')">仕訳へ</button>'
+        : '<button class="btn btn-secondary btn-sm" data-edit-tx="' + r.tx.txId + '">編集</button>'
+          + '<button class="btn btn-danger btn-sm" data-del-tx="' + r.tx.txId + '">削除</button>';
       html += '<tr>'
         + '<td>' + r.tx.date + '</td>'
-        + '<td>' + cat.icon + ' ' + cat.name + '</td>'
+        + '<td>' + r.tx.name + '</td>'
         + '<td>' + (r.tx.note || '') + '</td>'
         + '<td style="text-align:right;color:var(--green)">' + (r.isIn ? fmt(r.tx.amount) : '') + '</td>'
         + '<td style="text-align:right;color:var(--red)">' + (r.isIn ? '' : fmt(r.tx.amount)) + '</td>'
         + '<td style="text-align:right;font-weight:600">' + fmt(r.bal) + '</td>'
-        + '<td class="print-hide" style="display:flex;gap:4px;padding:6px 14px">'
-        + '<button class="btn btn-secondary btn-sm" data-edit-tx="' + r.tx.id + '">編集</button>'
-        + '<button class="btn btn-danger btn-sm" data-del-tx="' + r.tx.id + '">削除</button>'
+        + '<td class="print-hide" style="display:flex;gap:4px;padding:6px 14px">' + btns
         + '</td></tr>';
     });
   }
