@@ -401,8 +401,10 @@ td{padding:9px 14px;font-size:13px;}
       <div class="export-card" id="expCsvBackupBtn"><div class="export-icon">📊</div><div class="export-label">Excelバックアップ</div><div class="export-desc">CSVで保存（復元可能）</div></div>
       <div class="export-card" id="restoreJsonBtn"><div class="export-icon">📂</div><div class="export-label">JSONから復元</div><div class="export-desc">バックアップを読み込む</div></div>
       <div class="export-card" id="restoreCsvBtn"><div class="export-icon">📂</div><div class="export-label">Excelから復元</div><div class="export-desc">CSVバックアップを読み込む</div></div>
+      <div class="export-card" id="mergeJsonBtn"><div class="export-icon">➕</div><div class="export-label">JSONから追加</div><div class="export-desc">今のデータに足す（消えません）</div></div>
     </div>
     <input type="file" id="restoreJsonFile" accept=".json" style="display:none">
+    <input type="file" id="mergeJsonFile" accept=".json" style="display:none">
     <input type="file" id="restoreCsvFile" accept=".csv" style="display:none">
     <div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;margin:14px 0 8px">📥 インポート（自動入力）</div>
     <div class="export-grid">
@@ -1685,7 +1687,9 @@ function bindEvents() {
   safeOn('expCsvBackupBtn','click',backupCSV);
   safeOn('restoreJsonBtn','click',function() { document.getElementById('restoreJsonFile').click(); });
   safeOn('restoreCsvBtn','click',function() { document.getElementById('restoreCsvFile').click(); });
+  safeOn('mergeJsonBtn','click',function() { document.getElementById('mergeJsonFile').click(); });
   safeOn('restoreJsonFile','change',restoreJSON);
+  safeOn('mergeJsonFile','change',mergeJSON);
   safeOn('restoreCsvFile','change',restoreCSV);
   safeOn('expTxBtn','click',exportTxCSV);
   safeOn('expSumBtn','click',exportSumCSV);
@@ -2492,7 +2496,8 @@ function restoreJSON(e) {
     try {
       var data = JSON.parse(ev.target.result);
       if (!data.categories || !data.transactions) throw new Error('形式エラー');
-      if (!confirm('復元しますか？現在のデータは上書きされます。')) return;
+      var _curJ = (state.journals||[]).length, _curT = (state.transactions||[]).length;
+      if (!confirm('⚠️ 丸ごと入れ替えます。\n今入っているデータ（仕訳' + _curJ + '件・収支記録' + _curT + '件）は消えて、このファイルの中身に置き換わります。\n\n今のデータに「足す」だけなら、キャンセルして ➕ JSONから追加 を使ってください。\n\n入れ替えますか？')) return;
       state.categories = data.categories; state.transactions = data.transactions;
       state.journals = data.journals || [];
       state.cashOpen = data.cashOpen || {};
@@ -2500,6 +2505,100 @@ function restoreJSON(e) {
       ensureBsCats();
       saveToFb().then(function() { renderAll(); });
       showExportMsg('✅ 復元しました。');
+    } catch(err) { showExportMsg('❌ ' + err.message, true); }
+  };
+  reader.readAsText(file); e.target.value = '';
+}
+
+// 仕訳の中身が同じかどうかを見分けるためのキー
+function jSig(j) {
+  var L = jLines(j);
+  function side(a) {
+    return (a || []).map(function(x) {
+      return (x.acc || '') + '/' + (x.sub || '') + '/' + (parseInt(x.amt) || 0);
+    }).join('+');
+  }
+  return (j.date || '') + '|' + side(L.d) + '|' + side(L.c) + '|' + (j.memo || '');
+}
+
+// JSONバックアップを「追加」で取り込む（今のデータは消さない）
+function mergeJSON(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var data = JSON.parse(ev.target.result);
+      if (!data.categories || !data.transactions) throw new Error('形式エラー');
+      if (!state.categories) state.categories = [];
+      if (!state.transactions) state.transactions = [];
+      if (!state.journals) state.journals = [];
+      if (!state.cashOpen) state.cashOpen = {};
+      if (!state.openBal) state.openBal = {};
+
+      // ① まず何が増えるかを数えるだけ（ここではまだ変更しない）
+      var curCat = {}; state.categories.forEach(function(c) { curCat[c.id] = c; });
+      var addCats = (data.categories || []).filter(function(c) { return !curCat[c.id]; });
+      var addSubs = [];
+      (data.categories || []).forEach(function(c) {
+        var cur = curCat[c.id]; if (!cur || !Array.isArray(c.subCategories)) return;
+        if (!Array.isArray(cur.subCategories)) cur.subCategories = [];
+        c.subCategories.forEach(function(s) {
+          if (cur.subCategories.indexOf(s) < 0) addSubs.push({ cat: cur, sub: s });
+        });
+      });
+
+      var curTx = {}; state.transactions.forEach(function(t) { curTx[t.id] = 1; });
+      var addTxs = (data.transactions || []).filter(function(t) { return !curTx[t.id]; });
+
+      var curJId = {}, curJSig = {};
+      state.journals.forEach(function(j) { curJId[j.id] = 1; curJSig[jSig(j)] = 1; });
+      var addJs = [], dupJ = 0;
+      (data.journals || []).forEach(function(j) {
+        if (curJId[j.id] || curJSig[jSig(j)]) { dupJ++; return; }
+        curJSig[jSig(j)] = 1;
+        addJs.push(j);
+      });
+
+      var addOb = [];
+      Object.keys(data.openBal || {}).forEach(function(y) {
+        Object.keys(data.openBal[y] || {}).forEach(function(k) {
+          if (!state.openBal[y] || state.openBal[y][k] === undefined) addOb.push([y, k, data.openBal[y][k]]);
+        });
+      });
+      var addCo = [];
+      Object.keys(data.cashOpen || {}).forEach(function(y) {
+        if (state.cashOpen[y] === undefined) addCo.push([y, data.cashOpen[y]]);
+      });
+
+      if (!addJs.length && !addTxs.length && !addCats.length && !addSubs.length && !addOb.length && !addCo.length) {
+        showExportMsg('追加するものはありませんでした（すべて既に入っています）。');
+        return;
+      }
+
+      var msg = '今のデータに「追加」します。今あるものは消えません。\n\n'
+        + '・仕訳　　　' + addJs.length + '件を追加'
+        + (dupJ ? '（同じ内容が既にある ' + dupJ + '件はスキップ）' : '') + '\n'
+        + '・収支記録　' + addTxs.length + '件を追加\n'
+        + '・勘定科目　' + addCats.length + '件を追加（補助科目 ' + addSubs.length + '件）\n'
+        + '・期首残高　' + addOb.length + '件を追加（今ある数字は変えません）\n'
+        + (addCo.length ? '・現金期首　' + addCo.length + '件を追加\n' : '')
+        + '\nこの内容で追加しますか？';
+      if (!confirm(msg)) { showExportMsg('追加をやめました。'); return; }
+
+      // ② ここから実際に追加する
+      addCats.forEach(function(c) { state.categories.push(c); });
+      addSubs.forEach(function(x) { x.cat.subCategories.push(x.sub); });
+      addTxs.forEach(function(t) { state.transactions.push(t); });
+      addJs.forEach(function(j) { if (curJId[j.id]) j.id = uid(); curJId[j.id] = 1; state.journals.push(j); });
+      addOb.forEach(function(x) {
+        if (!state.openBal[x[0]]) state.openBal[x[0]] = {};
+        state.openBal[x[0]][x[1]] = x[2];
+      });
+      addCo.forEach(function(x) { state.cashOpen[x[0]] = x[1]; });
+
+      ensureBsCats();
+      saveToFb().then(function() { renderAll(); });
+      showExportMsg('✅ 追加しました（仕訳' + addJs.length + '件／収支記録' + addTxs.length + '件）。');
     } catch(err) { showExportMsg('❌ ' + err.message, true); }
   };
   reader.readAsText(file); e.target.value = '';
