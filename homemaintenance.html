@@ -1430,7 +1430,8 @@ function saveToFb() {
   var url = getFbUrl();
   if (!url) return Promise.resolve();
   setSyncBadge('sync-wait', '⟳ 保存中...');
-  return fbFetch(FB_PATH, 'PUT', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{}, openBal: state.openBal||{} })
+  /* PATCH：会計データ d だけを更新し、同じ場所にある資金繰り（shikin）を消さない */
+  return fbFetch(FB_PATH, 'PATCH', { categories: state.categories, transactions: state.transactions, journals: state.journals||[], cashOpen: state.cashOpen||{}, openBal: state.openBal||{} })
     .then(function() {
       setSyncBadge('sync-ok', '✓ 保存済み 🔒');
       lastHash = JSON.stringify({ categories: state.categories, transactions: state.transactions });
@@ -5005,7 +5006,8 @@ init();
 /* ══════════════════════════════════════════════════════════
    資金繰り表（独立機能）
    ・仕訳・試算表・収支記録・現金出納帳とは一切つながらない
-   ・保存先は Firebase /companies/<会社キー>/shikin（会計データ /kaikei とは別ノード）
+   ・保存先は Firebase /companies/<会社キー>/kaikei/shikin（会計データ d の隣。中身は別で、帳簿の数字には影響しない）
+     ※ルールが /kaikei 単位でも読み書きできるよう、会計ノードの中に置いている
    ・この端末の控えは localStorage 'kaikei_<会社キー>_shikin_v1'
    ・本体側から借りるのは window.kaikeiFbFetch / kaikeiCompanyKey / kaikeiFyMonths の3つだけ
    ══════════════════════════════════════════════════════════ */
@@ -5015,13 +5017,13 @@ init();
 var CO = window.kaikeiCompanyKey || 'hm';
 var LS_KEY = 'kaikei_' + CO + '_shikin_v1';
 var LS_UI = 'kaikei_' + CO + '_shikin_ui';
-var FB_PATH = '/companies/' + CO + '/shikin';
+var FB_PATH = '/companies/' + CO + '/kaikei/shikin';
 var FY = (window.kaikeiFyMonths && window.kaikeiFyMonths.length === 12) ? window.kaikeiFyMonths : [7,8,9,10,11,12,1,2,3,4,5,6];
 
 var sk = blank();
 var ui = { tab: 'month', sheetId: null, yearId: null, bd: {} };
 var lastRemote = '', dirty = false, saving = false, saveTimer = null, poll = null, started = false, pendingRender = false;
-var menuTarget = null;
+var menuTarget = null, retryTimer = null;
 
 function blank() { return { v: 1, sheets: [], tpl: { inc: [], pay: [] }, years: [], updatedAt: 0 }; }
 function $(id) { return document.getElementById(id); }
@@ -5166,7 +5168,11 @@ function start() {
     }
     if (poll) clearInterval(poll);
     poll = setInterval(tick, 10000);
-  }).catch(function() { badge('err', '⚠ 接続失敗（この端末に保存）'); });
+  }).catch(function(err) {
+    var code = (err && err.message || '').replace(/[^0-9]/g, '');
+    badge('err', '⚠ 接続失敗' + (code ? '（' + code + '）' : '') + '・30秒後に再接続します');
+    clearTimeout(retryTimer); retryTimer = setTimeout(function() { if (started) start(); }, 30000);
+  });
 }
 function tick() {
   var f = window.kaikeiFbFetch; if (!f || saving) return;
@@ -5177,7 +5183,7 @@ function tick() {
     if (s !== lastRemote) { lastRemote = s; applyRemote(data); badge('ok', '✓ 同期済み'); }
   }).catch(function() { badge('err', '⚠ 同期エラー'); });
 }
-function stop() { if (poll) clearInterval(poll); poll = null; started = false; }
+function stop() { if (poll) clearInterval(poll); poll = null; clearTimeout(retryTimer); started = false; }
 
 // ── 描画 ──
 function render() {
