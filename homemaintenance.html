@@ -206,6 +206,22 @@ td{padding:9px 14px;font-size:13px;}
 .export-desc{font-size:11px;color:var(--ink-soft);margin-top:2px;}
 .export-card.wide{grid-column:span 2;}
 /* PRINT */
+/* 税込/税抜スイッチ・紐づけ */
+.taxsw{display:inline-flex;align-items:center;background:var(--paper-alt);border:1px solid var(--rule);border-radius:999px;padding:2px;cursor:pointer;user-select:none;font-size:11px;font-weight:700;line-height:1;white-space:nowrap;}
+.taxsw-opt{padding:5px 11px;border-radius:999px;color:var(--ink-soft);transition:background .15s,color .15s;}
+.taxsw-opt.on{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18);}
+.taxsw.fixed{opacity:.5;cursor:not-allowed;}
+body.tv-excl .col-incl{display:none;}
+body:not(.tv-excl) .col-excl{display:none;}
+.lnk{display:inline-block;font-size:11px;color:var(--accent);white-space:nowrap;cursor:pointer;padding:2px 6px;border-radius:4px;}
+.lnk:hover{background:var(--accent-lt);}
+.lnk-edit{color:var(--ink-mid);border:1px solid var(--rule);background:#fff;margin-left:4px;}
+.lnk-name{padding:0;font-size:inherit;color:inherit;}
+tr.jumprow{cursor:pointer;}
+tr.jumprow:hover td{background:#f5f8ff;}
+.jump-flash,.jump-flash td{background:#fef3c7 !important;transition:background .4s;}
+.jump-flash{box-shadow:0 0 0 2px var(--accent);}
+.bslbl{font-size:10px;font-weight:700;margin-right:4px;padding:1px 4px;border-radius:3px;}
 @media print{
   #lockScreen,header,nav,.hbtn,.btn-danger,.form-card,#txPreview,
   .filter-row,.ledger-bar,.print-hide,.modal-bg{display:none !important;}
@@ -303,6 +319,144 @@ td{padding:9px 14px;font-size:13px;}
 .trial-tbl td:first-child{text-align:left;font-family:'Noto Sans JP',sans-serif;font-size:13px;}
 .trial-tbl tfoot td{font-weight:700;background:var(--paper-alt);border-top:2px solid var(--ink);}
 .year-update-info{background:var(--accent-lt);border:1px solid #93c5fd;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;}
+/* ══ 資金繰り表（独立機能） ══ */
+.sk-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.sk-tab{padding:7px 14px;border-radius:6px;border:1px solid var(--rule);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink-mid);}
+.sk-tab.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;}
+.sk-sync{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;margin-left:8px;vertical-align:middle;}
+.sk-sync.ok{background:var(--green-lt);color:var(--green);}
+.sk-sync.wait{background:var(--yellow-lt);color:var(--yellow);}
+.sk-sync.err{background:var(--red-lt);color:var(--red);}
+.sk-indep{background:#f1f5f9;border:1px dashed #94a3b8;border-radius:6px;padding:7px 12px;font-size:12px;color:#475569;margin-bottom:14px;}
+.sk-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+.sk-toolbar select{border:1px solid var(--rule);border-radius:5px;padding:6px 10px;font-family:inherit;font-size:13px;background:var(--paper);max-width:340px;}
+.sk-toolbar .sk-sp{flex:1;}
+.sk-meta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:12px 14px;margin-bottom:14px;}
+.sk-meta label{display:block;font-size:10px;font-weight:700;color:var(--ink-soft);letter-spacing:.04em;margin-bottom:3px;}
+.sk-meta input{width:100%;padding:6px 9px;border:1px solid var(--rule);border-radius:5px;font-family:inherit;font-size:13px;outline:none;}
+.sk-meta input:focus{border-color:var(--accent);}
+.sk-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+.sk-list{background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
+.sk-list-h{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;color:#fff;font-weight:700;font-size:14px;}
+.sk-list-h.inc{background:var(--green);}
+.sk-list-h.pay{background:var(--red);}
+.sk-list-h small{font-weight:400;font-size:11px;opacity:.85;}
+.sk-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
+.sk-tbl th{background:var(--paper-alt);font-size:10px;font-weight:700;color:var(--ink-soft);padding:5px 6px;text-align:left;border-bottom:1px solid var(--rule);}
+.sk-tbl td{padding:2px 4px;border-bottom:1px solid #f0eeeb;font-size:13px;vertical-align:middle;}
+.sk-tbl tr.sk-row:hover td{background:#fafaf8;}
+.sk-c-chk{width:30px;text-align:center;}
+.sk-c-amt{width:128px;}
+.sk-c-memo{width:34%;}
+.sk-c-menu{width:34px;text-align:center;}
+.sk-in{width:100%;border:1px solid transparent;background:transparent;border-radius:4px;padding:5px 6px;font-family:inherit;font-size:13px;color:var(--ink);outline:none;}
+.sk-in:hover{border-color:var(--rule);}
+.sk-in:focus{border-color:var(--accent);background:#fff;}
+.sk-amt{text-align:right;font-family:'IBM Plex Mono',monospace;}
+.sk-amt.bad{border-color:var(--red);background:var(--red-lt);}
+.sk-memo{color:var(--ink-soft);font-size:12px;}
+.sk-row.done td{background:#f3faf5;}
+.sk-row.done .sk-in{color:#64748b;}
+.sk-row.done .sk-amt{text-decoration:line-through;text-decoration-color:#94a3b8;}
+.sk-row.off td{opacity:.5;}
+.sk-row.off .sk-amt{text-decoration:line-through;}
+.sk-tag{display:inline-block;font-size:10px;padding:0 6px;border-radius:10px;font-weight:700;vertical-align:middle;white-space:nowrap;}
+.sk-tag.other{background:#e0e7ff;color:#3730a3;}
+.sk-tag.offt{background:var(--paper-alt);color:var(--ink-soft);}
+.sk-tag.bd{background:var(--yellow-lt);color:var(--yellow);cursor:pointer;}
+.sk-namewrap{display:flex;align-items:center;gap:4px;}
+.sk-namewrap .sk-in{flex:1;min-width:0;}
+.sk-menu-btn{border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--ink-soft);padding:2px 6px;border-radius:4px;line-height:1;}
+.sk-menu-btn:hover{background:var(--paper-alt);color:var(--ink);}
+.sk-add{display:block;width:100%;border:none;border-top:1px dashed var(--rule);background:#fcfcfb;color:var(--accent);padding:8px;font-family:inherit;font-size:12px;cursor:pointer;}
+.sk-add:hover{background:var(--accent-lt);}
+.sk-foot td{background:var(--paper-alt);font-weight:700;font-size:12px;padding:7px 8px;}
+.sk-foot .num{text-align:right;font-family:'IBM Plex Mono',monospace;}
+.sk-foot.sub td{background:#fff;font-weight:500;color:var(--ink-soft);}
+.sk-bd td{background:#fffbeb !important;padding:8px 12px 10px 38px;}
+.sk-bd-box{border-left:3px solid #fcd34d;padding-left:10px;}
+.sk-bd-title{font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:4px;}
+.sk-bd table{width:100%;border-collapse:collapse;}
+.sk-bd table td{background:transparent !important;padding:1px 2px;border:none;}
+.sk-bd .sk-in{font-size:12px;padding:3px 5px;}
+.sk-bd-opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;margin:6px 0;}
+.sk-bd-opts input[type=number]{width:56px;padding:3px 5px;border:1px solid var(--rule);border-radius:4px;font-family:inherit;}
+.sk-bd-calc{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;}
+.sk-bd-calc b{font-size:13px;}
+.sk-sum{background:#fff;border:1px solid var(--rule);border-radius:8px;margin-top:16px;overflow:hidden;}
+.sk-sum-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid #f0eeeb;font-size:13px;}
+.sk-sum-row:last-child{border-bottom:none;}
+.sk-sum-row .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;}
+.sk-sum-row.big{background:var(--ink);color:#fff;}
+.sk-sum-row.big .v{font-size:16px;}
+.sk-sum-row .hint{font-size:11px;color:var(--ink-soft);margin-left:6px;}
+.sk-sum-row.big .hint{color:#cbd5e1;}
+.sk-neg{color:var(--red) !important;}
+.sk-sum-row.big .sk-neg{color:#fca5a5 !important;}
+.sk-sheetmemo{width:100%;min-height:70px;border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font-family:inherit;font-size:12px;resize:vertical;margin-top:6px;color:var(--ink-mid);}
+.sk-sec-title{font-size:12px;font-weight:700;color:var(--ink-soft);margin:18px 0 4px;}
+.sk-ov{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden;font-size:12px;}
+.sk-ov th{background:var(--paper-alt);padding:6px 10px;text-align:right;font-size:10px;color:var(--ink-soft);}
+.sk-ov th:first-child,.sk-ov td:first-child,.sk-ov th:nth-child(2),.sk-ov td:nth-child(2){text-align:left;}
+.sk-ov td{padding:6px 10px;border-top:1px solid #f0eeeb;text-align:right;font-family:'IBM Plex Mono',monospace;cursor:pointer;}
+.sk-ov td:first-child,.sk-ov td:nth-child(2){font-family:'Noto Sans JP',sans-serif;}
+.sk-ov tr:hover td{background:var(--accent-lt);}
+.sk-ov tr.cur td{background:#eef2ff;font-weight:700;}
+.sk-menu{position:absolute;z-index:500;background:#fff;border:1px solid var(--rule);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:4px;min-width:190px;}
+.sk-menu.hidden{display:none;}
+.sk-menu button{display:block;width:100%;text-align:left;border:none;background:transparent;padding:7px 10px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:5px;color:var(--ink);}
+.sk-menu button:hover{background:var(--paper-alt);}
+.sk-menu button.danger{color:var(--red);}
+.sk-menu hr{border:none;border-top:1px solid var(--rule);margin:3px 0;}
+.sk-ywrap{overflow-x:auto;background:#fff;border:1px solid var(--rule);border-radius:8px;}
+.sk-ytbl{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;}
+.sk-ytbl th{background:var(--ink);color:#fff;padding:6px 8px;font-size:11px;text-align:right;position:sticky;top:0;white-space:nowrap;}
+.sk-ytbl th:first-child{text-align:left;position:sticky;left:0;z-index:2;min-width:190px;}
+.sk-ytbl td{border-bottom:1px solid #f0eeeb;padding:1px 2px;}
+.sk-ytbl td:first-child{position:sticky;left:0;background:#fff;z-index:1;border-right:2px solid var(--rule);}
+.sk-ytbl .sk-in{font-size:12px;padding:4px 5px;}
+.sk-ytbl td.m .sk-in{width:92px;text-align:right;font-family:'IBM Plex Mono',monospace;}
+.sk-ytbl td.tot{background:#fef9ec;font-family:'IBM Plex Mono',monospace;text-align:right;padding:4px 8px;font-weight:700;border-left:2px solid #fcd34d;min-width:100px;}
+.sk-ytbl tfoot td{background:var(--paper-alt);font-weight:700;font-family:'IBM Plex Mono',monospace;text-align:right;padding:6px 8px;}
+.sk-ytbl tfoot td:first-child{text-align:left;font-family:'Noto Sans JP',sans-serif;background:var(--paper-alt);}
+.sk-empty{padding:40px;text-align:center;color:var(--ink-soft);background:#fff;border:1px dashed var(--rule);border-radius:8px;}
+.sk-print-title{display:none;}
+.sk-hidden{display:none !important;}
+@media (max-width:1100px){.sk-cols{grid-template-columns:1fr;}.sk-meta{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media print{
+  #page-shikin .sk-tabs,#page-shikin .sk-toolbar,#page-shikin .sk-indep,#page-shikin .sk-ovwrap,#page-shikin .sk-add,#page-shikin .sk-c-menu,#page-shikin .page-header,#page-shikin .sk-meta,.sk-menu{display:none !important;}
+  #page-shikin .sk-print-title{display:block;font-size:16px;font-weight:700;margin-bottom:8px;border-bottom:2px solid #000;padding-bottom:4px;}
+  #page-shikin .sk-in{border:none !important;background:transparent !important;padding:1px 3px !important;font-size:10.5px !important;}
+  #page-shikin .sk-tbl td{padding:0 2px;font-size:10.5px;}
+  #page-shikin .sk-cols{grid-template-columns:1fr 1fr !important;gap:8px;}
+  #page-shikin .sk-list-h,#page-shikin .sk-sum-row.big,#page-shikin .sk-ytbl th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #page-shikin .sk-list-h{padding:3px 8px;font-size:12px;}
+  #page-shikin .sk-sum{margin-top:8px;break-inside:avoid;}
+  #page-shikin .sk-sum-row{padding:3px 10px;font-size:11px;}
+  #page-shikin .card-grid{display:none !important;}
+  #page-shikin .sk-bd td{padding:3px 6px 4px 20px;}
+  #page-shikin .sk-bd-opts{display:none;}
+  #page-shikin .sk-ywrap{overflow:visible;border:none;}
+  #page-shikin .sk-ytbl{font-size:9px;}
+  #page-shikin .sk-ytbl td.m .sk-in{width:66px;font-size:9px !important;}
+  #page-shikin .sk-ytbl th:first-child,#page-shikin .sk-ytbl td:first-child{min-width:120px;}
+  #page-shikin .sk-sheetmemo{border:none;padding:0;min-height:0;font-size:10px;}
+  #page-shikin .sk-memowrap.empty{display:none;}
+  #page-shikin .sk-c-chk{width:16px;}
+  #page-shikin .sk-c-amt{width:74px;}
+  #page-shikin .sk-c-memo{width:26%;}
+  #page-shikin .sk-in{height:auto !important;line-height:1.3 !important;}
+  #page-shikin .sk-bd table td{padding:0 2px !important;}
+  #page-shikin .sk-bd-calc{line-height:1.4;}
+  #page-shikin input[type=checkbox]{width:10px;height:10px;margin:0;}
+  #page-shikin ::placeholder{color:transparent;}
+  #page-shikin .sk-tbl th{padding:2px 3px;font-size:9px;}
+  #page-shikin .sk-foot td{padding:3px 4px;font-size:10px;white-space:nowrap;}
+  #page-shikin .sk-bd .sk-in{font-size:9.5px !important;padding:0 3px !important;}
+  #page-shikin .sk-bd-title,#page-shikin .sk-bd-calc{font-size:9.5px;}
+  #page-shikin .sk-tag{font-size:8px;padding:0 3px;}
+  #page-shikin .sk-row.done td{background:transparent;}
+}
 </style>
 </head>
 <body>
@@ -448,7 +602,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="fg"><label>摘要</label><input type="text" id="txEditNote"></div>
     <div class="form-row" style="grid-template-columns:1fr 1fr;gap:10px">
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txEditAmount" min="0"></div>
-      <div class="fg"><label>消費税率</label><select id="txEditTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
+      <div class="fg"><label>消費税率</label><select id="txEditTaxRate"><option value="10">10%</option><option value="10-80">10%・控除80%（インボイスなし〜2026/9）</option><option value="10-50">10%・控除50%（インボイスなし2026/10〜）</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
     </div>
     <div class="fg"><label>支払方法</label><select id="txEditPay"><option value="b_cash">現金</option><option value="b_bank">普通預金</option><option value="b_cc">クレジットカード</option><option value="b_ap">買掛金</option><option value="b_unpaid">未払金</option><option value="b_ar">売掛金</option></select></div>
     <div class="modal-actions">
@@ -468,19 +622,19 @@ td{padding:9px 14px;font-size:13px;}
       <div class="fg"><label>日付</label><input type="date" id="jEditDate"></div>
       <div class="fg"><label>摘要</label><input type="text" id="jEditMemo"></div>
     </div>
-    <div class="form-row" style="grid-template-columns:1fr 1fr;gap:12px">
+    <div class="form-row" style="grid-template-columns:1fr 1fr;gap:12px;align-items:start">
       <div class="jside"><div class="jside-title jside-d">借方（Debit）</div>
         <div class="fg"><label>借方科目</label><select id="jEditDebitAcc"></select></div>
         <div class="fg" id="jEditDebitSubWrap" style="display:none"><label>補助科目</label><select id="jEditDebitSub"></select></div>
-        <div class="fg"><label>金額（税込）</label><input type="number" id="jEditDebitAmt" min="0"></div>
-        <div class="fg"><label>消費税率</label><select id="jEditTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
+        <div class="fg" style="margin-bottom:0"><label>金額（税込）</label><input type="number" id="jEditDebitAmt" min="0"></div>
       </div>
       <div class="jside"><div class="jside-title jside-c">貸方（Credit）</div>
         <div class="fg"><label>貸方科目</label><select id="jEditCreditAcc"></select></div>
         <div class="fg" id="jEditCreditSubWrap" style="display:none"><label>補助科目</label><select id="jEditCreditSub"></select></div>
-        <div class="fg"><label>金額（税込）</label><input type="number" id="jEditCreditAmt" min="0"></div>
+        <div class="fg" style="margin-bottom:0"><label>金額（税込）</label><input type="number" id="jEditCreditAmt" min="0"></div>
       </div>
     </div>
+    <div class="fg" style="margin-top:12px"><label>消費税率</label><select id="jEditTaxRate"><option value="10">10%</option><option value="10-80">10%・控除80%（インボイスなし〜2026/9）</option><option value="10-50">10%・控除50%（インボイスなし2026/10〜）</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" id="jEditCancelBtn">キャンセル</button>
       <button class="btn btn-primary" id="jEditSaveBtn">✅ 更新する</button>
@@ -496,7 +650,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="disclaimer">
       CSVファイルの形式：<b>日付,種別,科目名,摘要,税込金額,消費税率</b><br>
       例：2026/06/01,支出,旅費交通費,電車代,1100,10<br>
-      種別は「収入」または「支出」、税率は10・8・0
+      種別は「収入」または「支出」、税率は10・8・0（インボイスなしの経過措置は 10-80・10-50）
     </div>
     <div style="background:var(--paper-alt);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px">
       <b>💡 ヒント：</b>Excelで上記の列順に並べて「名前をつけて保存」→「CSV」で保存してください
@@ -587,7 +741,7 @@ td{padding:9px 14px;font-size:13px;}
     <div class="modal-title">📓 仕訳CSVから一括取込</div>
     <div class="disclaimer">
       列の順番：<b>日付 , 借方科目 , 貸方科目 , 税込金額 , 消費税率 , 摘要</b>（任意で 7列目：借方補助科目、8列目：貸方補助科目）<br>
-      例：2026-07-10,当座預金,売掛金,342800,0,振込受入<br>
+      例：2026-07-10,当座預金,売掛金,342800,0,振込受入<br>・消費税率は 10・8・0。インボイス（登録番号）なしの経過措置は 10-80（〜2026/9）・10-50（2026/10〜）<br>
       ・科目名は「科目管理」の名称と完全に一致させてください（一致しない行があると取込できません）<br>
       ・文字コードは UTF-8（Excelなら「CSV UTF-8(コンマ区切り)」で保存）
     </div>
@@ -674,6 +828,47 @@ td{padding:9px 14px;font-size:13px;}
   </div>
 </div>
 
+<!-- 資金繰り：行メニュー -->
+<div class="sk-menu hidden" id="skMenu"></div>
+
+<!-- 資金繰り：新しい表 -->
+<div class="modal-bg hidden" id="skNewModal">
+  <div class="modal-box" style="width:430px">
+    <div class="modal-title">＋ 新しい資金繰り表</div>
+    <div class="fg"><label>表の名前</label><input type="text" id="skNewName" placeholder="例：R8.11"></div>
+    <div class="fg"><label>お金が動く月</label><input type="month" id="skNewYm"></div>
+    <div class="fg"><label>対象（〇月分）</label><input type="text" id="skNewTarget" placeholder="例：9月分"></div>
+    <div class="fg"><label>作り方</label>
+      <select id="skNewMode">
+        <option value="copy">いま開いている表をコピー（金額もそのまま）</option>
+        <option value="copyname">いま開いている表の項目だけコピー（金額は空に）</option>
+        <option value="tpl">原本（ひな形）から作る</option>
+        <option value="blank">空の表</option>
+      </select>
+    </div>
+    <div style="font-size:11px;color:var(--ink-soft)">※ 済みのチェックは外した状態で作ります。「合計から外す」の設定と、協力会社の内訳の名前は引き継ぎます。</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="skNewCancel">キャンセル</button>
+      <button class="btn btn-primary" id="skNewOk">作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 資金繰り：月別の表から月次売上高へ取り込み -->
+<div class="modal-bg hidden" id="skPullModal">
+  <div class="modal-box" style="width:430px">
+    <div class="modal-title">📥 月別の表から売上を取り込む</div>
+    <div class="fg"><label>取り込む表</label><select id="skPullSheet"></select></div>
+    <div class="fg"><label>入れる月（この期の列）</label><select id="skPullMonth"></select></div>
+    <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin:4px 0 8px"><input type="checkbox" id="skPullOver" checked> すでに入っている金額も上書きする</label>
+    <div style="font-size:11px;color:var(--ink-soft)">入金のうち「売上」の行だけを取り込みます（「その他（借入など）」と「合計から外す」行は除きます）。名前が同じ取引先に入り、ない取引先は行を追加します。</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="skPullCancel">キャンセル</button>
+      <button class="btn btn-primary" id="skPullOk">取り込む</button>
+    </div>
+  </div>
+</div>
+
 <!-- HEADER -->
 <header>
   <div class="logo">帳<span>簿</span>アシスト <span style="font-size:11px;color:#93c5fd;font-weight:400">｜ ホームメンテナンス</span></div>
@@ -696,6 +891,8 @@ td{padding:9px 14px;font-size:13px;}
   <div class="nav-item active" data-page="dashboard">📊 ダッシュボード</div>
   <div class="nav-item" data-page="transactions">📝 収支記録</div>
   <div class="nav-item" data-page="cashbook">💵 現金出納帳</div>
+  <div class="nav-sec">資金繰り（独立）</div>
+  <div class="nav-item" data-page="shikin">💴 資金繰り表</div>
   <div class="nav-sec">帳簿・財務</div>
   <div class="nav-item" data-page="ledger">📒 総勘定元帳</div>
   <div class="nav-item" data-page="pl">📈 損益計算書</div>
@@ -727,8 +924,8 @@ td{padding:9px 14px;font-size:13px;}
     <button class="btn btn-secondary btn-sm print-hide" id="printDashBtn2">🖨️ 印刷</button>
   </div>
   <div class="card-grid g4">
-    <div class="card"><div class="card-label">総収入（税込）</div><div class="card-value cv-inc" id="d-inc">¥0</div><div class="card-note" id="d-inc-cnt">0件</div></div>
-    <div class="card"><div class="card-label">総支出（税込）</div><div class="card-value cv-exp" id="d-exp">¥0</div><div class="card-note" id="d-exp-cnt">0件</div></div>
+    <div class="card"><div class="card-label">総収入<span class="tv-lbl">（税込）</span></div><div class="card-value cv-inc" id="d-inc">¥0</div><div class="card-note" id="d-inc-cnt">0件</div></div>
+    <div class="card"><div class="card-label">総支出<span class="tv-lbl">（税込）</span></div><div class="card-value cv-exp" id="d-exp">¥0</div><div class="card-note" id="d-exp-cnt">0件</div></div>
     <div class="card"><div class="card-label">当期利益（概算）</div><div class="card-value cv-prf" id="d-prf">¥0</div><div class="card-note">収入 − 経費</div></div>
     <div class="card"><div class="card-label">消費税納付（概算）</div><div class="card-value cv-tax" id="d-tax">¥0</div><div class="card-note">預り税 − 仕入税</div></div>
   </div>
@@ -741,7 +938,25 @@ td{padding:9px 14px;font-size:13px;}
       <span><span class="leg-dot" style="background:#a5b4fc;opacity:.8"></span>前年収入</span>
     </div>
   </div>
-  <div class="breakdown-card"><h3>経費カテゴリ別内訳</h3><div id="catBreakdown"></div></div>
+  <div class="breakdown-card"><h3>経費カテゴリ別内訳<span class="tv-lbl" style="font-size:11px;font-weight:400;color:var(--ink-soft)">（税込）</span></h3><div id="catBreakdown"></div></div>
+</div>
+
+<!-- SHIKIN（資金繰り表・独立機能） -->
+<div class="page" id="page-shikin">
+  <div class="page-header">
+    <div>
+      <div class="page-title">資金繰り表 <span class="sk-sync wait" id="skSync">未接続</span></div>
+      <div class="page-sub">月ごとの入金予定・支払予定と、期ごとの月次売上高をまとめる場所です</div>
+    </div>
+  </div>
+  <div class="sk-indep">🔒 この画面は <b>独立したデータ</b> です。仕訳・試算表・収支記録・現金出納帳とはつながっていないので、ここで何を入れても帳簿の数字は変わりません。</div>
+  <div class="sk-tabs">
+    <button class="sk-tab on" data-sktab="month">📅 月別の資金繰り表</button>
+    <button class="sk-tab" data-sktab="year">📈 月次売上高（期ごと）</button>
+    <button class="sk-tab" data-sktab="tpl">📋 原本（ひな形）</button>
+  </div>
+  <div id="skBody"></div>
+  <input type="file" id="skFile" accept=".json,application/json" style="display:none">
 </div>
 
 <!-- TRANSACTIONS -->
@@ -756,13 +971,13 @@ td{padding:9px 14px;font-size:13px;}
   </div>
   <div class="form-card print-hide">
     <div class="form-title">新規入力</div>
-    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 82px 96px 70px">
+    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 128px 96px 70px">
       <div class="fg"><label>日付</label><input type="date" id="txDate"></div>
       <div class="fg"><label>種別</label><select id="txType"><option value="income">収入</option><option value="expense">支出</option></select></div>
       <div class="fg"><label>勘定科目</label><select id="txCategory"></select></div>
       <div class="fg"><label>摘要</label><input type="text" id="txNote" placeholder="例：〇〇様 作業代"></div>
       <div class="fg"><label>税込金額（円）</label><input type="number" id="txAmount" placeholder="0" min="0"></div>
-      <div class="fg"><label>消費税率</label><select id="txTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
+      <div class="fg"><label>消費税率</label><select id="txTaxRate"><option value="10">10%</option><option value="10-80">10%・控除80%（インボイスなし〜2026/9）</option><option value="10-50">10%・控除50%（インボイスなし2026/10〜）</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
       <div class="fg"><label>支払方法</label><select id="txPay"><option value="b_cash">現金</option><option value="b_bank">普通預金</option><option value="b_cc">クレジットカード</option><option value="b_ap">買掛金</option><option value="b_unpaid">未払金</option><option value="b_ar">売掛金</option></select></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-primary" id="addTxBtn">追加</button></div>
     </div>
@@ -780,7 +995,7 @@ td{padding:9px 14px;font-size:13px;}
         <button class="btn btn-secondary btn-sm" id="fDateClear">クリア</button>
       </div>
     </div>
-    <table><thead><tr><th>日付</th><th>種別</th><th>勘定科目</th><th>補助科目</th><th>摘要</th><th style="text-align:right">税込</th><th style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead><tbody id="txBody"></tbody></table>
+    <table><thead><tr><th>日付</th><th>種別</th><th>勘定科目</th><th>補助科目</th><th>摘要</th><th class="col-incl" style="text-align:right">税込</th><th class="col-excl" style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead><tbody id="txBody"></tbody></table>
     <div class="empty-state" id="txEmpty" style="display:none">まだ取引がありません。</div>
   </div>
 </div>
@@ -798,13 +1013,13 @@ td{padding:9px 14px;font-size:13px;}
 
   <div class="form-card print-hide">
     <div class="form-title">現金取引の入力（自動で現金扱いになります）</div>
-    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 82px 70px">
+    <div class="form-row" style="grid-template-columns:112px 96px 1fr 1fr 100px 128px 70px">
       <div class="fg"><label>日付</label><input type="date" id="cbDate"></div>
       <div class="fg"><label>種別</label><select id="cbType"><option value="expense">出金</option><option value="income">入金</option></select></div>
       <div class="fg"><label>勘定科目</label><select id="cbCategory"></select></div>
       <div class="fg"><label>摘要</label><input type="text" id="cbNote" placeholder="例：文房具購入"></div>
       <div class="fg"><label>税込金額（円）</label><input type="number" id="cbAmount" placeholder="0" min="0"></div>
-      <div class="fg"><label>消費税率</label><select id="cbTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
+      <div class="fg"><label>消費税率</label><select id="cbTaxRate"><option value="10">10%</option><option value="10-80">10%・控除80%（インボイスなし〜2026/9）</option><option value="10-50">10%・控除50%（インボイスなし2026/10〜）</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-primary" id="addCashBtn">追加</button></div>
     </div>
   </div>
@@ -963,7 +1178,7 @@ td{padding:9px 14px;font-size:13px;}
         <div class="fg"><label>借方科目</label><select id="jDebitAcc"></select></div>
         <div class="fg" id="jDebitSubWrap" style="display:none"><label>補助科目</label><select id="jDebitSub"></select></div>
         <div class="fg"><label>金額（税込）</label><input type="number" id="jDebitAmt" placeholder="0" min="0"></div>
-        <div class="fg"><label>消費税率</label><select id="jTaxRate"><option value="10">10%</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
+        <div class="fg"><label>消費税率</label><select id="jTaxRate"><option value="10">10%</option><option value="10-80">10%・控除80%（インボイスなし〜2026/9）</option><option value="10-50">10%・控除50%（インボイスなし2026/10〜）</option><option value="8">軽減8%</option><option value="0">非課税</option></select></div>
       </div>
       <div class="jside"><div class="jside-title jside-c">貸方（Credit）</div>
         <div class="fg"><label>貸方科目</label><select id="jCreditAcc"></select></div>
@@ -1044,12 +1259,12 @@ td{padding:9px 14px;font-size:13px;}
   </div>
   <div class="tax-section" style="margin-bottom:18px">
     <h3>📋 事業所得（概算）</h3>
-    <div class="tax-row"><span class="tax-row-label">売上合計（税込）</span><span class="tax-row-value" id="tax-sales">¥0</span></div>
-    <div class="tax-row"><span class="tax-row-label">必要経費合計（税込）</span><span class="tax-row-value" id="tax-exp">¥0</span></div>
+    <div class="tax-row"><span class="tax-row-label">売上合計<span class="tv-lbl">（税込）</span></span><span class="tax-row-value" id="tax-sales">¥0</span></div>
+    <div class="tax-row"><span class="tax-row-label">必要経費合計<span class="tv-lbl">（税込）</span></span><span class="tax-row-value" id="tax-exp">¥0</span></div>
     <div class="tax-row total"><span class="tax-row-label">事業所得</span><span class="tax-row-value" id="tax-income">¥0</span></div>
   </div>
   <div class="tax-section">
-    <h3>📅 月別内訳</h3>
+    <h3>📅 月別内訳<span class="tv-lbl" style="font-size:11px;font-weight:400;color:var(--ink-soft)">（税込）</span></h3>
     <table style="width:100%"><thead><tr><th>月</th><th style="text-align:right">収入</th><th style="text-align:right">支出</th><th style="text-align:right">預り税</th><th style="text-align:right">仕入税</th><th style="text-align:right">差引</th></tr></thead><tbody id="taxMonthly"></tbody></table>
   </div>
 </div>
@@ -1401,9 +1616,9 @@ function jLines(j) {
   }
   var rate = (j && j.rate !== undefined) ? j.rate : 10;
   return {
-    d: [{ acc: j.dAcc, sub: j.dSub || '', amt: j.dAmt || 0, rate: rate,
+    d: [{ acc: j.dAcc, sub: j.dSub || '', amt: j.dAmt || 0, rate: rate, ded: j.ded,
           excl: (j.dExcl !== undefined ? j.dExcl : j.dAmt), tax: (j.dTax || 0) }],
-    c: [{ acc: j.cAcc, sub: j.cSub || '', amt: j.cAmt || 0, rate: rate }]
+    c: [{ acc: j.cAcc, sub: j.cSub || '', amt: j.cAmt || 0, rate: rate, ded: j.ded }]
   };
 }
 function jSum(arr) {
@@ -1427,20 +1642,21 @@ function journalsToTx(y) {
       var cat = state.categories.find(function(c){ return c.id === ln.acc; });
       if (!cat || !(ln.amt > 0)) return;
       var rate = (ln.rate !== undefined) ? ln.rate : 10;
-      var t = calcTax(ln.amt, rate);
+      var t = calcTax(ln.amt, rate, ln.ded);
       result.push({ id:'j_'+j.id+'_d'+i, date:j.date, type:cat.type, catId:ln.acc,
         subCatId: ln.sub||'', subCatName: subNameOf(ln.acc, ln.sub),
-        note:j.memo||'', amount:ln.amt, taxRate:rate,
+        note:j.memo||'', amount:ln.amt, taxRate:rate, ded:ln.ded,
         excl:(ln.excl !== undefined ? ln.excl : t.excl), tax:(ln.tax !== undefined ? ln.tax : t.tax) });
     });
     L.c.forEach(function(ln, i) {
       var cat = state.categories.find(function(c){ return c.id === ln.acc; });
       if (!cat || !(ln.amt > 0)) return;
       var rate = (ln.rate !== undefined) ? ln.rate : 10;
-      var t = calcTax(ln.amt, rate);
+      var t = calcTax(ln.amt, rate, ln.ded);
       result.push({ id:'j_'+j.id+'_c'+i, date:j.date, type:cat.type, catId:ln.acc,
         subCatId: ln.sub||'', subCatName: subNameOf(ln.acc, ln.sub),
-        note:j.memo||'', amount:ln.amt, taxRate:rate, excl:t.excl, tax:t.tax });
+        note:j.memo||'', amount:ln.amt, taxRate:rate, ded:ln.ded,
+        excl:(ln.excl !== undefined ? ln.excl : t.excl), tax:(ln.tax !== undefined ? ln.tax : t.tax) });
     });
   });
   return result;
@@ -1453,11 +1669,151 @@ function allTxOfYear(y) {
   if (!Array.isArray(jtxs)) jtxs = [];
   return txs.concat(jtxs);
 }
-function calcTax(amount, rate) {
+function calcTax(amount, rate, ded) {
   if (rate === 0) return { excl: amount, tax: 0 };
   var excl = Math.round(amount / (1 + rate / 100));
-  return { excl: excl, tax: amount - excl };
+  var tax = amount - excl;
+  if (ded && ded < 100) {
+    // インボイス（登録番号）がない仕入の経過措置：消費税のうち控除できる割合だけを消費税にする（1円未満切り捨て）
+    tax = Math.floor(amount * rate * ded / ((100 + rate) * 100));
+    excl = amount - tax;
+  }
+  return { excl: excl, tax: tax };
 }
+// 税率の選択値（'10' '10-80' '10-50' '8' '0'）⇔ 税率＋控除割合
+function parseRateSel(v) {
+  var m = String(v === undefined || v === null ? '' : v).trim().match(/^(\d+)\s*-\s*(\d+)$/);
+  if (m) {
+    var r1 = parseInt(m[1]), d1 = parseInt(m[2]);
+    if (r1 === 10 && (d1 === 80 || d1 === 50)) return { rate: 10, ded: d1 };
+    return { rate: 10, ded: 100 };
+  }
+  var r = parseInt(v);
+  if ([0, 8, 10].indexOf(r) === -1) r = 10;
+  return { rate: r, ded: 100 };
+}
+function dedOf(o) { return (o && o.ded && o.ded < 100) ? o.ded : 100; }
+function rateSelVal(rate, ded) {
+  rate = (rate === undefined || rate === null) ? 10 : rate;
+  return (rate === 10 && ded && ded < 100) ? ('10-' + ded) : String(rate);
+}
+function rateLabel(rate, ded) {
+  rate = (rate === undefined || rate === null) ? 10 : rate;
+  if (rate === 0) return '非課税';
+  if (rate === 8) return '軽減8%';
+  return (ded && ded < 100) ? ('10%・控除' + ded + '%') : '10%';
+}
+function withDed(o, ded) { if (ded && ded < 100) o.ded = ded; else delete o.ded; return o; }
+
+// ── 税込／税抜 表示切替（全ページ共通・この端末に記憶）──
+var TAXVIEW_KEY = 'kaikei_taxview';
+var taxView = 'incl';
+try { if (localStorage.getItem(TAXVIEW_KEY) === 'excl') taxView = 'excl'; } catch (e) {}
+function isExcl() { return taxView === 'excl'; }
+function taxViewLabel() { return isExcl() ? '税抜' : '税込'; }
+function isPLType(type) { return type === 'income' || type === 'expense'; }
+// 表示用の金額：税抜表示のときは収益・費用だけ税抜にする（資産・負債は実際の金額のまま）
+function vAmt(t) {
+  if (!t) return 0;
+  if (isExcl() && isPLType(t.type)) return (t.excl !== undefined ? t.excl : t.amount);
+  return t.amount;
+}
+function vSum(arr) { return arr.reduce(function(s2, t) { return s2 + vAmt(t); }, 0); }
+var TAXSW_FIXED = {
+  cashbook: '現金の動きは、実際に受け払いした金額（税込）で表示します',
+  bs: '貸借対照表は、税込・税抜で金額が変わりません'
+};
+function syncTaxSwitches() {
+  document.body.classList.toggle('tv-excl', isExcl());
+  document.querySelectorAll('.taxsw').forEach(function(sw) {
+    var v = sw.classList.contains('fixed') ? 'incl' : taxView;
+    sw.querySelectorAll('.taxsw-opt').forEach(function(o) { o.classList.toggle('on', o.getAttribute('data-v') === v); });
+  });
+  document.querySelectorAll('.tv-lbl').forEach(function(el) { el.textContent = '（' + taxViewLabel() + '）'; });
+}
+function setTaxView(v) {
+  taxView = (v === 'excl') ? 'excl' : 'incl';
+  try { localStorage.setItem(TAXVIEW_KEY, taxView); } catch (e) {}
+  syncTaxSwitches();
+  renderAll();
+}
+// 各ページの見出しの右側に「税込｜税抜」の小さなスイッチを付ける
+function installTaxSwitches() {
+  document.querySelectorAll('.page').forEach(function(pg) {
+    var hdr = pg.querySelector('.page-header');
+    if (!hdr || hdr.querySelector('.taxsw') || pg.id === 'page-shikin') return;
+    var fixedMsg = TAXSW_FIXED[pg.id.replace('page-', '')];
+    var sw = document.createElement('div');
+    sw.className = 'taxsw print-hide' + (fixedMsg ? ' fixed' : '');
+    sw.innerHTML = '<span class="taxsw-opt" data-v="incl">税込</span><span class="taxsw-opt" data-v="excl">税抜</span>';
+    sw.title = fixedMsg || '税込・税抜の表示を切り替えます（全ページ共通）';
+    if (!fixedMsg) sw.addEventListener('click', function(e) {
+      var o = (e.target && e.target.closest) ? e.target.closest('.taxsw-opt') : null;
+      setTaxView(o ? o.getAttribute('data-v') : (isExcl() ? 'incl' : 'excl'));
+    });
+    var kids = Array.prototype.slice.call(hdr.children);
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end';
+    if (kids.length > 1) {
+      var right = kids[kids.length - 1];
+      hdr.insertBefore(wrap, right);
+      wrap.appendChild(sw); wrap.appendChild(right);
+    } else {
+      hdr.appendChild(wrap); wrap.appendChild(sw);
+    }
+  });
+  syncTaxSwitches();
+}
+function taxPrintNote(pg) {
+  var pid = pg && pg.id ? pg.id.replace('page-', '') : '';
+  return TAXSW_FIXED[pid] ? '' : '　（' + taxViewLabel() + '表示）';
+}
+
+// ── 紐づけ（ジャンプ）共通 ──
+function flashEl(el) {
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('jump-flash');
+  setTimeout(function() { el.classList.remove('jump-flash'); }, 2600);
+}
+function goPage(pg) {
+  var nav = document.querySelector('.nav-item[data-page="' + pg + '"]');
+  if (nav) nav.click();
+}
+// 元帳などに並ぶ1行が「収支記録」由来か「仕訳帳」由来かを返す
+function srcOfRow(t) {
+  var id = String((t && t.id) || '');
+  if (!id) return null;
+  if (id.indexOf('j_') === 0) return { kind: 'journal', id: id.slice(2).replace(/_[dc]\d+$/, '') };
+  return { kind: 'tx', id: id };
+}
+window.goPage = goPage;
+window.jumpToTx = function(txId) {
+  var t = state.transactions.find(function(x) { return x.id === txId; });
+  if (!t) { alert('この取引が見つかりませんでした。'); return; }
+  if (t.date < fyStart() || t.date > fyEnd()) {
+    alert('この取引は、いま選んでいる対象年度の外です。画面上の「対象年度」を切り替えてください。');
+    return;
+  }
+  ['fMonth', 'fType'].forEach(function(id) { var e = document.getElementById(id); if (e) e.value = 'all'; });
+  ['fDateFrom', 'fDateTo'].forEach(function(id) { var e = document.getElementById(id); if (e) e.value = ''; });
+  goPage('transactions');
+  setTimeout(function() { flashEl(document.getElementById('txrow_' + txId)); }, 150);
+};
+// 元データの編集画面をその場で開く（収支記録から作られた仕訳は、元の収支記録を編集）
+window.openSrcEdit = function(kind, id) {
+  if (kind === 'tx') { openTxEdit(id); return; }
+  var j = (state.journals || []).find(function(x) { return x.id === id; });
+  if (!j) { alert('この仕訳が見つかりませんでした。'); return; }
+  if (j.srcId && state.transactions.some(function(t) { return t.id === j.srcId; })) { openTxEdit(j.srcId); return; }
+  openJournalEdit(id);
+};
+window.jumpToSrc = function(kind, id) { if (kind === 'tx') jumpToTx(id); else jumpToJournal(id); };
+window.jumpToYear = function(y) {
+  state.year = y;
+  var ys = document.getElementById('yearSelect'); if (ys) ys.value = String(y);
+  goPage('pl');
+};
 
 // ── 初期化 ──
 function init() {
@@ -1485,6 +1841,7 @@ function init() {
 
   document.getElementById('txDate').value = today();
   bindEvents();
+  installTaxSwitches();
   updateCatSelect();
   renderAll();
 }
@@ -1677,9 +2034,11 @@ function bindEvents() {
   safeOn('jCreditAcc','change',function(){ refreshJSub('c'); });
   safeOn('jEditDebitAcc','change',function(){
     fillSubSelect(document.getElementById('jEditDebitSub'), document.getElementById('jEditDebitAcc').value, '', document.getElementById('jEditDebitSubWrap'));
+    syncJEditSubRows();
   });
   safeOn('jEditCreditAcc','change',function(){
     fillSubSelect(document.getElementById('jEditCreditSub'), document.getElementById('jEditCreditAcc').value, '', document.getElementById('jEditCreditSubWrap'));
+    syncJEditSubRows();
   });
 
   safeOn('exportCloseBtn','click',function() { document.getElementById('exportModal').classList.add('hidden'); });
@@ -1739,14 +2098,14 @@ function updateCatSelect() {
 
 function updateTxPreview() {
   var amt = parseInt(document.getElementById('txAmount').value) || 0;
-  var rate = parseInt(document.getElementById('txTaxRate').value);
+  var _p = parseRateSel(document.getElementById('txTaxRate').value), rate = _p.rate;
   var prev = document.getElementById('txPreview');
   if (amt <= 0) { prev.textContent = '金額を入力すると税額を表示します'; return; }
-  var r = calcTax(amt, rate);
+  var r = calcTax(amt, rate, _p.ded);
   if (rate === 0) {
     prev.textContent = '非課税 — 税抜: ' + fmt(r.excl) + ' / 消費税: ¥0';
   } else {
-    prev.textContent = '税抜: ' + fmt(r.excl) + ' ／ 消費税(' + rate + '%): ' + fmt(r.tax) + ' ／ 税込: ' + fmt(amt);
+    prev.textContent = '税抜: ' + fmt(r.excl) + ' ／ 消費税(' + rateLabel(rate, _p.ded) + '): ' + fmt(r.tax) + ' ／ 税込: ' + fmt(amt);
   }
 }
 
@@ -1756,13 +2115,13 @@ function addTransaction() {
   var catId = document.getElementById('txCategory').value;
   var note = document.getElementById('txNote').value.trim();
   var amount = parseInt(document.getElementById('txAmount').value);
-  var taxRate = parseInt(document.getElementById('txTaxRate').value);
+  var _p = parseRateSel(document.getElementById('txTaxRate').value), taxRate = _p.rate;
   var payEl = document.getElementById('txPay');
   var payAcc = payEl ? payEl.value : 'b_bank';
   var pay = (payAcc === 'b_cash') ? 'cash' : 'other';
   if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
-  var r = calcTax(amount, taxRate);
-  pushTx({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: pay, payAcc: payAcc });
+  var r = calcTax(amount, taxRate, _p.ded);
+  pushTx(withDed({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: pay, payAcc: payAcc }, _p.ded));
   state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
   saveToFb().then(function() { renderAll(); });
   document.getElementById('txNote').value = '';
@@ -1955,8 +2314,8 @@ function renderDashboard() {
   var txs = allTxOfYear();
   var inc = txs.filter(function(t) { return t.type === 'income'; });
   var exp = txs.filter(function(t) { return t.type === 'expense'; });
-  var tI = inc.reduce(function(s, t) { return s + t.amount; }, 0);
-  var tE = exp.reduce(function(s, t) { return s + t.amount; }, 0);
+  var tI = vSum(inc);
+  var tE = vSum(exp);
   var tC = inc.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
   var tP = exp.reduce(function(s, t) { return s + (t.tax || 0); }, 0);
   document.getElementById('dash-sub').textContent = fyLabel(state.year);
@@ -1967,11 +2326,11 @@ function renderDashboard() {
   document.getElementById('d-inc-cnt').textContent = inc.length + '件';
   document.getElementById('d-exp-cnt').textContent = exp.length + '件';
 
-  var prevInc = txOfYear(state.year - 1).filter(function(t) { return t.type === 'income'; });
+  var prevInc = allTxOfYear(state.year - 1).filter(function(t) { return t.type === 'income'; });
   var months = FY_MONTHS;
-  var mI = months.map(function(m) { return inc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
-  var mE = months.map(function(m) { return exp.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
-  var mP = months.map(function(m) { return prevInc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; }).reduce(function(s,t) { return s+t.amount; }, 0); });
+  var mI = months.map(function(m) { return vSum(inc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; })); });
+  var mE = months.map(function(m) { return vSum(exp.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; })); });
+  var mP = months.map(function(m) { return vSum(prevInc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; })); });
   var maxV = Math.max.apply(null, mI.concat(mE).concat(mP).concat([1]));
   var chart = document.getElementById('monthChart');
   chart.innerHTML = '';
@@ -1981,6 +2340,10 @@ function renderDashboard() {
     var b1 = document.createElement('div'); b1.className = 'bar b-inc'; b1.style.height = Math.round(mI[i]/maxV*76) + 'px'; b1.title = m + '月収入:' + fmt(mI[i]);
     var b2 = document.createElement('div'); b2.className = 'bar b-exp'; b2.style.height = Math.round(mE[i]/maxV*76) + 'px'; b2.title = m + '月支出:' + fmt(mE[i]);
     var b3 = document.createElement('div'); b3.className = 'bar b-prev'; b3.style.height = Math.round(mP[i]/maxV*76) + 'px'; b3.title = '前年' + m + '月:' + fmt(mP[i]);
+    b1.style.cursor = 'pointer'; b2.style.cursor = 'pointer';
+    b1.title += '（クリックで元帳）'; b2.title += '（クリックで元帳）';
+    b1.onclick = (function(mm) { return function() { jumpToLedger('all', mm, 'income'); }; })(m);
+    b2.onclick = (function(mm) { return function() { jumpToLedger('all', mm, 'expense'); }; })(m);
     bars.appendChild(b1); bars.appendChild(b2); bars.appendChild(b3);
     var lbl = document.createElement('div'); lbl.className = 'bar-lbl'; lbl.textContent = m + '月';
     g.appendChild(bars); g.appendChild(lbl);
@@ -2002,7 +2365,7 @@ function renderDashboard() {
   });
   var bd = document.getElementById('catBreakdown'); bd.innerHTML = '';
   var ct = state.categories.filter(function(c) { return c.type === 'expense'; }).map(function(c) {
-    return { cat: c, total: exp.filter(function(t) { return t.catId === c.id; }).reduce(function(s,t) { return s+t.amount; }, 0) };
+    return { cat: c, total: vSum(exp.filter(function(t) { return t.catId === c.id; })) };
   }).filter(function(x) { return x.total > 0; }).sort(function(a,b) { return b.total - a.total; });
   if (!ct.length) { bd.innerHTML = '<div style="color:var(--ink-soft);font-size:13px">経費データがありません</div>'; return; }
   var mx = ct[0].total;
@@ -2043,26 +2406,26 @@ function renderTransactions() {
   txs.forEach(function(t) {
     var cat = catById(t.catId);
     var rate = t.taxRate !== undefined ? t.taxRate : 10;
-    var rateBadge = rate === 0 ? '非課税' : (rate === 8 ? '<span class="badge badge-8">軽減8%</span>' : '<span class="badge badge-10">10%</span>');
+    var rateBadge = rate === 0 ? '非課税' : (rate === 8 ? '<span class="badge badge-8">軽減8%</span>' : '<span class="badge badge-10">' + rateLabel(rate, t.ded) + '</span>');
     var tr = document.createElement('tr');
+    tr.id = 'txrow_' + t.id;
+    var jOf = journalOfTx(t.id);
+    var sg = (t.type === 'income' ? '+' : '-'), cl = (t.type === 'income' ? 'td-inc' : 'td-exp');
     tr.innerHTML = '<td class="td-date">' + t.date + '</td>'
       + '<td><span class="badge ' + (t.type === 'income' ? 'badge-inc' : 'badge-exp') + '">' + (t.type === 'income' ? '収入' : '支出') + '</span></td>'
-      + '<td>' + cat.icon + ' ' + cat.name + '</td>'
+      + '<td><span class="lnk lnk-name" onclick="jumpToLedger(\'' + t.catId + '\')" title="クリックで総勘定元帳へ">' + cat.icon + ' ' + cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></span></td>'
       + '<td style="font-size:11px;color:var(--ink-soft)">' + (t.subCatName || '—') + '</td>'
       + '<td>' + (t.note || '—') + '</td>'
-      + '<td class="td-amount ' + (t.type === 'income' ? 'td-inc' : 'td-exp') + '">' + (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '</td>'
-      + '<td class="td-num">' + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
+      + '<td class="td-amount col-incl ' + cl + '">' + sg + fmt(t.amount) + '</td>'
+      + '<td class="td-amount col-excl ' + cl + '">' + sg + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
       + '<td class="td-num" style="color:var(--yellow)">' + fmt(t.tax || 0) + '</td>'
       + '<td>' + rateBadge + '</td>'
       + '<td class="print-hide" style="display:flex;gap:4px;padding:6px 14px">'
+      + (jOf ? '<button class="btn btn-secondary btn-sm" onclick="jumpToJournal(\'' + jOf.id + '\')" title="この取引から作られた仕訳を表示">仕訳へ</button>' : '')
       + '<button class="btn btn-secondary btn-sm" data-edit-tx="' + t.id + '">編集</button>'
       + '<button class="btn btn-danger btn-sm" data-del-tx="' + t.id + '">削除</button>'
       + '</td>';
-    // 削除ボタンにイベントを直接追加
-    var delBtn2 = tr.querySelector('[data-del-tx]');
-    if (delBtn2) {
-      delBtn2.addEventListener('click', (function(id){ return function(){ deleteTx(id); }; })(t.id));
-    }
+    // 削除・編集は下のイベント委任（document.body）で処理（二重に確認が出ないように直接の登録はしない）
     tbody.appendChild(tr);
   });
 }
@@ -2106,43 +2469,74 @@ function renderLedger_inner(txs) {
     return catIndex(a.cat.id) - catIndex(b.cat.id);
   }).forEach(function(g) {
     var cat = g.cat; var ctxs = g.txs;
-    var tI = ctxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-    var tE = ctxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-    var tExcl = ctxs.reduce(function(s,t) { return s+(t.excl !== undefined ? t.excl : t.amount); }, 0);
-    var tTax = ctxs.reduce(function(s,t) { return s+(t.tax||0); }, 0);
+    var isPL = isPLType(cat.type);
     var isInc = cat.type === 'income';
+    var isCr = function(t) { return /_c\d+$/.test(String(t.id)); };
+    var tIncl = ctxs.reduce(function(s,t) { return s + t.amount; }, 0);
+    var tExcl = ctxs.reduce(function(s,t) { return s + (t.excl !== undefined ? t.excl : t.amount); }, 0);
+    var tTax = ctxs.reduce(function(s,t) { return s + (t.tax||0); }, 0);
+    var bD = 0, bC = 0;
+    if (!isPL) ctxs.forEach(function(t) { if (isCr(t)) bC += t.amount; else bD += t.amount; });
+    var fItem = function(label, val, color) {
+      return '<div class="ledger-footer-item"><span class="ledger-footer-label">' + label + '</span><span class="ledger-footer-value"' + (color ? ' style="color:' + color + '"' : '') + '>' + val + '</span></div>';
+    };
     var card = document.createElement('div'); card.className = 'ledger-card';
     var hdr = document.createElement('div'); hdr.className = 'ledger-card-header';
     hdr.innerHTML = '<span style="font-size:18px">' + cat.icon + '</span>'
       + '<span class="ledger-card-title">' + cat.name + '</span>'
-      + '<span class="ledger-card-total">' + (isInc ? '収入計: ' + fmt(tI) : '支出計: ' + fmt(tE)) + '</span>';
+      + '<span class="ledger-card-total">' + (isPL
+          ? (isInc ? '収入計' : '支出計') + '（' + taxViewLabel() + '）: ' + fmt(isExcl() ? tExcl : tIncl)
+          : '借方計: ' + fmt(bD) + '　貸方計: ' + fmt(bC)) + '</span>';
     var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right">税込</th><th style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>';
+    tbl.innerHTML = isPL
+      ? '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th class="col-incl" style="text-align:right">税込</th><th class="col-excl" style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>'
+      : '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right">金額</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>';
     var tbody2 = document.createElement('tbody');
     ctxs.forEach(function(t) {
       var r = t.taxRate !== undefined ? t.taxRate : 10;
-      var jid = (t.id && String(t.id).indexOf('j_') === 0) ? String(t.id).slice(2).replace(/_[dc]\d+$/, '') : '';
+      var src = srcOfRow(t);
+      var amtCells;
+      if (isPL) {
+        var sg = (t.type === 'income' ? '+' : '-'), cl = (t.type === 'income' ? 'td-inc' : 'td-exp');
+        amtCells = '<td class="td-amount col-incl ' + cl + '">' + sg + fmt(t.amount) + '</td>'
+          + '<td class="td-amount col-excl ' + cl + '">' + sg + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
+          + '<td class="td-num" style="color:var(--yellow)">' + fmt(t.tax||0) + '</td>'
+          + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + rateLabel(r, t.ded) + '</span></td>';
+      } else {
+        var cr = isCr(t);
+        amtCells = '<td class="td-amount"><span class="bslbl" style="' + (cr ? 'background:var(--red-lt);color:var(--red)' : 'background:var(--accent-lt);color:var(--accent)') + '">' + (cr ? '貸' : '借') + '</span>' + fmt(t.amount) + '</td>'
+          + '<td class="td-num" style="color:var(--ink-soft)">—</td>'
+          + '<td style="color:var(--ink-soft)">—</td>';
+      }
       var tr = document.createElement('tr');
       tr.innerHTML = '<td class="td-date">' + t.date + '</td>'
         + '<td style="font-size:11px;color:var(--ink-soft)">' + (t.subCatName || '—') + '</td>'
         + '<td>' + (t.note || '—') + '</td>'
-        + '<td class="td-amount ' + (t.type === 'income' ? 'td-inc' : 'td-exp') + '">' + (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '</td>'
-        + '<td class="td-num">' + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
-        + '<td class="td-num" style="color:var(--yellow)">' + fmt(t.tax||0) + '</td>'
-        + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + (r===0?'非課税':r+'%') + '</span></td>'
-        + '<td class="print-hide" style="text-align:center;font-size:11px;color:var(--accent);white-space:nowrap">' + (jid ? '✏️ 仕訳へ' : '') + '</td>';
-      if (jid) {
-        tr.style.cursor = 'pointer';
-        tr.title = 'クリックすると仕訳帳のこの仕訳へ移動します';
-        tr.addEventListener('click', (function(id){ return function(){ jumpToJournal(id); }; })(jid));
+        + amtCells
+        + '<td class="print-hide" style="text-align:right;white-space:nowrap">'
+        + (src ? '<span class="lnk">' + (src.kind === 'tx' ? '📝 収支へ' : '📓 仕訳へ') + '</span>'
+               + '<span class="lnk lnk-edit" data-srcedit="1" title="この画面のまま編集します">✏️ 編集</span>' : '')
+        + '</td>';
+      if (src) {
+        tr.className = 'jumprow';
+        tr.title = 'クリックで' + (src.kind === 'tx' ? '収支記録' : '仕訳帳') + 'のこの取引へ移動します';
+        tr.addEventListener('click', (function(sx){ return function(e){
+          if (e.target && e.target.closest && e.target.closest('[data-srcedit]')) { openSrcEdit(sx.kind, sx.id); return; }
+          jumpToSrc(sx.kind, sx.id);
+        }; })(src));
       }
       tbody2.appendChild(tr);
     });
     tbl.appendChild(tbody2);
     var ftr = document.createElement('div'); ftr.className = 'ledger-card-footer';
-    ftr.innerHTML = '<div class="ledger-footer-item"><span class="ledger-footer-label">税抜合計</span><span class="ledger-footer-value">' + fmt(tExcl) + '</span></div>'
-      + '<div class="ledger-footer-item"><span class="ledger-footer-label">消費税</span><span class="ledger-footer-value" style="color:var(--yellow)">' + fmt(tTax) + '</span></div>'
-      + '<div class="ledger-footer-item"><span class="ledger-footer-label">' + (isInc?'収入合計':'支出合計') + '</span><span class="ledger-footer-value" style="color:' + (isInc?'var(--green)':'var(--red)') + '">' + fmt(isInc?tI:tE) + '</span></div>';
+    if (isPL) {
+      ftr.innerHTML = (isExcl() ? fItem('税込合計', fmt(tIncl)) : fItem('税抜合計', fmt(tExcl)))
+        + fItem('消費税', fmt(tTax), 'var(--yellow)')
+        + fItem((isInc ? '収入合計' : '支出合計') + '（' + taxViewLabel() + '）', fmt(isExcl() ? tExcl : tIncl), isInc ? 'var(--green)' : 'var(--red)');
+    } else {
+      ftr.innerHTML = fItem('借方合計', fmt(bD), 'var(--accent)') + fItem('貸方合計', fmt(bC), 'var(--red)')
+        + fItem('差引', (bD >= bC ? '借 ' : '貸 ') + fmt(Math.abs(bD - bC)));
+    }
     card.appendChild(hdr); card.appendChild(tbl); card.appendChild(ftr);
     container.appendChild(card);
   });
@@ -2150,16 +2544,16 @@ function renderLedger_inner(txs) {
 
 // ── P/L ──
 function renderPL() {
-  document.getElementById('pl-sub').textContent = state.year + '年度 損益計算書';
+  document.getElementById('pl-sub').textContent = state.year + '年度 損益計算書（' + taxViewLabel() + '表示）';
   var txs = allTxOfYear();
   var inc = txs.filter(function(t) { return t.type === 'income'; });
   var exp = txs.filter(function(t) { return t.type === 'expense'; });
-  var tI = inc.reduce(function(s,t) { return s+t.amount; }, 0);
-  var tE = exp.reduce(function(s,t) { return s+t.amount; }, 0);
+  var tI = vSum(inc);
+  var tE = vSum(exp);
   var profit = tI - tE;
   function catRows(arr, cats, color) {
     return cats.map(function(c) {
-      var tot = arr.filter(function(t) { return t.catId === c.id; }).reduce(function(s,t) { return s+t.amount; }, 0);
+      var tot = vSum(arr.filter(function(t) { return t.catId === c.id; }));
       if (!tot) return '';
       return '<div class="report-row" onclick="jumpToLedger(\'' + c.id + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer"><span class="report-row-label">' + c.icon + ' ' + c.name + ' <span style="font-size:10px;color:var(--accent)">›</span></span><span class="report-row-value" style="color:' + color + '">' + fmt(tot) + '</span></div>';
     }).join('');
@@ -2199,16 +2593,16 @@ function renderBS() {
     '<div class="report-grid">'
     + '<div class="report-section"><div class="report-header">【資産の部】</div>'
     + '<div class="report-sub-header">流動資産</div>'
-    + '<div class="report-row"><span class="report-row-label">現金・預金（概算）</span><span class="report-row-value" style="color:var(--green)">' + fmt(cash) + '</span></div>'
+    + '<div class="report-row" onclick="goPage(\'cashbook\')" title="クリックで現金出納帳へ" style="cursor:pointer"><span class="report-row-label">現金・預金（概算） <span style="font-size:10px;color:var(--accent)">›</span></span><span class="report-row-value" style="color:var(--green)">' + fmt(cash) + '</span></div>'
     + '<div class="report-row subtotal"><span class="report-row-label">流動資産合計</span><span class="report-row-value">' + fmt(cash) + '</span></div>'
     + '<div class="report-row grand-total"><span class="report-row-label">資産合計</span><span class="report-row-value">' + fmt(cash) + '</span></div>'
     + '</div>'
     + '<div class="report-section"><div class="report-header">【負債・純資産の部】</div>'
     + '<div class="report-sub-header">流動負債</div>'
-    + '<div class="report-row"><span class="report-row-label">未払消費税（概算）</span><span class="report-row-value" style="color:var(--red)">' + fmt(taxDue) + '</span></div>'
+    + '<div class="report-row" onclick="goPage(\'tax\')" title="クリックで消費税・申告へ" style="cursor:pointer"><span class="report-row-label">未払消費税（概算） <span style="font-size:10px;color:var(--accent)">›</span></span><span class="report-row-value" style="color:var(--red)">' + fmt(taxDue) + '</span></div>'
     + '<div class="report-row subtotal"><span class="report-row-label">負債合計</span><span class="report-row-value">' + fmt(taxDue) + '</span></div>'
     + '<div class="report-sub-header">純資産</div>'
-    + '<div class="report-row"><span class="report-row-label">当期純利益</span><span class="report-row-value" style="color:var(--accent)">' + fmt(net) + '</span></div>'
+    + '<div class="report-row" onclick="goPage(\'pl\')" title="クリックで損益計算書へ" style="cursor:pointer"><span class="report-row-label">当期純利益 <span style="font-size:10px;color:var(--accent)">›</span></span><span class="report-row-value" style="color:var(--accent)">' + fmt(net) + '</span></div>'
     + '<div class="report-row subtotal"><span class="report-row-label">純資産合計</span><span class="report-row-value">' + fmt(net) + '</span></div>'
     + '<div class="report-row grand-total"><span class="report-row-label">負債・純資産合計</span><span class="report-row-value">' + fmt(cash) + '</span></div>'
     + '</div></div>';
@@ -2219,13 +2613,13 @@ function renderCompare() {
   var cy = currentFY();
   var years = [cy-5,cy-4,cy-3,cy-2,cy-1,cy,cy+1,cy+2];
   var data = years.map(function(y) {
-    var txs = txOfYear(y);
-    var inc = txs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-    var exp = txs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+    var txs = allTxOfYear(y).filter(function(t) { return isPLType(t.type); });
+    var inc = vSum(txs.filter(function(t) { return t.type === 'income'; }));
+    var exp = vSum(txs.filter(function(t) { return t.type === 'expense'; }));
     return { y: y, inc: inc, exp: exp, profit: inc - exp, cnt: txs.length };
   });
   var maxV = Math.max.apply(null, data.map(function(d) { return Math.max(d.inc, d.exp); }).concat([1]));
-  var html = '<div class="chart-card"><div class="chart-title">年別収支推移（過去8年）</div>'
+  var html = '<div class="chart-card"><div class="chart-title">年別収支推移（過去8年・' + taxViewLabel() + '）</div>'
     + '<div style="display:flex;align-items:flex-end;gap:16px;height:120px;padding:0 10px">';
   data.forEach(function(d) {
     var iH = Math.round(d.inc/maxV*100); var eH = Math.round(d.exp/maxV*100);
@@ -2247,7 +2641,7 @@ function renderCompare() {
       diffHtml = '<span style="color:' + (pct >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (pct >= 0 ? '▲' : '▼') + Math.abs(pct) + '%</span>';
     }
     var isCur = d.y === state.year;
-    html += '<tr style="' + (isCur ? 'background:var(--accent-lt);font-weight:600' : '') + '">'
+    html += '<tr class="jumprow" onclick="jumpToYear(' + d.y + ')" title="クリックでこの年度の損益計算書へ" style="' + (isCur ? 'background:var(--accent-lt);font-weight:600' : '') + '">'
       + '<td style="font-family:monospace">' + d.y + '年' + (isCur ? ' ◀' : '') + '</td>'
       + '<td class="td-amount td-inc">' + fmt(d.inc) + '</td>'
       + '<td class="td-amount td-exp">' + fmt(d.exp) + '</td>'
@@ -2306,6 +2700,12 @@ function renderCategories() {
       editBtn.className = 'btn btn-secondary btn-sm'; editBtn.textContent = '✏️ 編集';
       editBtn.onclick = (function(id) { return function() { openCatEdit(id); }; })(c.id);
       actions.appendChild(upBtn); actions.appendChild(downBtn); actions.appendChild(editBtn);
+      if (_u) {
+        var lgBtn = document.createElement('button');
+        lgBtn.className = 'btn btn-secondary btn-sm'; lgBtn.textContent = '📒 元帳'; lgBtn.title = 'この科目の総勘定元帳へ';
+        lgBtn.onclick = (function(id) { return function() { jumpToLedger(id); }; })(c.id);
+        actions.appendChild(lgBtn);
+      }
       var isVis = c.visible !== false;
       var toggleBtn = document.createElement('button');
       toggleBtn.className = 'toggle-btn ' + (isVis ? 'on' : 'off');
@@ -2350,8 +2750,8 @@ function renderTax() {
   var txs = allTxOfYear();
   var inc = txs.filter(function(t) { return t.type === 'income'; });
   var exp = txs.filter(function(t) { return t.type === 'expense'; });
-  var tI = inc.reduce(function(s,t) { return s+t.amount; }, 0);
-  var tE = exp.reduce(function(s,t) { return s+t.amount; }, 0);
+  var tI = vSum(inc);
+  var tE = vSum(exp);
   var tC = inc.reduce(function(s,t) { return s+(t.tax||0); }, 0);
   var tP = exp.reduce(function(s,t) { return s+(t.tax||0); }, 0);
   var sExcl = inc.reduce(function(s,t) { return s+(t.excl!==undefined?t.excl:t.amount); }, 0);
@@ -2362,18 +2762,19 @@ function renderTax() {
 
   function rateDetail(arr, el) {
     el.innerHTML = '';
-    [10,8,0].forEach(function(r) {
-      var sub = arr.filter(function(t) { return (t.taxRate !== undefined ? t.taxRate : 10) === r; });
+    ['10','10-80','10-50','8','0'].forEach(function(key) {
+      var sub = arr.filter(function(t) { return rateSelVal(t.taxRate !== undefined ? t.taxRate : 10, t.ded) === key; });
       if (!sub.length) return;
-      var tot = sub.reduce(function(s,t) { return s+t.amount; }, 0);
+      var kp = parseRateSel(key), r = kp.rate;
+      var tot = vSum(sub);
       var tax = sub.reduce(function(s,t) { return s+(t.tax||0); }, 0);
       var row = document.createElement('div'); row.className = 'tax-row';
-      row.innerHTML = '<span class="tax-row-label">' + (r===0?'非課税':r===8?'軽減8%':'標準10%') + '（' + sub.length + '件）</span>'
-        + '<span class="tax-row-value">' + fmt(tot) + '<br><span style="font-size:11px;color:var(--yellow)">うち消費税 ' + fmt(tax) + '</span></span>';
+      row.innerHTML = '<span class="tax-row-label">' + (r===0?'非課税':r===8?'軽減8%':(kp.ded<100?'標準10%・控除'+kp.ded+'%（インボイスなし）':'標準10%')) + '（' + sub.length + '件）</span>'
+        + '<span class="tax-row-value">' + fmt(tot) + '<br><span style="font-size:11px;color:var(--yellow)">' + (isExcl() ? '別に消費税 ' : 'うち消費税 ') + fmt(tax) + '</span></span>';
       el.appendChild(row);
     });
     var tot2 = document.createElement('div'); tot2.className = 'tax-row total';
-    tot2.innerHTML = '<span class="tax-row-label">合計（税込）</span><span class="tax-row-value">' + fmt(arr.reduce(function(s,t){return s+t.amount;},0)) + '</span>';
+    tot2.innerHTML = '<span class="tax-row-label">合計（' + taxViewLabel() + '）</span><span class="tax-row-value">' + fmt(vSum(arr)) + '</span>';
     el.appendChild(tot2);
   }
   rateDetail(inc, document.getElementById('taxSalesRate'));
@@ -2381,15 +2782,17 @@ function renderTax() {
 
   function catDetail(arr, cats, el, color) {
     el.innerHTML = '';
-    var rows = cats.map(function(c) { return { cat: c, total: arr.filter(function(t) { return t.catId === c.id; }).reduce(function(s,t) { return s+t.amount; }, 0) }; }).filter(function(x) { return x.total > 0; });
+    var rows = cats.map(function(c) { return { cat: c, total: vSum(arr.filter(function(t) { return t.catId === c.id; })) }; }).filter(function(x) { return x.total > 0; });
     if (!rows.length) { el.innerHTML = '<div class="tax-row"><span class="tax-row-label">データなし</span><span class="tax-row-value">¥0</span></div>'; return; }
     rows.forEach(function(x) {
       var r = document.createElement('div'); r.className = 'tax-row';
-      r.innerHTML = '<span class="tax-row-label">' + x.cat.icon + ' ' + x.cat.name + '</span><span class="tax-row-value" style="color:' + color + '">' + fmt(x.total) + '</span>';
+      r.style.cursor = 'pointer'; r.title = 'クリックで総勘定元帳へ';
+      r.onclick = (function(id) { return function() { jumpToLedger(id); }; })(x.cat.id);
+      r.innerHTML = '<span class="tax-row-label">' + x.cat.icon + ' ' + x.cat.name + ' <span style="font-size:10px;color:var(--accent)">›</span></span><span class="tax-row-value" style="color:' + color + '">' + fmt(x.total) + '</span>';
       el.appendChild(r);
     });
     var tot = document.createElement('div'); tot.className = 'tax-row total';
-    tot.innerHTML = '<span class="tax-row-label">合計</span><span class="tax-row-value" style="color:' + color + '">' + fmt(arr.reduce(function(s,t){return s+t.amount;},0)) + '</span>';
+    tot.innerHTML = '<span class="tax-row-label">合計（' + taxViewLabel() + '）</span><span class="tax-row-value" style="color:' + color + '">' + fmt(vSum(arr)) + '</span>';
     el.appendChild(tot);
   }
   catDetail(inc, state.categories.filter(function(c){return c.type==='income';}), document.getElementById('taxIncome'), 'var(--green)');
@@ -2404,8 +2807,8 @@ function renderTax() {
   FY_MONTHS.forEach(function(m) {
     var mI = inc.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; });
     var mE = exp.filter(function(t) { return parseInt(t.date.slice(5,7)) === m; });
-    var ti = mI.reduce(function(s,t){return s+t.amount;},0);
-    var te = mE.reduce(function(s,t){return s+t.amount;},0);
+    var ti = vSum(mI);
+    var te = vSum(mE);
     if (!ti && !te) return;
     any = true;
     var tc = mI.reduce(function(s,t){return s+(t.tax||0);},0);
@@ -2413,8 +2816,8 @@ function renderTax() {
     var diff = ti - te;
     var tr = document.createElement('tr');
     tr.innerHTML = '<td style="font-family:monospace">' + m + '月</td>'
-      + '<td class="td-amount td-inc">' + fmt(ti) + '</td>'
-      + '<td class="td-amount td-exp">' + fmt(te) + '</td>'
+      + '<td class="td-amount td-inc"' + (ti ? ' onclick="jumpToLedger(\'all\',' + m + ',\'income\')" title="クリックでこの月の収入を元帳で表示" style="cursor:pointer"' : '') + '>' + fmt(ti) + '</td>'
+      + '<td class="td-amount td-exp"' + (te ? ' onclick="jumpToLedger(\'all\',' + m + ',\'expense\')" title="クリックでこの月の支出を元帳で表示" style="cursor:pointer"' : '') + '>' + fmt(te) + '</td>'
       + '<td class="td-num" style="color:var(--yellow)">' + fmt(tc) + '</td>'
       + '<td class="td-num" style="color:var(--yellow)">' + fmt(tp) + '</td>'
       + '<td class="td-amount ' + (diff>=0?'td-inc':'td-exp') + '">' + fmt(diff) + '</td>';
@@ -2443,7 +2846,7 @@ function doPrint(pageId) {
   if (!pg) return;
   pg.classList.add('print-target');
   var sub = pg.querySelector('.print-header p');
-  if (sub) sub.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP');
+  if (sub) sub.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP') + taxPrintNote(pg);
   setTimeout(function() {
     window.print();
     setTimeout(function() { pg.classList.remove('print-target'); }, 1000);
@@ -2463,7 +2866,7 @@ function doPrintLedgerSel() {
   var title = document.getElementById('ph-ledger-title');
   if (title) title.textContent = '総勘定元帳 — ' + found.icon + ' ' + found.name;
   var sub = document.getElementById('ph-ledger');
-  if (sub) sub.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP');
+  if (sub) sub.textContent = state.year + '年度　印刷日: ' + new Date().toLocaleDateString('ja-JP') + taxPrintNote(pg);
   window.print();
   setTimeout(function() { pg.classList.remove('print-target'); }, 1000);
 }
@@ -2608,8 +3011,8 @@ function backupCSV() {
   var rows = [['#帳簿アシストCSVバックアップ v2']];
   rows.push(['#categories']); rows.push(['id','name','type','icon','subCategories']);
   state.categories.forEach(function(c) { rows.push([c.id, c.name, c.type, c.icon, JSON.stringify(c.subCategories||[])]); });
-  rows.push(['#transactions']); rows.push(['id','date','type','catId','note','amount','taxRate','excl','tax','subCatId','subCatName']);
-  state.transactions.forEach(function(t) { rows.push([t.id, t.date, t.type, t.catId, t.note||'', t.amount, t.taxRate!==undefined?t.taxRate:10, t.excl!==undefined?t.excl:t.amount, t.tax||0, t.subCatId||'', t.subCatName||'']); });
+  rows.push(['#transactions']); rows.push(['id','date','type','catId','note','amount','taxRate','excl','tax','subCatId','subCatName','ded']);
+  state.transactions.forEach(function(t) { rows.push([t.id, t.date, t.type, t.catId, t.note||'', t.amount, t.taxRate!==undefined?t.taxRate:10, t.excl!==undefined?t.excl:t.amount, t.tax||0, t.subCatId||'', t.subCatName||'', dedOf(t)<100?dedOf(t):'']); });
   rows.push(['#end']);
   dlCSV('帳簿アシスト_CSVバックアップ_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.csv', rows);
   showExportMsg('✅ ExcelバックアップCSVを保存しました。');
@@ -2634,7 +3037,7 @@ function restoreCSV(e) {
           var sc = []; try { if (cols[4]) sc = JSON.parse(cols[4]); } catch(ex) {}
           newCats.push({ id:cols[0], name:cols[1], type:cols[2], icon:cols[3], subCategories:sc });
         } else if (mode === 'tx' && cols.length >= 9) {
-          newTxs.push({ id:cols[0], date:cols[1], type:cols[2], catId:cols[3], note:cols[4], amount:parseInt(cols[5])||0, taxRate:parseInt(cols[6])||10, excl:parseInt(cols[7])||0, tax:parseInt(cols[8])||0, subCatId:cols[9]||'', subCatName:cols[10]||'' });
+          newTxs.push({ id:cols[0], date:cols[1], type:cols[2], catId:cols[3], note:cols[4], amount:parseInt(cols[5])||0, taxRate:(isNaN(parseInt(cols[6]))?10:parseInt(cols[6])), excl:parseInt(cols[7])||0, tax:parseInt(cols[8])||0, subCatId:cols[9]||'', subCatName:cols[10]||'', ded:(parseInt(cols[11])>0&&parseInt(cols[11])<100)?parseInt(cols[11]):undefined });
         }
       }
       if (!newCats.length && !newTxs.length) throw new Error('データが読み取れませんでした。');
@@ -2653,7 +3056,7 @@ function exportTxCSV() {
   var rows = [['帳簿アシスト 取引一覧', state.year+'年度'], [], ['日付','種別','勘定科目','補助科目','摘要','税込金額','税抜金額','消費税','消費税率']];
   txs.forEach(function(t) {
     var cat = catById(t.catId); var rate = t.taxRate !== undefined ? t.taxRate : 10;
-    rows.push([t.date, t.type==='income'?'収入':'支出', cat.name, t.subCatName||'', t.note||'', t.amount, t.excl!==undefined?t.excl:t.amount, t.tax||0, rate===0?'非課税':rate+'%']);
+    rows.push([t.date, t.type==='income'?'収入':'支出', cat.name, t.subCatName||'', t.note||'', t.amount, t.excl!==undefined?t.excl:t.amount, t.tax||0, rateLabel(rate, t.ded)]);
   });
   rows.push([]); var tI = txs.filter(function(t){return t.type==='income';}).reduce(function(s,t){return s+t.amount;},0);
   var tE = txs.filter(function(t){return t.type==='expense';}).reduce(function(s,t){return s+t.amount;},0);
@@ -2910,6 +3313,18 @@ function subNameOf(accId, subId) {
   return l ? l.name : '';
 }
 // 補助科目のセレクトを埋める。補助がなければ行ごと隠す
+// 仕訳の編集画面：借方・貸方の「補助科目」の段をそろえる（片方だけにあっても両側に出す）
+function syncJEditSubRows() {
+  var dw = document.getElementById('jEditDebitSubWrap'), cw = document.getElementById('jEditCreditSubWrap');
+  var ds = document.getElementById('jEditDebitSub'), cs = document.getElementById('jEditCreditSub');
+  if (!dw || !cw) return;
+  var dHas = !!ds && ds.options.length > 1, cHas = !!cs && cs.options.length > 1;
+  var show = dHas || cHas;
+  dw.style.display = show ? '' : 'none';
+  cw.style.display = show ? '' : 'none';
+  if (ds) ds.disabled = !dHas;
+  if (cs) cs.disabled = !cHas;
+}
 function fillSubSelect(sel, accId, keep, wrap) {
   if (!sel) return;
   var list = subsOf(accId);
@@ -2946,11 +3361,11 @@ function isBsTransfer(dAcc, cAcc) {
 }
 function jPreviewUpdate() {
   var amt=parseInt(document.getElementById('jDebitAmt').value)||0;
-  var rate=parseInt(document.getElementById('jTaxRate').value);
+  var _p=parseRateSel(document.getElementById('jTaxRate').value), rate=_p.rate, ded=_p.ded;
   var dAcc=(document.getElementById('jDebitAcc')||{}).value;
   var cAcc=(document.getElementById('jCreditAcc')||{}).value;
   var auto=isBsTransfer(dAcc,cAcc);
-  if(auto) rate=0;
+  if(auto){ rate=0; ded=100; }
   var prev=document.getElementById('jPreview');
   if(!amt){
     prev.textContent=auto
@@ -2959,10 +3374,10 @@ function jPreviewUpdate() {
     document.getElementById('jCreditAmt').value=amt||'';
     return;
   }
-  var r=calcTax(amt,rate);
+  var r=calcTax(amt,rate,ded);
   prev.textContent=rate===0
     ?((auto?'BS科目どうしの振替（自動で非課税） — ':'非課税 — ')+'税抜:'+fmt(r.excl)+' / 消費税:¥0')
-    :('税抜:'+fmt(r.excl)+' / 消費税('+rate+'%):'+fmt(r.tax)+' / 税込:'+fmt(amt));
+    :('税抜:'+fmt(r.excl)+' / 消費税('+rateLabel(rate,ded)+'):'+fmt(r.tax)+' / 税込:'+fmt(amt));
   document.getElementById('jCreditAmt').value=amt;
 }
 function addJournal() {
@@ -2970,7 +3385,7 @@ function addJournal() {
   var memo=document.getElementById('jMemo').value.trim();
   var dAcc=document.getElementById('jDebitAcc').value;
   var dAmt=parseInt(document.getElementById('jDebitAmt').value);
-  var rate=parseInt(document.getElementById('jTaxRate').value);
+  var _p=parseRateSel(document.getElementById('jTaxRate').value), rate=_p.rate, ded=_p.ded;
   var cAcc=document.getElementById('jCreditAcc').value;
   var cAmt=parseInt(document.getElementById('jCreditAmt').value)||dAmt;
   if(!date||!dAcc||!cAcc||isNaN(dAmt)||dAmt<=0){alert('\u65e5\u4ed8\u30fb\u501f\u65b9\u79d1\u76ee\u30fb\u91d1\u984d\u30fb\u8cb8\u65b9\u79d1\u76ee\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002');return;}
@@ -2978,12 +3393,12 @@ function addJournal() {
   var _dT=(state.categories.find(function(c){return c.id===dAcc;})||{}).type;
   var _cT=(state.categories.find(function(c){return c.id===cAcc;})||{}).type;
   var _isPL=function(t){return t==='income'||t==='expense';};
-  if(!_isPL(_dT)&&!_isPL(_cT)) rate=0;
-  var r=calcTax(dAmt,rate);
+  if(!_isPL(_dT)&&!_isPL(_cT)){ rate=0; ded=100; }
+  var r=calcTax(dAmt,rate,ded);
   if(!state.journals)state.journals=[];
   var dSub=(document.getElementById('jDebitSub')||{}).value||'';
   var cSub=(document.getElementById('jCreditSub')||{}).value||'';
-  state.journals.push({id:uid(),date:date,memo:memo,dAcc:dAcc,dSub:dSub,dAmt:dAmt,dExcl:r.excl,dTax:r.tax,rate:rate,cAcc:cAcc,cSub:cSub,cAmt:cAmt,src:'manual'});
+  state.journals.push(withDed({id:uid(),date:date,memo:memo,dAcc:dAcc,dSub:dSub,dAmt:dAmt,dExcl:r.excl,dTax:r.tax,rate:rate,cAcc:cAcc,cSub:cSub,cAmt:cAmt,src:'manual'},ded));
   state.journals.sort(function(a,b){return b.date.localeCompare(a.date);});
   saveToFb().then(function(){renderAll();});
   document.getElementById('jMemo').value='';
@@ -3009,11 +3424,12 @@ function makeJournalFromTx(t){
   var _c=catById(t.catId);
   var isShiire=!!_c&&['\u4ed5\u5165\u9ad8','\u5916\u6ce8\u52a0\u5de5\u8cbb','\u6750\u6599\u8cbb\u30fb\u8cc7\u6750\u8cbb'].indexOf(_c.name)>=0;
   var rate=t.taxRate!==undefined?t.taxRate:10;
-  var r=calcTax(t.amount,rate);
+  var r=calcTax(t.amount,rate,dedOf(t));
   var acc=t.payAcc||(isCash?'b_cash':(t.type==='expense'&&isShiire?'b_ap':'b_bank'));
   var j={id:uid(),date:t.date,memo:t.note||_c.name,rate:rate,dExcl:r.excl,dTax:r.tax,src:'auto',srcId:t.id};
   if(t.type==='expense'){j.dAcc=t.catId;j.dAmt=t.amount;j.cAcc=acc;j.cAmt=t.amount;}
   else{j.dAcc=acc;j.dAmt=t.amount;j.cAcc=t.catId;j.cAmt=t.amount;}
+  withDed(j,dedOf(t));
   return j;
 }
 function syncJournalOfTx(t){
@@ -3081,13 +3497,20 @@ function renderJournal() {
     var cmp=isCompound(j);
     var sideHtml=function(lines, cls) {
       return lines.map(function(ln) {
-        var t = (ln.tax !== undefined ? ln.tax : calcTax(ln.amt, (ln.rate !== undefined ? ln.rate : 10)).tax);
-        var tn = (cls === 'jamt-d' && t) ? ('<span class="jtax"> \u7a0e' + fmt(t) + '</span>') : '';
+        var t = (ln.tax !== undefined ? ln.tax : calcTax(ln.amt, (ln.rate !== undefined ? ln.rate : 10), ln.ded).tax);
+        var lc = state.categories.find(function(x){ return x.id === ln.acc; });
+        // 税抜表示：収益・費用の行は税抜にして、消費税を「仮払消費税／仮受消費税」の行に分けて見せる
+        var split = isExcl() && lc && isPLType(lc.type) && t;
+        var tn = (!isExcl() && cls === 'jamt-d' && t) ? ('<span class="jtax"> 税' + fmt(t) + (dedOf(ln) < 100 ? '（控除' + dedOf(ln) + '%）' : '') + '</span>') : '';
         var sn = subNameOf(ln.acc, ln.sub);
         return '<div style="display:flex;align-items:center;gap:6px;width:100%">'
           + '<span class="jacc" onclick="jumpToLedger(\'' + ln.acc + '\')" title="クリックで総勘定元帳へ" style="cursor:pointer">' + jName(ln.acc) + '</span>'
           + (sn ? '<span style="font-size:10px;color:var(--ink-soft)">› ' + sn + '</span>' : '') + tn
-          + '<span class="' + cls + '">' + fmt(ln.amt) + '</span></div>';
+          + '<span class="' + cls + '">' + fmt(split ? ln.amt - t : ln.amt) + '</span></div>'
+          + (split ? '<div style="display:flex;align-items:center;gap:6px;width:100%;font-size:11px">'
+              + '<span class="jacc" onclick="goPage(\'tax\')" title="クリックで消費税・申告へ" style="cursor:pointer;font-weight:500;color:var(--ink-soft)">'
+              + (lc.type === 'income' ? '仮受消費税' : '仮払消費税') + '</span>'
+              + '<span class="' + cls + '" style="opacity:.75">' + fmt(t) + '</span></div>' : '');
       }).join('');
     };
     var d1=document.createElement('div');d1.className='jcol-date';
@@ -3105,24 +3528,31 @@ function renderJournal() {
     d5.style.cssText='display:flex;gap:4px;padding:6px 10px';
     var eb=document.createElement('button');eb.className='btn btn-secondary btn-sm print-hide';
     eb.textContent='\u7de8\u96c6';
-    eb.addEventListener('click',(function(id){return function(){openJournalEdit(id);};})(j.id));
+    eb.addEventListener('click',(function(id){return function(){openSrcEdit('journal',id);};})(j.id));
+    if(j.srcId){ eb.title='元の収支記録を編集します（仕訳も自動で直ります）'; }
     var db=document.createElement('button');db.className='btn btn-danger btn-sm print-hide';
     db.textContent='\u524a\u9664';
     db.addEventListener('click',(function(id){return function(){delJournal(id);};})(j.id));
+    if(j.srcId){
+      var sb=document.createElement('button');sb.className='btn btn-secondary btn-sm print-hide';
+      sb.textContent='収支へ';sb.title='この仕訳の元になった収支記録へ';
+      sb.addEventListener('click',(function(id){return function(){jumpToTx(id);};})(j.srcId));
+      d5.appendChild(sb);
+    }
     d5.appendChild(eb);d5.appendChild(db);
 
     card.appendChild(d1);card.appendChild(d2);card.appendChild(d3);card.appendChild(d4);card.appendChild(d5);
     cont.appendChild(card);
   });
 }
-window.jumpToLedger = function(catId, month) {
+window.jumpToLedger = function(catId, month, type) {
   var nav = document.querySelector('.nav-item[data-page="ledger"]');
   if (nav) nav.click();
   setTimeout(function(){
     var sel = document.getElementById('ledgerCat');
     if (sel) {
       var ms = document.getElementById('ledgerMonth'); if (ms) ms.value = month ? String(month) : 'all';
-      var ts = document.getElementById('ledgerType');  if (ts) ts.value = 'all';
+      var ts = document.getElementById('ledgerType');  if (ts) ts.value = type || 'all';
       var sw = document.getElementById('ledgerSearch'); if (sw) sw.value = '';
       var f1 = document.getElementById('lDateFrom'); if (f1) f1.value = '';
       var f2 = document.getElementById('lDateTo');   if (f2) f2.value = '';
@@ -3163,7 +3593,7 @@ function normalSide(id) {
   return (t === 'liability' || t === 'income') ? 'credit' : 'debit';
 }
 function renderTrial() {
-  document.getElementById('trialSub').textContent=state.year+'\u5e74\u5ea6 \u8a66\u7b97\u8868\uff08\u671f\u9996\u6b8b\u9ad8\u3092\u542b\u3080\uff09';
+  document.getElementById('trialSub').textContent=state.year+'年度 試算表（期首残高を含む）'+(isExcl()?'　※税抜表示：消費税は仮払消費税・仮受消費税に分けて表示':'');
   if(!state.journals)state.journals=[];
   var js=state.journals.filter(function(j){return j.date&&j.date>=fyStart()&&j.date<=fyEnd();});
   var ob=openBalOf(state.year);
@@ -3180,11 +3610,27 @@ function renderTrial() {
     ensure(id);
     if(normalSide(id)==='credit') accs[id].oc+=v; else accs[id].od+=v;
   });
+  // 税抜表示のときは、収益・費用の行から消費税を抜き出して「仮払消費税／仮受消費税」に集める
+  var VT={expense:{id:'vt_karibarai',name:'仮払消費税'},income:{id:'vt_kariuke',name:'仮受消費税'}};
+  function lineTax(ln){
+    if(!isExcl())return null;
+    var lc=state.categories.find(function(x){return x.id===ln.acc;});
+    if(!lc||!isPLType(lc.type))return null;
+    var rt=(ln.rate!==undefined?ln.rate:10);
+    var tx=(ln.tax!==undefined?ln.tax:calcTax(parseInt(ln.amt)||0,rt,ln.ded).tax)||0;
+    if(!tx)return null;
+    ensure(VT[lc.type].id); accs[VT[lc.type].id].name=VT[lc.type].name;
+    return {t:tx,id:VT[lc.type].id};
+  }
   js.forEach(function(j){
     var L=jLines(j);
-    L.d.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); var v=parseInt(ln.amt)||0; accs[ln.acc].d+=v;
+    L.d.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); var v=parseInt(ln.amt)||0;
+      var lt=lineTax(ln); if(lt){ v-=lt.t; accs[lt.id].d+=lt.t; }
+      accs[ln.acc].d+=v;
       if(ln.sub){ ensureSub(ln.acc,ln.sub,subNameOf(ln.acc,ln.sub)).d+=v; } });
-    L.c.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); var v=parseInt(ln.amt)||0; accs[ln.acc].c+=v;
+    L.c.forEach(function(ln){ if(!ln.acc)return; ensure(ln.acc); var v=parseInt(ln.amt)||0;
+      var lt=lineTax(ln); if(lt){ v-=lt.t; accs[lt.id].c+=lt.t; }
+      accs[ln.acc].c+=v;
       if(ln.sub){ ensureSub(ln.acc,ln.sub,subNameOf(ln.acc,ln.sub)).c+=v; } });
   });
   if(!Object.keys(accs).length){cont.innerHTML='<div class="empty-state">\u4ed5\u8a33\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093\u3002</div>';return;}
@@ -3200,7 +3646,8 @@ function renderTrial() {
   rows.forEach(function(a){
     var bal=(a.od+a.d)-(a.oc+a.c);
     tOD+=a.od;tOC+=a.oc;tD+=a.d;tC+=a.c;
-    html+='<tr><td onclick="jumpToLedger(\''+a.id+'\')" title="クリックで総勘定元帳へ" style="cursor:pointer">'+a.name+' <span style="font-size:10px;color:var(--accent)">›</span></td>'
+    var isVt=(String(a.id).indexOf('vt_')===0);
+    html+='<tr class="jumprow" onclick="'+(isVt?'goPage(\'tax\')':'jumpToLedger(\''+a.id+'\')')+'" title="'+(isVt?'クリックで消費税・申告へ':'クリックで総勘定元帳へ')+'"><td>'+a.name+' <span style="font-size:10px;color:var(--accent)">›</span></td>'
       +'<td>'+sideCell(a.od,a.oc)+'</td>'
       +'<td style="color:var(--accent)">'+(a.d?fmt(a.d):'\u2014')+'</td>'
       +'<td style="color:var(--red)">'+(a.c?fmt(a.c):'\u2014')+'</td>'
@@ -3208,7 +3655,7 @@ function renderTrial() {
       +(bal>=0?'\u501f 	':'\u8cb8 	')+fmt(bal)+'</td></tr>';
     Object.keys(a.subs||{}).forEach(function(sid){
       var sb=a.subs[sid]; var sbal=sb.d-sb.c;
-      html+='<tr style="background:#fafaf8"><td style="padding-left:32px;font-size:12px;color:var(--ink-soft)">\u2514 '+sb.name+'</td>'
+      html+='<tr class="jumprow" onclick="jumpToLedger(\''+a.id+'\')" title="クリックで総勘定元帳へ" style="background:#fafaf8"><td style="padding-left:32px;font-size:12px;color:var(--ink-soft)">└ '+sb.name+'</td>'
         +'<td>\u2014</td>'
         +'<td style="color:var(--accent);font-size:11px">'+(sb.d?fmt(sb.d):'\u2014')+'</td>'
         +'<td style="color:var(--red);font-size:11px">'+(sb.c?fmt(sb.c):'\u2014')+'</td>'
@@ -3256,7 +3703,7 @@ function execYearUpdate() {
 // ── 月別損益発生額 ──
 function renderMonthlyPL() {
   var y = state.year;
-  document.getElementById('mpl-sub').textContent = y + '年度 科目別月別発生額';
+  document.getElementById('mpl-sub').textContent = y + '年度 科目別月別発生額（' + taxViewLabel() + '）';
   var months = FY_MONTHS;
   var txs = allTxOfYear(y);
 
@@ -3266,12 +3713,12 @@ function renderMonthlyPL() {
       return t.catId === catId
         && t.type === type
         && parseInt(t.date.slice(5,7)) === month;
-    }).reduce(function(s,t) { return s + t.amount; }, 0);
+    }).reduce(function(s,t) { return s + vAmt(t); }, 0);
   }
   function sumByMonth(month, type) {
     return txs.filter(function(t) {
       return t.type === type && parseInt(t.date.slice(5,7)) === month;
-    }).reduce(function(s,t) { return s + t.amount; }, 0);
+    }).reduce(function(s,t) { return s + vAmt(t); }, 0);
   }
 
   // ヘッダー行
@@ -3306,7 +3753,7 @@ function renderMonthlyPL() {
   months.forEach(function(m, i) {
     var v = incTotals[i];
     incMonthTotal += v;
-    html += '<td>' + fmt(v) + '</td>';
+    html += '<td' + (v ? ' onclick="jumpToLedger(\'all\',' + m + ',\'income\')" title="クリックでこの月の収入を元帳で表示" style="cursor:pointer"' : '') + '>' + fmt(v) + '</td>';
   });
   html += '<td><b>' + fmt(incMonthTotal) + '</b></td></tr>';
 
@@ -3334,7 +3781,7 @@ function renderMonthlyPL() {
   months.forEach(function(m, i) {
     var v = expTotals[i];
     expMonthTotal += v;
-    html += '<td style="color:var(--red)">' + fmt(v) + '</td>';
+    html += '<td style="color:var(--red)' + (v ? ';cursor:pointer" onclick="jumpToLedger(\'all\',' + m + ',\'expense\')" title="クリックでこの月の支出を元帳で表示' : '') + '">' + fmt(v) + '</td>';
   });
   html += '<td style="color:var(--red)"><b>' + fmt(expMonthTotal) + '</b></td></tr>';
 
@@ -3355,7 +3802,7 @@ function renderMonthlyPL() {
 // ── 月別残高推移 ──
 function renderMonthlyBS() {
   var y = state.year;
-  document.getElementById('mbs-sub').textContent = y + '\u5e74\u5ea6 \u6708\u5225\u7d2f\u8a08\u6b8b\u9ad8';
+  document.getElementById('mbs-sub').textContent = y + '年度 月別累計残高（' + taxViewLabel() + '）';
   var months = FY_MONTHS;
   var txs = allTxOfYear(y);
 
@@ -3365,7 +3812,7 @@ function renderMonthlyBS() {
       return t.catId === catId
         && t.type === type
         && fyIndex(parseInt(t.date.slice(5,7))) <= fyIndex(upToMonth);
-    }).reduce(function(s,t) { return s + t.amount; }, 0);
+    }).reduce(function(s,t) { return s + vAmt(t); }, 0);
   }
 
   // 収入の累計残高
@@ -3386,7 +3833,7 @@ function renderMonthlyBS() {
       var v = cumByMonth(cat.id, m, 'income');
       if (v) hasData = true;
       lastVal = v;
-      rowHtml += '<td>' + (v ? '<span class="monthly-val-pos">' + fmt(v) + '</span>' : '\u2014') + '</td>';
+      rowHtml += '<td' + (v ? ' onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックでこの科目の総勘定元帳へ" style="cursor:pointer"' : '') + '>' + (v ? '<span class="monthly-val-pos">' + fmt(v) + '</span>' : '—') + '</td>';
     });
     rowHtml += '<td><b>' + (lastVal ? fmt(lastVal) : '\u2014') + '</b></td></tr>';
     if (hasData) { html += rowHtml; incRowTotals.push(lastVal); }
@@ -3394,10 +3841,10 @@ function renderMonthlyBS() {
   // 収入累計合計
   html += '<tr class="subtotal-row"><td>\u25b6 \u53ce\u5165\u7d2f\u8a08\u5408\u8a08</td>';
   months.forEach(function(m) {
-    var v = txs.filter(function(t) { return t.type==='income' && parseInt(t.date.slice(5,7))<=m; }).reduce(function(s,t){return s+t.amount;},0);
+    var v = vSum(txs.filter(function(t) { return t.type==='income' && fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m); }));
     html += '<td>' + fmt(v) + '</td>';
   });
-  var incFinal = txs.filter(function(t){return t.type==='income';}).reduce(function(s,t){return s+t.amount;},0);
+  var incFinal = vSum(txs.filter(function(t){return t.type==='income';}));
   html += '<td><b>' + fmt(incFinal) + '</b></td></tr>';
 
   // 支出累計セクション
@@ -3411,7 +3858,7 @@ function renderMonthlyBS() {
       var v = cumByMonth(cat.id, m, 'expense');
       if (v) hasData = true;
       lastVal = v;
-      rowHtml += '<td>' + (v ? '<span class="monthly-val-neg">' + fmt(v) + '</span>' : '\u2014') + '</td>';
+      rowHtml += '<td' + (v ? ' onclick="jumpToLedger(\'' + cat.id + '\')" title="クリックでこの科目の総勘定元帳へ" style="cursor:pointer"' : '') + '>' + (v ? '<span class="monthly-val-neg">' + fmt(v) + '</span>' : '—') + '</td>';
     });
     rowHtml += '<td><b>' + (lastVal ? fmt(lastVal) : '\u2014') + '</b></td></tr>';
     if (hasData) html += rowHtml;
@@ -3419,17 +3866,17 @@ function renderMonthlyBS() {
   // 支出累計合計
   html += '<tr class="subtotal-row"><td>\u25b6 \u652f\u51fa\u7d2f\u8a08\u5408\u8a08</td>';
   months.forEach(function(m) {
-    var v = txs.filter(function(t){return t.type==='expense'&&parseInt(t.date.slice(5,7))<=m;}).reduce(function(s,t){return s+t.amount;},0);
+    var v = vSum(txs.filter(function(t){return t.type==='expense'&&fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m);}));
     html += '<td style="color:var(--red)">' + fmt(v) + '</td>';
   });
-  var expFinal = txs.filter(function(t){return t.type==='expense';}).reduce(function(s,t){return s+t.amount;},0);
+  var expFinal = vSum(txs.filter(function(t){return t.type==='expense';}));
   html += '<td style="color:var(--red)"><b>' + fmt(expFinal) + '</b></td></tr>';
 
   // 累計損益行
   html += '<tr class="' + (incFinal >= expFinal ? 'profit-row' : 'loss-row') + '"><td>\u25b6 \u7d2f\u8a08\u640d\u76ca</td>';
   months.forEach(function(m) {
-    var vi = txs.filter(function(t){return t.type==='income'&&parseInt(t.date.slice(5,7))<=m;}).reduce(function(s,t){return s+t.amount;},0);
-    var ve = txs.filter(function(t){return t.type==='expense'&&parseInt(t.date.slice(5,7))<=m;}).reduce(function(s,t){return s+t.amount;},0);
+    var vi = vSum(txs.filter(function(t){return t.type==='income'&&fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m);}));
+    var ve = vSum(txs.filter(function(t){return t.type==='expense'&&fyIndex(parseInt(t.date.slice(5,7)))<=fyIndex(m);}));
     html += '<td>' + fmt(vi-ve) + '</td>';
   });
   html += '<td><b>' + fmt(incFinal-expFinal) + '</b></td></tr>';
@@ -3530,8 +3977,8 @@ function onCsvFileSelected(e) {
         var catName = cols[2];
         var note = cols[3] || '';
         var amount = parseInt(String(cols[4]).replace(/[^\d]/g,'')) || 0;
-        var taxRate = parseInt(cols[5]) || 10;
-        if (![0,8,10].includes(taxRate)) taxRate = 10;
+        var _rp = parseRateSel(cols[5] === undefined || cols[5] === '' ? '10' : cols[5]);
+        var taxRate = _rp.rate, ded = _rp.ded;
 
         // 科目マッチング
         var cat = state.categories.find(function(c){
@@ -3544,9 +3991,9 @@ function onCsvFileSelected(e) {
 
         if (amount <= 0) { skipped++; return; }
 
-        var r = calcTax(amount, taxRate);
+        var r = calcTax(amount, taxRate, ded);
         csvImportRows.push({
-          date: date, type: type, catId: cat ? cat.id : '',
+          date: date, type: type, catId: cat ? cat.id : '', ded: ded,
           catName: cat ? cat.name : catName + '(\u672a\u4e00\u81f4)',
           note: note, amount: amount, taxRate: taxRate,
           excl: r.excl, tax: r.tax,
@@ -3576,7 +4023,7 @@ function onCsvFileSelected(e) {
             + '<td style="padding:5px 10px;font-size:11px' + (!r.matched?';color:var(--red)':'') + '">' + r.catName + '</td>'
             + '<td style="padding:5px 10px;font-size:11px">' + r.note + '</td>'
             + '<td style="padding:5px 10px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
-            + '<td style="padding:5px 10px;text-align:center">' + (r.taxRate===0?'\u975e\u8ab2\u7a0e':r.taxRate+'%') + '</td></tr>';
+            + '<td style="padding:5px 10px;text-align:center">' + rateLabel(r.taxRate, r.ded) + '</td></tr>';
         }).join('') + '</tbody>';
 
       var unmatched = csvImportRows.filter(function(r){return !r.matched;}).length;
@@ -3603,7 +4050,7 @@ function execCsvImport() {
     pushTx({
       id: uid(), date: r.date, type: r.type, catId: r.catId,
       note: r.note, amount: r.amount, taxRate: r.taxRate,
-      excl: r.excl, tax: r.tax
+      excl: r.excl, tax: r.tax, ded: (r.ded && r.ded < 100) ? r.ded : undefined
     });
     added++;
   });
@@ -3662,12 +4109,13 @@ function renderCmpLines(side) {
 
     var rt = document.createElement('select');
     rt.style.cssText = 'padding:6px 4px;border:1px solid var(--rule);border-radius:6px;font-family:inherit;font-size:11px;outline:none;min-width:0';
-    [[10,'10%'],[8,'\u8efd8%'],[0,'\u975e\u8ab2']].forEach(function(o){
+    [['10','10%'],['10-80','10%控80'],['10-50','10%控50'],['8','軽8%'],['0','非課']].forEach(function(o){
       var op=document.createElement('option'); op.value=o[0]; op.textContent=o[1];
-      if (parseInt(ln.rate) === o[0]) op.selected = true;
+      if (rateSelVal(ln.rate === undefined || ln.rate === '' ? 10 : parseInt(ln.rate), ln.ded) === o[0]) op.selected = true;
       rt.appendChild(op);
     });
-    rt.addEventListener('change', function(){ ln.rate = parseInt(rt.value); });
+    rt.title = '控80・控50＝インボイス（登録番号）なしの経過措置（控除80%・50%）';
+    rt.addEventListener('change', function(){ var p = parseRateSel(rt.value); ln.rate = p.rate; ln.ded = p.ded; });
 
     var del = document.createElement('button');
     del.className = 'btn btn-danger btn-sm'; del.textContent = '\u00d7';
@@ -3711,9 +4159,10 @@ function saveCmpJournal() {
     return arr.filter(function(x){ return x.acc && (parseInt(x.amt)||0) > 0; })
       .map(function(x) {
         var rate = parseInt(x.rate); if ([0,8,10].indexOf(rate) === -1) rate = 10;
+        var ded = (rate === 10) ? dedOf(x) : 100;
         var amt = parseInt(x.amt);
-        var t = calcTax(amt, rate);
-        return { acc:x.acc, sub:x.sub||'', amt:amt, rate:rate, excl:t.excl, tax:t.tax };
+        var t = calcTax(amt, rate, ded);
+        return withDed({ acc:x.acc, sub:x.sub||'', amt:amt, rate:rate, excl:t.excl, tax:t.tax }, ded);
       });
   };
   var dl = clean(cmpD), cl = clean(cmpC);
@@ -3808,8 +4257,8 @@ function onJCsvFileSelected(e) {
         var dName = cols[1], cName = cols[2];
         var dSubName = (cols[6] || '').trim(), cSubName = (cols[7] || '').trim();
         var amount = parseInt(String(cols[3]).replace(/[^\d]/g,'')) || 0;
-        var rate = parseInt(cols[4]);
-        if ([0,8,10].indexOf(rate) === -1) rate = 10;
+        var _rp = parseRateSel(cols[4]);
+        var rate = _rp.rate, ded = _rp.ded;
         var memo = cols[5] || '';
 
         var dCat = findAccByName(dName);
@@ -3820,7 +4269,7 @@ function onJCsvFileSelected(e) {
         if (!cCat) err.push('\u8cb8\u65b9\u79d1\u76ee');
         if (amount <= 0) err.push('\u91d1\u984d');
 
-        if (dCat && cCat && isBsTransfer(dCat.id, cCat.id)) rate = 0;
+        if (dCat && cCat && isBsTransfer(dCat.id, cCat.id)) { rate = 0; ded = 100; }
 
         var dSub = '', cSub = '';
         if (dSubName && dCat) {
@@ -3836,7 +4285,7 @@ function onJCsvFileSelected(e) {
           line: idx + 1, date: date,
           dAcc: dCat ? dCat.id : '', dName: dCat ? dCat.name : dName, dSub: dSub, dSubName: dSubName,
           cAcc: cCat ? cCat.id : '', cName: cCat ? cCat.name : cName, cSub: cSub, cSubName: cSubName,
-          amount: amount, rate: rate, memo: memo,
+          amount: amount, rate: rate, ded: ded, memo: memo,
           err: err
         });
       });
@@ -3880,7 +4329,7 @@ function onJCsvFileSelected(e) {
             + '<td style="padding:4px 8px;font-size:11px' + (r.cAcc?'':';color:var(--red);font-weight:700') + '">' + r.cName
             + (r.cSubName ? '<span style="color:var(--ink-soft)"> \u203a ' + r.cSubName + '</span>' : '') + '</td>'
             + '<td style="padding:4px 8px;text-align:right;font-family:monospace">' + fmt(r.amount) + '</td>'
-            + '<td style="padding:4px 8px;text-align:center;font-size:11px">' + (r.rate===0?'\u975e\u8ab2\u7a0e':r.rate+'%') + '</td>'
+            + '<td style="padding:4px 8px;text-align:center;font-size:11px">' + rateLabel(r.rate, r.ded) + '</td>'
             + '<td style="padding:4px 8px;font-size:11px;color:var(--ink-soft)">' + (r.memo||'\u2014') + '</td></tr>';
         }).join('') + '</tbody>';
 
@@ -3918,12 +4367,12 @@ function execJCsvImport() {
   if (!state.journals) state.journals = [];
   var added = 0;
   jCsvRows.forEach(function(r) {
-    var t = calcTax(r.amount, r.rate);
-    state.journals.push({
+    var t = calcTax(r.amount, r.rate, r.ded);
+    state.journals.push(withDed({
       id: uid(), date: r.date, memo: r.memo,
       dAcc: r.dAcc, dSub: r.dSub||'', dAmt: r.amount, dExcl: t.excl, dTax: t.tax, rate: r.rate,
       cAcc: r.cAcc, cSub: r.cSub||'', cAmt: r.amount, src: 'csv'
-    });
+    }, r.ded));
     added++;
   });
   state.journals.sort(function(a,b){ return b.date.localeCompare(a.date); });
@@ -4266,7 +4715,7 @@ function openTxEdit(id) {
   document.getElementById('txEditType').value = t.type;
   document.getElementById('txEditNote').value = t.note || '';
   document.getElementById('txEditAmount').value = t.amount;
-  document.getElementById('txEditTaxRate').value = t.taxRate !== undefined ? t.taxRate : 10;
+  document.getElementById('txEditTaxRate').value = rateSelVal(t.taxRate !== undefined ? t.taxRate : 10, t.ded);
   document.getElementById('txEditPay').value = t.payAcc || (t.pay === 'cash' ? 'b_cash' : 'b_bank');
   // 科目セレクト更新
   var sel = document.getElementById('txEditCategory');
@@ -4289,16 +4738,17 @@ function saveTxEdit() {
   var catId = document.getElementById('txEditCategory').value;
   var note = document.getElementById('txEditNote').value.trim();
   var amount = parseInt(document.getElementById('txEditAmount').value);
-  var taxRate = parseInt(document.getElementById('txEditTaxRate').value);
+  var _p = parseRateSel(document.getElementById('txEditTaxRate').value), taxRate = _p.rate;
   if (!date || !catId || isNaN(amount) || amount <= 0) {
     document.getElementById('txEditMsg').textContent = '日付・科目・金額を入力してください。';
     document.getElementById('txEditMsg').className = 'modal-msg err';
     return;
   }
-  var r = calcTax(amount, taxRate);
+  var r = calcTax(amount, taxRate, _p.ded);
   t.date = date; t.type = type; t.catId = catId;
   t.note = note; t.amount = amount; t.taxRate = taxRate;
   t.excl = r.excl; t.tax = r.tax;
+  withDed(t, _p.ded);
   t.payAcc = document.getElementById('txEditPay').value;
   t.pay = (t.payAcc === 'b_cash') ? 'cash' : 'other';
   if (journalOfTx(t.id)) syncJournalOfTx(t);
@@ -4320,12 +4770,13 @@ function openJournalEdit(id) {
   document.getElementById('jEditMemo').value = j.memo || '';
   document.getElementById('jEditDebitAmt').value = j.dAmt;
   document.getElementById('jEditCreditAmt').value = j.cAmt;
-  document.getElementById('jEditTaxRate').value = j.rate !== undefined ? j.rate : 10;
+  document.getElementById('jEditTaxRate').value = rateSelVal(j.rate !== undefined ? j.rate : 10, j.ded);
   // 借方・貸方セレクト更新（全科目から選択可）
   fillAccSelect(document.getElementById('jEditDebitAcc'), j.dAcc);
   fillAccSelect(document.getElementById('jEditCreditAcc'), j.cAcc);
   fillSubSelect(document.getElementById('jEditDebitSub'), j.dAcc, j.dSub||'', document.getElementById('jEditDebitSubWrap'));
   fillSubSelect(document.getElementById('jEditCreditSub'), j.cAcc, j.cSub||'', document.getElementById('jEditCreditSubWrap'));
+  syncJEditSubRows();
   document.getElementById('jEditMsg').textContent = '';
   document.getElementById('journalEditModal').classList.remove('hidden');
 }
@@ -4337,7 +4788,7 @@ function saveJournalEdit() {
   var memo = document.getElementById('jEditMemo').value.trim();
   var dAcc = document.getElementById('jEditDebitAcc').value;
   var dAmt = parseInt(document.getElementById('jEditDebitAmt').value);
-  var rate = parseInt(document.getElementById('jEditTaxRate').value);
+  var _p = parseRateSel(document.getElementById('jEditTaxRate').value), rate = _p.rate;
   var cAcc = document.getElementById('jEditCreditAcc').value;
   var cAmt = parseInt(document.getElementById('jEditCreditAmt').value) || dAmt;
   if (!date || !dAcc || !cAcc || isNaN(dAmt) || dAmt <= 0) {
@@ -4345,9 +4796,10 @@ function saveJournalEdit() {
     document.getElementById('jEditMsg').className = 'modal-msg err';
     return;
   }
-  var r = calcTax(dAmt, rate);
+  var r = calcTax(dAmt, rate, _p.ded);
   j.date = date; j.memo = memo; j.dAcc = dAcc; j.dAmt = dAmt;
   j.dExcl = r.excl; j.dTax = r.tax; j.rate = rate;
+  withDed(j, _p.ded);
   j.cAcc = cAcc; j.cAmt = cAmt;
   j.dSub = (document.getElementById('jEditDebitSub')||{}).value || '';
   j.cSub = (document.getElementById('jEditCreditSub')||{}).value || '';
@@ -4427,10 +4879,10 @@ function addCashTx() {
   var catId = document.getElementById('cbCategory').value;
   var note = document.getElementById('cbNote').value.trim();
   var amount = parseInt(document.getElementById('cbAmount').value);
-  var taxRate = parseInt(document.getElementById('cbTaxRate').value);
+  var _p = parseRateSel(document.getElementById('cbTaxRate').value), taxRate = _p.rate;
   if (!date || !catId || isNaN(amount) || amount <= 0) { alert('日付・科目・金額を入力してください。'); return; }
-  var r = calcTax(amount, taxRate);
-  pushTx({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: 'cash', payAcc: 'b_cash' });
+  var r = calcTax(amount, taxRate, _p.ded);
+  pushTx(withDed({ id: uid(), date: date, type: type, catId: catId, note: note, amount: amount, taxRate: taxRate, excl: r.excl, tax: r.tax, pay: 'cash', payAcc: 'b_cash' }, _p.ded));
   state.transactions.sort(function(a, b) { return b.date.localeCompare(a.date); });
   saveToFb().then(function() { renderAll(); });
   document.getElementById('cbNote').value = '';
@@ -4450,7 +4902,7 @@ function cashRowsOfYear() {
     var c = catById(t.catId);
     return { date: t.date, isIn: t.type === 'income', amount: t.amount,
              name: (c.icon ? c.icon + ' ' : '') + c.name, note: t.note || '',
-             txId: t.id, jId: '' };
+             txId: t.id, jId: '', catId: t.catId };
   });
   (state.journals || []).forEach(function(j) {
     if (j.srcId) return;
@@ -4507,7 +4959,7 @@ function renderCashbook() {
   var openBal = (month === 'all') ? cashOpenOf(state.year) : carry;
 
   var html = '<tr style="background:var(--paper-alt);font-weight:600">'
-    + '<td>' + (month === 'all' ? state.year + '/07/01' : '') + '</td>'
+    + '<td>' + (month === 'all' ? fyStart().replace(/-/g, '/') : '') + '</td>'
     + '<td>' + openLabel + '</td><td></td>'
     + '<td style="text-align:right">—</td><td style="text-align:right">—</td>'
     + '<td style="text-align:right">' + fmt(openBal) + '</td>'
@@ -4519,11 +4971,12 @@ function renderCashbook() {
     rows.forEach(function(r) {
       var btns = r.tx.jId
         ? '<button class="btn btn-secondary btn-sm" onclick="jumpToJournal(\'' + r.tx.jId + '\')">仕訳へ</button>'
-        : '<button class="btn btn-secondary btn-sm" data-edit-tx="' + r.tx.txId + '">編集</button>'
+        : '<button class="btn btn-secondary btn-sm" onclick="jumpToTx(\'' + r.tx.txId + '\')" title="収支記録のこの取引へ">収支へ</button>'
+          + '<button class="btn btn-secondary btn-sm" data-edit-tx="' + r.tx.txId + '">編集</button>'
           + '<button class="btn btn-danger btn-sm" data-del-tx="' + r.tx.txId + '">削除</button>';
       html += '<tr>'
         + '<td>' + r.tx.date + '</td>'
-        + '<td>' + r.tx.name + '</td>'
+        + '<td>' + (r.tx.catId ? '<span class="lnk lnk-name" onclick="jumpToLedger(\'' + r.tx.catId + '\')" title="クリックで総勘定元帳へ">' + r.tx.name + ' <span style="font-size:10px;color:var(--accent)">›</span></span>' : r.tx.name) + '</td>'
         + '<td>' + (r.tx.note || '') + '</td>'
         + '<td style="text-align:right;color:var(--green)">' + (r.isIn ? fmt(r.tx.amount) : '') + '</td>'
         + '<td style="text-align:right;color:var(--red)">' + (r.isIn ? '' : fmt(r.tx.amount)) + '</td>'
@@ -4540,8 +4993,754 @@ function renderCashbook() {
 }
 
 window.initFirebase = initFirebase;
+/* 資金繰り表（独立機能）が使う：通信と会社キー・期の月順だけを渡す */
+window.kaikeiFbFetch = fbFetch;
+window.kaikeiCompanyKey = COMPANY_KEY;
+window.kaikeiFyMonths = FY_MONTHS;
 window.kaikeiStopSync = function(){ if (pollTimer) clearInterval(pollTimer); };
 init();
+})();
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   資金繰り表（独立機能）
+   ・仕訳・試算表・収支記録・現金出納帳とは一切つながらない
+   ・保存先は Firebase /companies/<会社キー>/shikin（会計データ /kaikei とは別ノード）
+   ・この端末の控えは localStorage 'kaikei_<会社キー>_shikin_v1'
+   ・本体側から借りるのは window.kaikeiFbFetch / kaikeiCompanyKey / kaikeiFyMonths の3つだけ
+   ══════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+var CO = window.kaikeiCompanyKey || 'hm';
+var LS_KEY = 'kaikei_' + CO + '_shikin_v1';
+var LS_UI = 'kaikei_' + CO + '_shikin_ui';
+var FB_PATH = '/companies/' + CO + '/shikin';
+var FY = (window.kaikeiFyMonths && window.kaikeiFyMonths.length === 12) ? window.kaikeiFyMonths : [7,8,9,10,11,12,1,2,3,4,5,6];
+
+var sk = blank();
+var ui = { tab: 'month', sheetId: null, yearId: null, bd: {} };
+var lastRemote = '', dirty = false, saving = false, saveTimer = null, poll = null, started = false, pendingRender = false;
+var menuTarget = null;
+
+function blank() { return { v: 1, sheets: [], tpl: { inc: [], pay: [] }, years: [], updatedAt: 0 }; }
+function $(id) { return document.getElementById(id); }
+function uid() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function n0(v) { return (typeof v === 'number' && isFinite(v)) ? v : 0; }
+function fmtIn(v) { return (typeof v === 'number' && isFinite(v)) ? Math.round(v).toLocaleString('ja-JP') : ''; }
+function fmtY(v) { v = Math.round(n0(v)); return (v < 0 ? '△' : '') + '¥' + Math.abs(v).toLocaleString('ja-JP'); }
+function half(s) { return String(s).replace(/[０-９＋－ー−×÷＊／（）．，＝]/g, function(c) {
+  var m = { '＋': '+', '－': '-', 'ー': '-', '−': '-', '×': '*', '÷': '/', '＊': '*', '／': '/', '（': '(', '）': ')', '．': '.', '，': ',', '＝': '=' };
+  return m[c] || String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+}); }
+// 金額の読み取り：カンマ・円・△に対応。「=」や「+ - * /」を使った式も計算する
+function parseAmt(str) {
+  var s = half(str).replace(/[,¥￥円\s]/g, '');
+  if (s === '') return null;
+  if (s.charAt(0) === '△' || s.charAt(0) === '▲') s = '-' + s.slice(1);
+  if (s.charAt(0) === '=') s = s.slice(1);
+  if (!/^[0-9+\-*/().]+$/.test(s)) return NaN;
+  try { var v = Function('"use strict";return (' + s + ')')(); return (typeof v === 'number' && isFinite(v)) ? Math.round(v) : NaN; }
+  catch (e) { return NaN; }
+}
+function reiwa(ym) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7); return 'R' + (y - 2018) + '.' + m; }
+function addMonth(ym, k) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1 + k; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12; return y + '-' + ('0' + (m + 1)).slice(-2); }
+function thisYm() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+// ── データの整え ──
+function normRow(r, isInc) {
+  var o = { id: r.id || uid(), name: r.name == null ? '' : String(r.name), amt: (typeof r.amt === 'number' && isFinite(r.amt)) ? r.amt : null, memo: r.memo == null ? '' : String(r.memo), done: !!r.done };
+  if (r.off) o.off = true;
+  if (isInc) o.kind = r.kind === 'other' ? 'other' : 'sales';
+  if (r.bd && r.bd.items) o.bd = { items: r.bd.items.map(function(it) { return { name: it.name == null ? '' : String(it.name), amt: (typeof it.amt === 'number' && isFinite(it.amt)) ? it.amt : null }; }), fee: n0(r.bd.fee), tax: r.bd.tax !== false };
+  return o;
+}
+function normalize(d) {
+  var o = blank();
+  if (!d || typeof d !== 'object') return o;
+  o.updatedAt = d.updatedAt || 0;
+  (d.sheets || []).forEach(function(s) {
+    o.sheets.push({ id: s.id || uid(), name: s.name || '', ym: /^\d{4}-\d{2}$/.test(s.ym || '') ? s.ym : thisYm(), target: s.target || '',
+      openBal: (typeof s.openBal === 'number') ? s.openBal : null, rate: (typeof s.rate === 'number') ? s.rate : 90,
+      inc: (s.inc || []).map(function(r) { return normRow(r, true); }), pay: (s.pay || []).map(function(r) { return normRow(r, false); }), memo: s.memo || '' });
+  });
+  var t = d.tpl || {};
+  o.tpl.inc = (t.inc || []).map(function(r) { var x = normRow(r, true); x.done = false; return x; });
+  o.tpl.pay = (t.pay || []).map(function(r) { var x = normRow(r, false); x.done = false; return x; });
+  (d.years || []).forEach(function(y) {
+    o.years.push({ id: y.id || uid(), ki: +y.ki || 0, y0: +y.y0 || new Date().getFullYear(), note: y.note || '',
+      rows: (y.rows || []).map(function(r) { var m = []; for (var i = 0; i < 12; i++) { var v = r.m ? r.m[i] : null; m.push((typeof v === 'number' && isFinite(v)) ? v : null); } return { id: r.id || uid(), name: r.name || '', m: m }; }) });
+  });
+  return o;
+}
+function sortedSheets() {
+  return sk.sheets.slice().sort(function(a, b) { return a.ym < b.ym ? 1 : a.ym > b.ym ? -1 : (a.name < b.name ? 1 : a.name > b.name ? -1 : 0); });
+}
+function curSheet() {
+  var s = sk.sheets.filter(function(x) { return x.id === ui.sheetId; })[0];
+  if (!s) { s = sortedSheets()[0] || null; ui.sheetId = s ? s.id : null; }
+  return s;
+}
+function curYear() {
+  var y = sk.years.filter(function(x) { return x.id === ui.yearId; })[0];
+  if (!y) {
+    var arr = sk.years.slice().sort(function(a, b) { return a.y0 - b.y0; });
+    var d = new Date(), fyY = (d.getMonth() + 1) >= FY[0] ? d.getFullYear() : d.getFullYear() - 1;
+    y = arr.filter(function(x) { return x.y0 === fyY; })[0] || arr[arr.length - 1] || null;
+    ui.yearId = y ? y.id : null;
+  }
+  return y;
+}
+function getList(key) {
+  if (key === 'tinc') return sk.tpl.inc;
+  if (key === 'tpay') return sk.tpl.pay;
+  var s = curSheet(); if (!s) return [];
+  return key === 'inc' ? s.inc : s.pay;
+}
+function bdCalc(bd) {
+  var sub = 0; bd.items.forEach(function(it) { sub += n0(it.amt); });
+  var fee = Math.floor(sub * n0(bd.fee) / 100);
+  var base = sub + fee;
+  var tax = bd.tax ? Math.floor(base * 0.1) : 0;
+  return { sub: sub, fee: fee, base: base, tax: tax, total: base + tax };
+}
+function calc(s) {
+  var r = { inc: 0, incDone: 0, pay: 0, payDone: 0 };
+  s.inc.forEach(function(x) { if (x.off) return; r.inc += n0(x.amt); if (x.done) r.incDone += n0(x.amt); });
+  s.pay.forEach(function(x) { if (x.off) return; r.pay += n0(x.amt); if (x.done) r.payDone += n0(x.amt); });
+  r.diff = r.inc - r.pay;
+  r.rate = n0(s.rate);
+  r.safe = Math.floor(r.inc * r.rate / 100) - r.pay;
+  r.end = (typeof s.openBal === 'number') ? s.openBal + r.inc - r.pay : null;
+  return r;
+}
+
+// ── 保存・同期 ──
+function saveLocal() { lsSet(LS_KEY, JSON.stringify(sk)); }
+function saveUi() { lsSet(LS_UI, JSON.stringify({ tab: ui.tab, sheetId: ui.sheetId, yearId: ui.yearId })); }
+function badge(cls, txt) { var b = $('skSync'); if (b) { b.className = 'sk-sync ' + cls; b.textContent = txt; } }
+function changed() {
+  dirty = true; saveLocal();
+  badge('wait', '⟳ 保存待ち');
+  clearTimeout(saveTimer); saveTimer = setTimeout(push, 900);
+}
+function push() {
+  var f = window.kaikeiFbFetch;
+  if (!f || !started) { badge('wait', 'この端末に保存（未接続）'); return; }
+  if (saving) { clearTimeout(saveTimer); saveTimer = setTimeout(push, 700); return; }
+  saving = true; sk.updatedAt = Date.now(); saveLocal();
+  var body = clone(sk), str = JSON.stringify(body);
+  badge('wait', '⟳ 保存中');
+  f(FB_PATH, 'PUT', body).then(function() {
+    saving = false; lastRemote = str;
+    if (JSON.stringify(sk) === str) { dirty = false; badge('ok', '✓ 保存済み'); }
+    else { changed(); }
+  }).catch(function() { saving = false; badge('err', '⚠ 保存失敗（この端末には残っています）'); });
+}
+function editing() {
+  var a = document.activeElement, pg = $('page-shikin');
+  return !!(a && pg && pg.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName));
+}
+function applyRemote(data) {
+  sk = normalize(data); saveLocal();
+  if (editing()) pendingRender = true; else render();
+}
+function start() {
+  var f = window.kaikeiFbFetch; if (!f) return;
+  started = true; badge('wait', '⟳ 読込中');
+  f(FB_PATH).then(function(data) {
+    if (data && data.sheets) {
+      lastRemote = JSON.stringify(data);
+      var local = normalize(JSON.parse(lsGet(LS_KEY) || 'null'));
+      if (dirty && local.updatedAt > (data.updatedAt || 0)) { push(); }
+      else { applyRemote(data); }
+      badge('ok', '✓ 同期済み');
+    } else if (sk.sheets.length || sk.years.length || sk.tpl.inc.length || sk.tpl.pay.length) {
+      push();
+    } else {
+      badge('ok', '✓ 接続済み（データなし）');
+    }
+    if (poll) clearInterval(poll);
+    poll = setInterval(tick, 10000);
+  }).catch(function() { badge('err', '⚠ 接続失敗（この端末に保存）'); });
+}
+function tick() {
+  var f = window.kaikeiFbFetch; if (!f || saving) return;
+  if (dirty) { push(); return; }
+  f(FB_PATH).then(function(data) {
+    if (!data || !data.sheets || dirty || saving) return;
+    var s = JSON.stringify(data);
+    if (s !== lastRemote) { lastRemote = s; applyRemote(data); badge('ok', '✓ 同期済み'); }
+  }).catch(function() { badge('err', '⚠ 同期エラー'); });
+}
+function stop() { if (poll) clearInterval(poll); poll = null; started = false; }
+
+// ── 描画 ──
+function render() {
+  pendingRender = false;
+  var body = $('skBody'); if (!body) return;
+  document.querySelectorAll('#page-shikin .sk-tab').forEach(function(b) { b.classList.toggle('on', b.getAttribute('data-sktab') === ui.tab); });
+  if (ui.tab === 'year') body.innerHTML = renderYear();
+  else if (ui.tab === 'tpl') body.innerHTML = renderTpl();
+  else body.innerHTML = renderMonth();
+  refreshTotals();
+  saveUi();
+}
+function rowHtml(key, r, i, withDone) {
+  var isInc = (key === 'inc' || key === 'tinc');
+  var cls = 'sk-row' + (r.done && withDone ? ' done' : '') + (r.off ? ' off' : '');
+  var h = '<tr class="' + cls + '" data-list="' + key + '" data-i="' + i + '">';
+  if (withDone) h += '<td class="sk-c-chk"><input type="checkbox" data-f="done"' + (r.done ? ' checked' : '') + ' title="' + (isInc ? '入金済み' : '支払済み') + '"></td>';
+  h += '<td><div class="sk-namewrap"><input class="sk-in" data-f="name" value="' + esc(r.name) + '" placeholder="項目名">';
+  if (isInc && r.kind === 'other') h += '<span class="sk-tag other" title="売上ではない入金（借入・振替など）">他</span>';
+  if (r.off) h += '<span class="sk-tag offt">合計外</span>';
+  if (r.bd) h += '<span class="sk-tag bd" data-act="bd" title="内訳を開く／閉じる">内訳</span>';
+  h += '</div></td>';
+  h += '<td class="sk-c-amt"><input class="sk-in sk-amt" data-f="amt" inputmode="decimal" value="' + esc(fmtIn(r.amt)) + '" placeholder=""></td>';
+  h += '<td class="sk-c-memo"><input class="sk-in sk-memo" data-f="memo" value="' + esc(r.memo) + '"></td>';
+  h += '<td class="sk-c-menu"><button class="sk-menu-btn" data-act="menu" title="この行の操作">⋯</button></td></tr>';
+  if (r.bd && ui.bd[r.id]) h += bdHtml(key, r, i, withDone ? 5 : 4);
+  return h;
+}
+function bdHtml(key, r, i, span) {
+  var c = bdCalc(r.bd);
+  var h = '<tr class="sk-bd" data-list="' + key + '" data-i="' + i + '"><td colspan="' + span + '"><div class="sk-bd-box">';
+  h += '<div class="sk-bd-title">📋 「' + esc(r.name || '（名前なし）') + '」の内訳</div><table>';
+  r.bd.items.forEach(function(it, j) {
+    h += '<tr><td><input class="sk-in" data-bf="name" data-j="' + j + '" value="' + esc(it.name) + '" placeholder="協力会社名など"></td>'
+      + '<td style="width:120px"><input class="sk-in sk-amt" data-bf="amt" data-j="' + j + '" inputmode="decimal" value="' + esc(fmtIn(it.amt)) + '" placeholder=""></td>'
+      + '<td style="width:30px" class="print-hide"><button class="sk-menu-btn" data-act="bddel" data-j="' + j + '" title="この行を消す">×</button></td></tr>';
+  });
+  h += '</table><button class="sk-add" data-act="bdadd" style="border-top:none;background:transparent;text-align:left;padding:4px">＋ 内訳の行を追加</button>';
+  h += '<div class="sk-bd-opts">管理費 <input type="number" data-bo="fee" value="' + esc(r.bd.fee) + '" min="0" step="0.1">%'
+    + '<label style="display:flex;gap:4px;align-items:center"><input type="checkbox" data-bo="tax"' + (r.bd.tax ? ' checked' : '') + '> 消費税10%を乗せる</label>'
+    + '<span style="color:var(--ink-soft)">（円未満切り捨て）</span></div>';
+  h += '<div class="sk-bd-calc" data-bdcalc="1">' + bdCalcHtml(c) + '</div>';
+  h += '<div class="print-hide" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="bdapply">↑ この合計を金額に入れる</button><button class="btn btn-secondary btn-sm" data-act="bdclose">閉じる</button></div>';
+  h += '</div></td></tr>';
+  return h;
+}
+function bdCalcHtml(c) {
+  return '小計 ' + fmtY(c.sub) + '　＋ 管理費 ' + fmtY(c.fee) + '　＝ ' + fmtY(c.base)
+    + (c.tax ? '　＋ 消費税 ' + fmtY(c.tax) : '') + '<br>合計 <b>' + fmtY(c.total) + '</b>';
+}
+function listHtml(key, title, rows, withDone) {
+  var isInc = (key === 'inc' || key === 'tinc');
+  var h = '<div class="sk-list"><div class="sk-list-h ' + (isInc ? 'inc' : 'pay') + '"><span>' + title + '</span><small>' + rows.length + '行</small></div>';
+  h += '<table class="sk-tbl"><thead><tr>' + (withDone ? '<th class="sk-c-chk">済</th>' : '') + '<th>項目</th><th class="sk-c-amt" style="text-align:right">金額（税込）</th><th class="sk-c-memo">メモ</th><th class="sk-c-menu"></th></tr></thead><tbody>';
+  rows.forEach(function(r, i) { h += rowHtml(key, r, i, withDone); });
+  h += '</tbody><tfoot>';
+  var span = withDone ? 2 : 1;
+  h += '<tr class="sk-foot"><td colspan="' + span + '">合計（税込）</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
+  if (withDone) h += '<tr class="sk-foot sub"><td colspan="2">' + (isInc ? 'まだ入っていない分' : 'まだ払っていない分') + '</td><td class="num" id="skR-' + key + '"></td><td colspan="2"></td></tr>';
+  h += '</tfoot></table><button class="sk-add" data-act="add" data-list="' + key + '">＋ 行を追加</button></div>';
+  return h;
+}
+function renderMonth() {
+  var s = curSheet();
+  var h = '<div class="sk-toolbar">';
+  h += '<span style="font-size:12px;font-weight:700;color:var(--ink-soft)">表：</span><select id="skSheetSel">';
+  sortedSheets().forEach(function(x) { h += '<option value="' + x.id + '"' + (s && x.id === s.id ? ' selected' : '') + '>' + esc(x.name || reiwa(x.ym)) + (x.target ? '（' + esc(x.target) + '）' : '') + '</option>'; });
+  if (!s) h += '<option>（まだ表がありません）</option>';
+  h += '</select>';
+  h += '<button class="btn btn-primary btn-sm" data-act="newsheet">＋ 新しい表</button>';
+  if (s) h += '<button class="btn btn-secondary btn-sm" data-act="dupsheet" title="同じ月の別案をつくる（Excelの「(2)」と同じ）">⎘ 複製</button>'
+    + '<button class="btn btn-secondary btn-sm" data-act="delsheet">🗑 この表を削除</button>';
+  h += '<span class="sk-sp"></span>' + toolRight(!!s) + '</div>';
+  if (!s) {
+    return h + '<div class="sk-empty">まだ資金繰り表がありません。<br>「＋ 新しい表」で作るか、右の「📂 読み込み」から今までのExcelを変換したデータを読み込んでください。</div>';
+  }
+  h += '<div class="sk-print-title">資金繰り表　' + esc(s.name) + (s.target ? '　（' + esc(s.target) + 'の）' : '') + '<span style="float:right;font-size:11px;font-weight:400">' + esc(s.ym.replace('-', '年') + '月') + '</span></div>';
+  h += '<div class="sk-meta">'
+    + '<div><label>表の名前</label><input data-sf="name" value="' + esc(s.name) + '"></div>'
+    + '<div><label>お金が動く月</label><input type="month" data-sf="ym" value="' + esc(s.ym) + '"></div>'
+    + '<div><label>対象（〇月分）</label><input data-sf="target" value="' + esc(s.target) + '" placeholder="例：9月分"></div>'
+    + '<div><label>月初の預金残高（任意）</label><input data-sf="openBal" inputmode="decimal" value="' + esc(fmtIn(s.openBal)) + '" placeholder="入れると月末残高を計算" style="text-align:right;font-family:\'IBM Plex Mono\',monospace"></div>'
+    + '<div><label>入金の見込み率（%）</label><input type="number" data-sf="rate" value="' + esc(s.rate) + '" min="0" max="100" step="1"></div>'
+    + '</div>';
+  h += '<div class="card-grid g4">'
+    + '<div class="card"><div class="card-label">入金予定（売上高）</div><div class="card-value cv-inc" id="skC-inc"></div><div class="card-note" id="skC-incn"></div></div>'
+    + '<div class="card"><div class="card-label">支払予定</div><div class="card-value cv-exp" id="skC-pay"></div><div class="card-note" id="skC-payn"></div></div>'
+    + '<div class="card"><div class="card-label">差引（入金−支払）</div><div class="card-value cv-prf" id="skC-diff"></div><div class="card-note" id="skC-diffn"></div></div>'
+    + '<div class="card"><div class="card-label" id="skC-safel">入金×90%−支払</div><div class="card-value cv-tax" id="skC-safe"></div><div class="card-note">入金が遅れる分を見込んだ慎重な数字</div></div>'
+    + '</div>';
+  h += '<div class="sk-cols">' + listHtml('inc', '売上高（入金予定）', s.inc, true) + listHtml('pay', '支払い', s.pay, true) + '</div>';
+  h += '<div class="sk-sum">'
+    + '<div class="sk-sum-row"><span>入金予定 合計</span><span class="v" id="skS-inc"></span></div>'
+    + '<div class="sk-sum-row"><span>支払予定 合計</span><span class="v" id="skS-pay"></span></div>'
+    + '<div class="sk-sum-row big"><span>差引（入金 − 支払）</span><span class="v" id="skS-diff"></span></div>'
+    + '<div class="sk-sum-row"><span id="skS-safel">入金×90% − 支払</span><span class="v" id="skS-safe"></span></div>'
+    + '<div class="sk-sum-row" id="skS-endrow"><span>月末の預金残高（見込み）<span class="hint">月初残高＋入金−支払</span></span><span class="v" id="skS-end"></span></div>'
+    + '</div>';
+  h += '<div class="sk-memowrap' + (s.memo ? '' : ' empty') + '"><div class="sk-sec-title">📝 この表のメモ</div><textarea class="sk-sheetmemo" data-sf="memo" placeholder="Excelの欄外に書いていたことなど">' + esc(s.memo) + '</textarea></div>';
+  h += '<div class="sk-ovwrap"><div class="sk-sec-title">📊 表の一覧（行をクリックで開きます）</div><table class="sk-ov"><thead><tr><th>表</th><th>対象</th><th>入金予定</th><th>支払予定</th><th>差引</th><th>見込み率での差引</th></tr></thead><tbody>';
+  sortedSheets().forEach(function(x) {
+    var c = calc(x);
+    h += '<tr data-open="' + x.id + '"' + (x.id === s.id ? ' class="cur"' : '') + '><td>' + esc(x.name) + '</td><td>' + esc(x.target) + '</td><td>' + fmtY(c.inc) + '</td><td>' + fmtY(c.pay) + '</td><td' + (c.diff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.diff) + '</td><td' + (c.safe < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.safe) + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+function toolRight(canPrint) {
+  return (canPrint ? '<button class="btn btn-secondary btn-sm" data-act="print">🖨️ 印刷</button><button class="btn btn-secondary btn-sm" data-act="csv">📊 Excel用CSV</button>' : '')
+    + '<button class="btn btn-secondary btn-sm" data-act="backup" title="資金繰りのデータだけを保存">💾 バックアップ</button>'
+    + '<button class="btn btn-secondary btn-sm" data-act="restore" title="バックアップや変換データを読み込む">📂 読み込み</button>';
+}
+function renderTpl() {
+  var h = '<div class="sk-toolbar"><span style="font-size:12px;color:var(--ink-mid)">「＋ 新しい表 → 原本から作る」を選んだときに使うひな形です。毎月決まった金額（家賃など）は金額も入れておけます。</span><span class="sk-sp"></span>';
+  if (curSheet()) h += '<button class="btn btn-secondary btn-sm" data-act="tplfrom">いま開いている表を原本にする</button>';
+  h += toolRight(false) + '</div>';
+  h += '<div class="sk-cols">' + listHtml('tinc', '売上高（入金）のひな形', sk.tpl.inc, false) + listHtml('tpay', '支払いのひな形', sk.tpl.pay, false) + '</div>';
+  return h;
+}
+function coName() { var t = document.title || ''; return t.indexOf('｜') >= 0 ? t.split('｜').pop() : ''; }
+function ymLabel(y, idx) { var m = FY[idx]; var yr = (m >= FY[0]) ? y.y0 : y.y0 + 1; return { m: m, yr: yr }; }
+function renderYear() {
+  var y = curYear();
+  var h = '<div class="sk-toolbar"><span style="font-size:12px;font-weight:700;color:var(--ink-soft)">期：</span><select id="skYearSel">';
+  sk.years.slice().sort(function(a, b) { return b.y0 - a.y0 || b.ki - a.ki; }).forEach(function(x) {
+    h += '<option value="' + x.id + '"' + (y && x.id === y.id ? ' selected' : '') + '>第' + x.ki + '期（' + x.y0 + '年' + FY[0] + '月〜）</option>';
+  });
+  if (!y) h += '<option>（まだありません）</option>';
+  h += '</select><button class="btn btn-primary btn-sm" data-act="newyear">＋ 新しい期</button>';
+  if (y) h += '<button class="btn btn-secondary btn-sm" data-act="pull">📥 月別の表から取り込む</button><button class="btn btn-secondary btn-sm" data-act="delyear">🗑 この期を削除</button>';
+  h += '<span class="sk-sp"></span>' + toolRight(!!y) + '</div>';
+  if (!y) return h + '<div class="sk-empty">まだ期がありません。「＋ 新しい期」で作れます。</div>';
+  var endM = FY[11], endY = FY[11] >= FY[0] ? y.y0 : y.y0 + 1;
+  h += '<div class="sk-print-title">第' + y.ki + '期　売上高（' + y.y0 + '年' + FY[0] + '月〜' + endY + '年' + endM + '月）<span style="float:right;font-size:11px;font-weight:400">' + esc(coName()) + '</span></div>';
+  h += '<div class="sk-meta" style="grid-template-columns:120px 160px 1fr">'
+    + '<div><label>期</label><input type="number" data-yf="ki" value="' + esc(y.ki) + '"></div>'
+    + '<div><label>期首の年（' + FY[0] + '月が属する年）</label><input type="number" data-yf="y0" value="' + esc(y.y0) + '"></div>'
+    + '<div><label>メモ（〇〇現在 など）</label><input data-yf="note" value="' + esc(y.note) + '"></div></div>';
+  h += '<div class="sk-ywrap"><table class="sk-ytbl"><thead><tr><th>取引先</th>';
+  for (var i = 0; i < 12; i++) { var L = ymLabel(y, i); h += '<th>' + (i === 0 || L.m === 1 ? L.yr + '年' : '') + L.m + '月</th>'; }
+  h += '<th>合計</th><th class="print-hide"></th></tr></thead><tbody>';
+  y.rows.forEach(function(r, ri) {
+    h += '<tr data-list="year" data-i="' + ri + '"><td><input class="sk-in" data-f="yname" value="' + esc(r.name) + '" placeholder="取引先"></td>';
+    for (var k = 0; k < 12; k++) h += '<td class="m"><input class="sk-in" data-f="ym" data-m="' + k + '" inputmode="decimal" value="' + esc(fmtIn(r.m[k])) + '"></td>';
+    h += '<td class="tot" id="skYR-' + ri + '"></td><td class="print-hide"><button class="sk-menu-btn" data-act="menu">⋯</button></td></tr>';
+  });
+  h += '</tbody><tfoot><tr><td>合計</td>';
+  for (var k2 = 0; k2 < 12; k2++) h += '<td id="skYC-' + k2 + '"></td>';
+  h += '<td id="skYC-all"></td><td class="print-hide"></td></tr><tr><td>合計（税抜）</td>';
+  for (var k3 = 0; k3 < 12; k3++) h += '<td id="skYX-' + k3 + '"></td>';
+  h += '<td id="skYX-all"></td><td class="print-hide"></td></tr></tfoot></table></div>';
+  h += '<button class="sk-add" data-act="add" data-list="year" style="border:1px dashed var(--rule);border-radius:0 0 8px 8px">＋ 取引先の行を追加</button>';
+  return h;
+}
+function setTxt(id, txt, neg) { var e = $(id); if (e) { e.textContent = txt; e.classList.toggle('sk-neg', !!neg); } }
+function refreshTotals() {
+  if (ui.tab === 'month') {
+    var s = curSheet(); if (!s) return;
+    var c = calc(s);
+    setTxt('skC-inc', fmtY(c.inc)); setTxt('skC-pay', fmtY(c.pay)); setTxt('skC-diff', fmtY(c.diff), c.diff < 0); setTxt('skC-safe', fmtY(c.safe), c.safe < 0);
+    setTxt('skC-incn', '入金済み ' + fmtY(c.incDone) + '／残り ' + fmtY(c.inc - c.incDone));
+    setTxt('skC-payn', '支払済み ' + fmtY(c.payDone) + '／残り ' + fmtY(c.pay - c.payDone));
+    setTxt('skC-diffn', c.end == null ? '月初残高を入れると月末残高も出ます' : '月末残高の見込み ' + fmtY(c.end));
+    setTxt('skC-safel', '入金×' + c.rate + '%−支払');
+    setTxt('skS-inc', fmtY(c.inc)); setTxt('skS-pay', fmtY(c.pay)); setTxt('skS-diff', fmtY(c.diff), c.diff < 0);
+    setTxt('skS-safel', '入金×' + c.rate + '% − 支払'); setTxt('skS-safe', fmtY(c.safe), c.safe < 0);
+    var er = $('skS-endrow'); if (er) er.style.display = c.end == null ? 'none' : '';
+    if (c.end != null) setTxt('skS-end', fmtY(c.end), c.end < 0);
+    setTxt('skF-inc', fmtY(c.inc)); setTxt('skF-pay', fmtY(c.pay));
+    setTxt('skR-inc', fmtY(c.inc - c.incDone)); setTxt('skR-pay', fmtY(c.pay - c.payDone));
+  } else if (ui.tab === 'tpl') {
+    var a = 0, b = 0;
+    sk.tpl.inc.forEach(function(x) { if (!x.off) a += n0(x.amt); });
+    sk.tpl.pay.forEach(function(x) { if (!x.off) b += n0(x.amt); });
+    setTxt('skF-tinc', fmtY(a)); setTxt('skF-tpay', fmtY(b));
+  } else if (ui.tab === 'year') {
+    var y = curYear(); if (!y) return;
+    var col = [0,0,0,0,0,0,0,0,0,0,0,0], all = 0;
+    y.rows.forEach(function(r, ri) {
+      var t = 0; r.m.forEach(function(v, k) { t += n0(v); col[k] += n0(v); });
+      all += t; setTxt('skYR-' + ri, t ? Math.round(t).toLocaleString('ja-JP') : '');
+    });
+    col.forEach(function(v, k) { setTxt('skYC-' + k, v ? v.toLocaleString('ja-JP') : ''); setTxt('skYX-' + k, v ? Math.round(v / 1.1).toLocaleString('ja-JP') : ''); });
+    setTxt('skYC-all', all.toLocaleString('ja-JP')); setTxt('skYX-all', Math.round(all / 1.1).toLocaleString('ja-JP'));
+  }
+}
+
+// ── 入力の受け取り ──
+function rowOf(el) { var tr = el.closest('tr[data-list]'); if (!tr) return null; return { key: tr.getAttribute('data-list'), i: +tr.getAttribute('data-i'), tr: tr }; }
+function onInput(e) {
+  var t = e.target;
+  var sf = t.getAttribute('data-sf'), yf = t.getAttribute('data-yf'), f = t.getAttribute('data-f'), bf = t.getAttribute('data-bf'), bo = t.getAttribute('data-bo');
+  if (sf) {
+    var s = curSheet(); if (!s) return;
+    if (sf === 'openBal') { var v = parseAmt(t.value); t.classList.toggle('bad', v !== null && isNaN(v)); s.openBal = (v === null || isNaN(v)) ? null : v; }
+    else if (sf === 'rate') { s.rate = parseFloat(t.value) || 0; }
+    else if (sf === 'ym') { if (/^\d{4}-\d{2}$/.test(t.value)) s.ym = t.value; else return; }
+    else s[sf] = t.value;
+    changed(); refreshTotals(); return;
+  }
+  if (yf) {
+    var y = curYear(); if (!y) return;
+    if (yf === 'ki' || yf === 'y0') { var nv = parseInt(t.value, 10); if (!isNaN(nv)) y[yf] = nv; } else y[yf] = t.value;
+    changed(); return;
+  }
+  var ro = rowOf(t); if (!ro) return;
+  if (ro.key === 'year') {
+    var yr = curYear(); if (!yr) return; var row = yr.rows[ro.i]; if (!row) return;
+    if (f === 'yname') row.name = t.value;
+    else if (f === 'ym') { var mv = parseAmt(t.value); t.classList.toggle('bad', mv !== null && isNaN(mv)); row.m[+t.getAttribute('data-m')] = (mv === null || isNaN(mv)) ? null : mv; }
+    changed(); refreshTotals(); return;
+  }
+  var list = getList(ro.key), r = list[ro.i]; if (!r) return;
+  if (bf && r.bd) {
+    var it = r.bd.items[+t.getAttribute('data-j')]; if (!it) return;
+    if (bf === 'amt') { var bv = parseAmt(t.value); t.classList.toggle('bad', bv !== null && isNaN(bv)); it.amt = (bv === null || isNaN(bv)) ? null : bv; }
+    else it.name = t.value;
+    updBdCalc(ro.tr, r); changed(); return;
+  }
+  if (bo && r.bd) {
+    if (bo === 'fee') r.bd.fee = parseFloat(t.value) || 0; else r.bd.tax = t.checked;
+    updBdCalc(ro.tr, r); changed(); return;
+  }
+  if (f === 'done') { r.done = t.checked; ro.tr.classList.toggle('done', r.done); }
+  else if (f === 'amt') { var av = parseAmt(t.value); t.classList.toggle('bad', av !== null && isNaN(av)); r.amt = (av === null || isNaN(av)) ? null : av; }
+  else if (f === 'name' || f === 'memo') r[f] = t.value;
+  changed(); refreshTotals();
+}
+function updBdCalc(tr, r) { var box = tr.querySelector('[data-bdcalc]'); if (box) box.innerHTML = bdCalcHtml(bdCalc(r.bd)); }
+function onBlur(e) {
+  var t = e.target;
+  if (t.classList && (t.classList.contains('sk-amt') || t.getAttribute('data-sf') === 'openBal' || t.getAttribute('data-f') === 'ym')) {
+    var v = parseAmt(t.value);
+    if (v !== null && !isNaN(v)) { t.value = fmtIn(v); t.classList.remove('bad'); }
+  }
+  var sf = t.getAttribute && t.getAttribute('data-sf');
+  if (sf === 'name' || sf === 'target') {
+    var s = curSheet(), sel = $('skSheetSel');
+    if (s && sel && sel.selectedIndex >= 0) sel.options[sel.selectedIndex].textContent = (s.name || reiwa(s.ym)) + (s.target ? '（' + s.target + '）' : '');
+  }
+  if (pendingRender) setTimeout(function() { if (!editing() && pendingRender) render(); }, 50);
+}
+function onKey(e) {
+  if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+  var t = e.target; if (t.tagName !== 'INPUT' || t.type === 'checkbox') return;
+  var tr = t.closest('tr'); if (!tr) return;
+  e.preventDefault();
+  var f = t.getAttribute('data-f'), bf = t.getAttribute('data-bf'), m = t.getAttribute('data-m');
+  var sel = bf ? '[data-bf="' + bf + '"]' : f ? '[data-f="' + f + '"]' + (m != null ? '[data-m="' + m + '"]' : '') : null;
+  if (!sel) { t.blur(); return; }
+  if (bf) {
+    var j = +t.getAttribute('data-j'); var nx = tr.parentNode.querySelector('input[data-bf="' + bf + '"][data-j="' + (j + 1) + '"]');
+    if (nx) { nx.focus(); nx.select(); } else t.blur();
+    return;
+  }
+  var n = tr.nextElementSibling;
+  while (n && !(n.matches('tr.sk-row') || n.matches('tr[data-list="year"]'))) n = n.nextElementSibling;
+  var nxt = n ? n.querySelector(sel) : null;
+  if (nxt) { nxt.focus(); if (nxt.select) nxt.select(); } else t.blur();
+}
+
+// ── ボタン・メニュー ──
+function onClick(e) {
+  var tab = e.target.closest('[data-sktab]');
+  if (tab) { ui.tab = tab.getAttribute('data-sktab'); hideMenu(); render(); return; }
+  var ov = e.target.closest('tr[data-open]');
+  if (ov) { ui.sheetId = ov.getAttribute('data-open'); render(); window.scrollTo(0, 0); var mn = document.querySelector('main'); if (mn) mn.scrollTop = 0; return; }
+  var b = e.target.closest('[data-act]'); if (!b) return;
+  var act = b.getAttribute('data-act');
+  var ro = rowOf(b);
+  switch (act) {
+    case 'menu': showMenu(b, ro); return;
+    case 'add': addRow(b.getAttribute('data-list')); return;
+    case 'newsheet': openNew(); return;
+    case 'dupsheet': dupSheet(); return;
+    case 'delsheet': delSheet(); return;
+    case 'newyear': newYear(); return;
+    case 'delyear': delYear(); return;
+    case 'pull': openPull(); return;
+    case 'print': doPrint(); return;
+    case 'csv': doCsv(); return;
+    case 'backup': doBackup(); return;
+    case 'restore': $('skFile').click(); return;
+    case 'tplfrom': tplFrom(); return;
+  }
+  if (!ro) return;
+  var r = getList(ro.key)[ro.i]; if (!r) return;
+  if (act === 'bd') { ui.bd[r.id] = !ui.bd[r.id]; render(); }
+  else if (act === 'bdclose') { ui.bd[r.id] = false; render(); }
+  else if (act === 'bdadd') { r.bd.items.push({ name: '', amt: null }); changed(); render(); focusLast('[data-bf="name"]', r); }
+  else if (act === 'bddel') { r.bd.items.splice(+b.getAttribute('data-j'), 1); changed(); render(); }
+  else if (act === 'bdapply') { var c = bdCalc(r.bd); r.amt = c.total; changed(); render(); }
+}
+function focusLast(sel, r) {
+  setTimeout(function() {
+    var trs = document.querySelectorAll('#page-shikin tr.sk-bd');
+    for (var i = 0; i < trs.length; i++) { var ins = trs[i].querySelectorAll(sel); if (ins.length) { ins[ins.length - 1].focus(); } }
+  }, 30);
+}
+function showMenu(btn, ro) {
+  if (!ro) return;
+  menuTarget = ro;
+  var m = $('skMenu'), items = [];
+  if (ro.key === 'year') {
+    items = [['up', '↑ 上へ'], ['down', '↓ 下へ'], ['ins', '＋ この下に行を入れる'], ['-'], ['del', '🗑 この行を削除', 1]];
+  } else {
+    var r = getList(ro.key)[ro.i]; if (!r) return;
+    var isInc = (ro.key === 'inc' || ro.key === 'tinc');
+    items = [['up', '↑ 上へ'], ['down', '↓ 下へ'], ['ins', '＋ この下に行を入れる'], ['-'],
+      ['bd', r.bd ? (ui.bd[r.id] ? '📋 内訳を閉じる' : '📋 内訳を開く') : '📋 内訳をつくる（協力会社など）'],
+      ['off', r.off ? '✓ 合計に戻す' : '⊘ 合計から外す（メモとして残す）']];
+    if (isInc) items.push(['kind', r.kind === 'other' ? '💰 「売上」にする' : '🏦 「その他（借入など）」にする']);
+    if (r.bd) items.push(['bdrm', '内訳をやめる']);
+    items.push(['-'], ['del', '🗑 この行を削除', 1]);
+  }
+  m.innerHTML = items.map(function(x) { return x[0] === '-' ? '<hr>' : '<button data-mact="' + x[0] + '"' + (x[2] ? ' class="danger"' : '') + '>' + x[1] + '</button>'; }).join('');
+  m.classList.remove('hidden');
+  var rc = btn.getBoundingClientRect();
+  var left = rc.right + window.scrollX - m.offsetWidth; if (left < 8) left = 8;
+  var top = rc.bottom + window.scrollY + 4;
+  if (rc.bottom + m.offsetHeight + 10 > window.innerHeight) top = rc.top + window.scrollY - m.offsetHeight - 4;
+  m.style.left = left + 'px'; m.style.top = top + 'px';
+}
+function hideMenu() { var m = $('skMenu'); if (m) m.classList.add('hidden'); menuTarget = null; }
+function onMenu(e) {
+  var b = e.target.closest('[data-mact]'); if (!b || !menuTarget) return;
+  var act = b.getAttribute('data-mact'), ro = menuTarget; hideMenu();
+  var list;
+  if (ro.key === 'year') { var y = curYear(); if (!y) return; list = y.rows; }
+  else list = getList(ro.key);
+  var i = ro.i, r = list[i]; if (!r) return;
+  if (act === 'up' && i > 0) { list.splice(i - 1, 0, list.splice(i, 1)[0]); }
+  else if (act === 'down' && i < list.length - 1) { list.splice(i + 1, 0, list.splice(i, 1)[0]); }
+  else if (act === 'ins') { list.splice(i + 1, 0, newRow(ro.key)); changed(); render(); focusRow(ro.key, i + 1); return; }
+  else if (act === 'del') { if (!confirm('「' + (r.name || '（名前なし）') + '」の行を削除しますか？')) return; list.splice(i, 1); }
+  else if (act === 'bd') {
+    if (!r.bd) { r.bd = { items: [{ name: '', amt: null }], fee: 0, tax: false }; ui.bd[r.id] = true; }
+    else { ui.bd[r.id] = !ui.bd[r.id]; render(); return; }
+  }
+  else if (act === 'bdrm') { if (!confirm('内訳を消しますか？（金額はそのまま残ります）')) return; delete r.bd; ui.bd[r.id] = false; }
+  else if (act === 'off') { if (r.off) delete r.off; else r.off = true; }
+  else if (act === 'kind') { r.kind = r.kind === 'other' ? 'sales' : 'other'; }
+  else return;
+  changed(); render();
+}
+function newRow(key) {
+  if (key === 'year') return { id: uid(), name: '', m: [null,null,null,null,null,null,null,null,null,null,null,null] };
+  var r = { id: uid(), name: '', amt: null, memo: '', done: false };
+  if (key === 'inc' || key === 'tinc') r.kind = 'sales';
+  return r;
+}
+function addRow(key) {
+  var list;
+  if (key === 'year') { var y = curYear(); if (!y) return; list = y.rows; } else list = getList(key);
+  list.push(newRow(key)); changed(); render(); focusRow(key, list.length - 1);
+}
+function focusRow(key, i) {
+  setTimeout(function() {
+    var tr = document.querySelector('#page-shikin tr[data-list="' + key + '"][data-i="' + i + '"]');
+    var inp = tr && tr.querySelector('input[data-f="name"],input[data-f="yname"]');
+    if (inp) { inp.focus(); tr.scrollIntoView({ block: 'nearest' }); }
+  }, 30);
+}
+
+// ── 表の作成・複製・削除 ──
+function copyRows(rows, keepAmt, isInc) {
+  return rows.map(function(r) {
+    var o = normRow(clone(r), isInc); o.id = uid(); o.done = false;
+    if (!keepAmt) o.amt = null;
+    if (o.bd && !keepAmt) o.bd.items.forEach(function(it) { it.amt = null; });
+    return o;
+  });
+}
+function openNew() {
+  var s = curSheet();
+  var maxYm = sk.sheets.reduce(function(a, x) { return x.ym > a ? x.ym : a; }, '');
+  var ym = maxYm ? addMonth(maxYm, 1) : thisYm();
+  $('skNewYm').value = ym; $('skNewName').value = reiwa(ym);
+  $('skNewTarget').value = (+addMonth(ym, -1).slice(5, 7)) + '月分';
+  var sel = $('skNewMode');
+  sel.options[0].disabled = sel.options[1].disabled = !s;
+  sel.value = s ? 'copy' : ((sk.tpl.inc.length || sk.tpl.pay.length) ? 'tpl' : 'blank');
+  $('skNewModal').classList.remove('hidden');
+  setTimeout(function() { $('skNewName').focus(); }, 50);
+}
+function doNew() {
+  var ym = $('skNewYm').value; if (!/^\d{4}-\d{2}$/.test(ym)) { alert('お金が動く月を選んでください'); return; }
+  var mode = $('skNewMode').value, src = curSheet();
+  var s = { id: uid(), name: $('skNewName').value.trim() || reiwa(ym), ym: ym, target: $('skNewTarget').value.trim(), openBal: null, rate: src ? src.rate : 90, inc: [], pay: [], memo: '' };
+  if ((mode === 'copy' || mode === 'copyname') && src) { s.inc = copyRows(src.inc, mode === 'copy', true); s.pay = copyRows(src.pay, mode === 'copy', false); }
+  else if (mode === 'tpl') { s.inc = copyRows(sk.tpl.inc, true, true); s.pay = copyRows(sk.tpl.pay, true, false); }
+  sk.sheets.push(s); ui.sheetId = s.id; ui.tab = 'month';
+  $('skNewModal').classList.add('hidden'); changed(); render();
+}
+function dupSheet() {
+  var s = curSheet(); if (!s) return;
+  var base = s.name.replace(/\s*\(\d+\)$/, ''), k = 2, names = sk.sheets.map(function(x) { return x.name; });
+  while (names.indexOf(base + ' (' + k + ')') >= 0) k++;
+  var d = clone(s); d.id = uid(); d.name = base + ' (' + k + ')';
+  d.inc.forEach(function(r) { r.id = uid(); }); d.pay.forEach(function(r) { r.id = uid(); });
+  sk.sheets.push(d); ui.sheetId = d.id; changed(); render();
+}
+function delSheet() {
+  var s = curSheet(); if (!s) return;
+  if (!confirm('表「' + s.name + '」を削除しますか？\n（削除すると元に戻せません。心配なときは先に 💾 バックアップ を取ってください）')) return;
+  sk.sheets = sk.sheets.filter(function(x) { return x.id !== s.id; }); ui.sheetId = null; changed(); render();
+}
+function tplFrom() {
+  var s = curSheet(); if (!s) return;
+  if (!confirm('いま開いている表「' + s.name + '」の項目と金額で、原本を置きかえますか？')) return;
+  sk.tpl.inc = copyRows(s.inc, true, true); sk.tpl.pay = copyRows(s.pay, true, false); changed(); render();
+}
+
+// ── 期（月次売上高） ──
+function newYear() {
+  var last = sk.years.slice().sort(function(a, b) { return a.y0 - b.y0; }).pop();
+  var d = new Date(), fyY = (d.getMonth() + 1) >= FY[0] ? d.getFullYear() : d.getFullYear() - 1;
+  var y0 = last ? last.y0 + 1 : fyY, ki = last ? last.ki + 1 : (y0 - 1990);
+  var yy = prompt('新しく作る期の番号を入れてください（期首は ' + y0 + '年' + FY[0] + '月）', String(ki));
+  if (yy === null) return;
+  ki = parseInt(half(yy), 10) || ki;
+  var rows = last ? last.rows.map(function(r) { return { id: uid(), name: r.name, m: [null,null,null,null,null,null,null,null,null,null,null,null] }; }) : [];
+  var y = { id: uid(), ki: ki, y0: y0, note: '', rows: rows };
+  sk.years.push(y); ui.yearId = y.id; changed(); render();
+}
+function delYear() {
+  var y = curYear(); if (!y) return;
+  if (!confirm('第' + y.ki + '期の月次売上高を削除しますか？（元に戻せません）')) return;
+  sk.years = sk.years.filter(function(x) { return x.id !== y.id; }); ui.yearId = null; changed(); render();
+}
+function openPull() {
+  var y = curYear(); if (!y) return;
+  var ss = sortedSheets(); if (!ss.length) { alert('月別の資金繰り表がまだありません'); return; }
+  var cur = curSheet();
+  $('skPullSheet').innerHTML = ss.map(function(x) { return '<option value="' + x.id + '"' + (cur && x.id === cur.id ? ' selected' : '') + '>' + esc(x.name) + (x.target ? '（' + esc(x.target) + '）' : '') + '</option>'; }).join('');
+  var ms = ''; for (var i = 0; i < 12; i++) { var L = ymLabel(y, i); ms += '<option value="' + i + '">' + L.yr + '年' + L.m + '月</option>'; }
+  $('skPullMonth').innerHTML = ms;
+  var pickMonth = function() {
+    var s = sk.sheets.filter(function(x) { return x.id === $('skPullSheet').value; })[0]; if (!s) return;
+    var mm = (s.target.match(/(\d+)\s*月/) || [])[1]; var m = mm ? +mm : +addMonth(s.ym, -1).slice(5, 7);
+    var idx = FY.indexOf(m); if (idx >= 0) $('skPullMonth').value = idx;
+  };
+  $('skPullSheet').onchange = pickMonth; pickMonth();
+  $('skPullModal').classList.remove('hidden');
+}
+function doPull() {
+  var y = curYear(); var s = sk.sheets.filter(function(x) { return x.id === $('skPullSheet').value; })[0];
+  if (!y || !s) return;
+  var k = +$('skPullMonth').value, over = $('skPullOver').checked, put = 0, added = 0, skipped = 0;
+  s.inc.forEach(function(r) {
+    if (r.off || r.kind === 'other' || r.amt == null || !r.name.trim()) return;
+    var nm = r.name.trim(), row = y.rows.filter(function(x) { return x.name.trim() === nm; })[0];
+    if (!row) { row = newRow('year'); row.name = nm; y.rows.push(row); added++; }
+    if (row.m[k] != null && !over) { skipped++; return; }
+    row.m[k] = r.amt; put++;
+  });
+  $('skPullModal').classList.add('hidden'); changed(); render();
+  var L = ymLabel(y, k);
+  alert(L.yr + '年' + L.m + '月の列に ' + put + '件を入れました。' + (added ? '\n新しい取引先の行を ' + added + '件追加しました。' : '') + (skipped ? '\nすでに金額があった ' + skipped + '件はそのままにしました。' : ''));
+}
+
+// ── 印刷・CSV・バックアップ ──
+function doPrint() {
+  var pg = $('page-shikin'), st = null;
+  if (ui.tab === 'year') { st = document.createElement('style'); st.id = 'skPageStyle'; st.textContent = '@page{size:A4 landscape;margin:8mm}'; document.head.appendChild(st); }
+  else { st = document.createElement('style'); st.id = 'skPageStyle'; st.textContent = '@page{size:A4 portrait;margin:8mm}'; document.head.appendChild(st); }
+  pg.classList.add('print-target');
+  var done = function() { pg.classList.remove('print-target'); var x = $('skPageStyle'); if (x) x.remove(); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  window.print();
+  setTimeout(done, 1500);
+}
+function csvCell(v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function download(name, text, type) {
+  var blob = new Blob([text], { type: type });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function doCsv() {
+  var lines = [];
+  if (ui.tab === 'year') {
+    var y = curYear(); if (!y) return;
+    var head = ['取引先']; for (var i = 0; i < 12; i++) head.push(ymLabel(y, i).m + '月'); head.push('合計');
+    lines.push(['第' + y.ki + '期 売上高', y.note].map(csvCell).join(',')); lines.push(head.join(','));
+    var col = [0,0,0,0,0,0,0,0,0,0,0,0];
+    y.rows.forEach(function(r) { var t = 0; var row = [r.name]; r.m.forEach(function(v, k) { row.push(v == null ? '' : v); t += n0(v); col[k] += n0(v); }); row.push(t); lines.push(row.map(csvCell).join(',')); });
+    lines.push(['合計'].concat(col).concat([col.reduce(function(a, b) { return a + b; }, 0)]).join(','));
+    download('月次売上高_第' + y.ki + '期.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
+    return;
+  }
+  var s = curSheet(); if (!s) return;
+  var c = calc(s);
+  lines.push(['資金繰り表', s.name, s.target].map(csvCell).join(','));
+  lines.push('');
+  lines.push(['区分', '項目', '金額（税込）', '済み', '合計に含む', 'メモ'].join(','));
+  s.inc.forEach(function(r) { lines.push([r.kind === 'other' ? '入金（その他）' : '入金（売上）', r.name, r.amt == null ? '' : r.amt, r.done ? '済' : '', r.off ? '含まない' : '', r.memo].map(csvCell).join(',')); });
+  s.pay.forEach(function(r) {
+    lines.push(['支払', r.name, r.amt == null ? '' : r.amt, r.done ? '済' : '', r.off ? '含まない' : '', r.memo].map(csvCell).join(','));
+    if (r.bd) r.bd.items.forEach(function(it) { lines.push(['　内訳', '　' + it.name, it.amt == null ? '' : it.amt, '', '', ''].map(csvCell).join(',')); });
+  });
+  lines.push('');
+  lines.push(['', '入金予定 合計', c.inc].join(','));
+  lines.push(['', '支払予定 合計', c.pay].join(','));
+  lines.push(['', '差引（入金−支払）', c.diff].join(','));
+  lines.push(['', '入金×' + c.rate + '%−支払', c.safe].join(','));
+  if (c.end != null) lines.push(['', '月末の預金残高（見込み）', c.end].join(','));
+  download('資金繰り表_' + s.name.replace(/[\\/:*?"<>|\s]/g, '') + '.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
+}
+function doBackup() {
+  var d = new Date(), ts = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+  download('資金繰り_バックアップ_' + ts + '.json', JSON.stringify(sk, null, 1), 'application/json');
+}
+function onFile(e) {
+  var file = e.target.files && e.target.files[0]; if (!file) return;
+  var rd = new FileReader();
+  rd.onload = function() {
+    var data; try { data = JSON.parse(rd.result); } catch (er) { alert('ファイルを読めませんでした（JSON形式ではないようです）'); return; }
+    if (!data || !data.sheets) { alert('資金繰りのデータではないようです。\n（帳簿のバックアップJSONは、上の 💾 バックアップ → JSONから復元 で読み込みます）'); return; }
+    var nd = normalize(data);
+    var msg = '読み込むデータ：月別の表 ' + nd.sheets.length + '枚、月次売上高 ' + nd.years.length + '期分\n\n';
+    if (sk.sheets.length || sk.years.length) msg += '今の資金繰りデータ（表 ' + sk.sheets.length + '枚）は、このデータで置きかわります。\nよろしいですか？';
+    else msg += 'このデータを読み込みますか？';
+    if (!confirm(msg)) return;
+    sk = nd; ui.sheetId = null; ui.yearId = null; ui.tab = 'month'; changed(); render();
+  };
+  rd.readAsText(file, 'utf-8');
+  e.target.value = '';
+}
+
+// ── 起動 ──
+function boot() {
+  var raw = lsGet(LS_KEY);
+  if (raw) { try { sk = normalize(JSON.parse(raw)); } catch (e) {} }
+  try { var u = JSON.parse(lsGet(LS_UI) || '{}'); if (u.tab) ui.tab = u.tab; if (u.sheetId) ui.sheetId = u.sheetId; if (u.yearId) ui.yearId = u.yearId; } catch (e) {}
+  var pg = $('page-shikin'); if (!pg) return;
+  pg.addEventListener('input', onInput);
+  pg.addEventListener('change', function(e) {
+    var t = e.target;
+    if (t.id === 'skSheetSel') { ui.sheetId = t.value; render(); return; }
+    if (t.id === 'skYearSel') { ui.yearId = t.value; render(); return; }
+    if (t.id === 'skFile') { onFile(e); return; }
+    if (t.type === 'checkbox' || t.type === 'month') onInput(e);
+  });
+  pg.addEventListener('click', onClick);
+  pg.addEventListener('focusout', onBlur);
+  pg.addEventListener('keydown', onKey);
+  $('skMenu').addEventListener('click', onMenu);
+  document.addEventListener('click', function(e) { if (!e.target.closest('#skMenu') && !e.target.closest('[data-act="menu"]')) hideMenu(); });
+  document.addEventListener('scroll', hideMenu, true);
+  $('skNewCancel').addEventListener('click', function() { $('skNewModal').classList.add('hidden'); });
+  $('skNewOk').addEventListener('click', doNew);
+  $('skNewYm').addEventListener('change', function() { var v = this.value; if (/^\d{4}-\d{2}$/.test(v)) { $('skNewName').value = reiwa(v); $('skNewTarget').value = (+addMonth(v, -1).slice(5, 7)) + '月分'; } });
+  $('skPullCancel').addEventListener('click', function() { $('skPullModal').classList.add('hidden'); });
+  $('skPullOk').addEventListener('click', doPull);
+  var nav = document.querySelector('.nav-item[data-page="shikin"]');
+  if (nav) nav.addEventListener('click', function() { hideMenu(); render(); });
+  render();
+  // 本体のログイン・ログアウトに合わせて同期を開始／停止
+  var origInit = window.initFirebase, origStop = window.kaikeiStopSync;
+  window.initFirebase = function() { var r = origInit ? origInit.apply(this, arguments) : undefined; start(); return r; };
+  window.kaikeiStopSync = function() { stop(); return origStop ? origStop.apply(this, arguments) : undefined; };
+}
+boot();
 })();
 </script>
 <script type="module">
