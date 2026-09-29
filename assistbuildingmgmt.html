@@ -372,7 +372,12 @@ tr.jumprow:hover td{background:#f5f8ff;}
 .sk-add:hover{background:var(--accent-lt);}
 .sk-foot td{background:var(--paper-alt);font-weight:700;font-size:12px;padding:7px 8px;}
 .sk-foot .num{text-align:right;font-family:'IBM Plex Mono',monospace;}
-.sk-foot.sub td{background:#fff;font-weight:500;color:var(--ink-soft);}
+.sk-foot.sub td{background:#fff;font-weight:400;color:#9ca3af;font-size:11px;padding-top:3px;padding-bottom:5px;}
+.sk-bank{border-top:2px solid var(--green);background:#f0fdf4;padding:10px 14px 12px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;}
+.sk-bank label{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;}
+.sk-bank .sk-in{background:#fff;border-color:#bbf7d0;font-size:15px;font-weight:600;padding:6px 10px;}
+.sk-bank .sk-in:focus{border-color:var(--green);}
+.sk-bank-note{grid-column:1 / -1;font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;text-align:right;}
 .sk-bd td{background:#fffbeb !important;padding:8px 12px 10px 38px;}
 .sk-bd-box{border-left:3px solid #fcd34d;padding-left:10px;}
 .sk-bd-title{font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:4px;}
@@ -442,6 +447,9 @@ tr.jumprow:hover td{background:#f5f8ff;}
   #page-shikin .sk-ytbl th:first-child,#page-shikin .sk-ytbl td:first-child{min-width:120px;}
   #page-shikin .sk-sheetmemo{border:none;padding:0;min-height:0;font-size:10px;}
   #page-shikin .sk-memowrap.empty{display:none;}
+  #page-shikin .sk-bank{padding:3px 8px;}
+  #page-shikin .sk-bank .sk-in{font-size:11px !important;}
+  #page-shikin .sk-bank-note{font-size:9px;}
   #page-shikin .sk-c-chk{width:16px;}
   #page-shikin .sk-c-amt{width:74px;}
   #page-shikin .sk-c-memo{width:26%;}
@@ -5067,7 +5075,7 @@ function normalize(d) {
   o.updatedAt = d.updatedAt || 0;
   (d.sheets || []).forEach(function(s) {
     o.sheets.push({ id: s.id || uid(), name: s.name || '', ym: /^\d{4}-\d{2}$/.test(s.ym || '') ? s.ym : thisYm(), target: s.target || '',
-      openBal: (typeof s.openBal === 'number') ? s.openBal : null, rate: (typeof s.rate === 'number') ? s.rate : 90,
+      openBal: (typeof s.openBal === 'number') ? s.openBal : null, bank: (typeof s.bank === 'number') ? s.bank : null, rate: (typeof s.rate === 'number') ? s.rate : 90,
       inc: (s.inc || []).map(function(r) { return normRow(r, true); }), pay: (s.pay || []).map(function(r) { return normRow(r, false); }), memo: s.memo || '' });
   });
   var t = d.tpl || {};
@@ -5114,10 +5122,15 @@ function calc(s) {
   var r = { inc: 0, incDone: 0, pay: 0, payDone: 0 };
   s.inc.forEach(function(x) { if (x.off) return; r.inc += n0(x.amt); if (x.done) r.incDone += n0(x.amt); });
   s.pay.forEach(function(x) { if (x.off) return; r.pay += n0(x.amt); if (x.done) r.payDone += n0(x.amt); });
+  // 済みにチェックした分は合計から引く（inc / pay は「まだ入っていない・まだ払っていない」分）
+  r.incPlan = r.inc; r.payPlan = r.pay;
+  r.inc = r.incPlan - r.incDone; r.pay = r.payPlan - r.payDone;
   r.diff = r.inc - r.pay;
+  r.planDiff = r.incPlan - r.payPlan;
   r.rate = n0(s.rate);
   r.safe = Math.floor(r.inc * r.rate / 100) - r.pay;
-  r.end = (typeof s.openBal === 'number') ? s.openBal + r.inc - r.pay : null;
+  r.bank = (typeof s.bank === 'number') ? s.bank : null;
+  r.end = r.bank != null ? r.bank + r.diff : null;
   return r;
 }
 
@@ -5241,9 +5254,20 @@ function listHtml(key, title, rows, withDone) {
   rows.forEach(function(r, i) { h += rowHtml(key, r, i, withDone); });
   h += '</tbody><tfoot>';
   var span = withDone ? 2 : 1;
-  h += '<tr class="sk-foot"><td colspan="' + span + '">合計（税込）</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
-  if (withDone) h += '<tr class="sk-foot sub"><td colspan="2">' + (isInc ? 'まだ入っていない分' : 'まだ払っていない分') + '</td><td class="num" id="skR-' + key + '"></td><td colspan="2"></td></tr>';
-  h += '</tfoot></table><button class="sk-add" data-act="add" data-list="' + key + '">＋ 行を追加</button></div>';
+  if (withDone) {
+    h += '<tr class="sk-foot"><td colspan="2">' + (isInc ? '未入金 合計' : '未払い 合計') + '</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
+    h += '<tr class="sk-foot sub"><td colspan="2">' + (isInc ? '入金予定（済みも含む）' : '支払予定（済みも含む）') + '</td><td class="num" id="skR-' + key + '"></td><td colspan="2" id="skD-' + key + '"></td></tr>';
+  } else {
+    h += '<tr class="sk-foot"><td colspan="' + span + '">合計（税込）</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
+  }
+  h += '</tfoot></table><button class="sk-add" data-act="add" data-list="' + key + '">＋ 行を追加</button>';
+  if (key === 'inc') {
+    var s0 = curSheet();
+    h += '<div class="sk-bank"><label for="skBankIn">🏦 現在の口座残高</label>'
+      + '<input id="skBankIn" class="sk-in sk-amt" data-sf="bank" inputmode="decimal" value="' + esc(fmtIn(s0 ? s0.bank : null)) + '" placeholder="今の口座残高を入力">'
+      + '<div class="sk-bank-note" id="skBankNote"></div></div>';
+  }
+  h += '</div>';
   return h;
 }
 function renderMonth() {
@@ -5261,32 +5285,32 @@ function renderMonth() {
     return h + '<div class="sk-empty">まだ資金繰り表がありません。<br>「＋ 新しい表」で作るか、右の「📂 読み込み」から今までのExcelを変換したデータを読み込んでください。</div>';
   }
   h += '<div class="sk-print-title">資金繰り表　' + esc(s.name) + (s.target ? '　（' + esc(s.target) + 'の）' : '') + '<span style="float:right;font-size:11px;font-weight:400">' + esc(s.ym.replace('-', '年') + '月') + '</span></div>';
-  h += '<div class="sk-meta">'
+  h += '<div class="sk-meta" style="grid-template-columns:repeat(4,minmax(0,1fr))">'
     + '<div><label>表の名前</label><input data-sf="name" value="' + esc(s.name) + '"></div>'
     + '<div><label>お金が動く月</label><input type="month" data-sf="ym" value="' + esc(s.ym) + '"></div>'
     + '<div><label>対象（〇月分）</label><input data-sf="target" value="' + esc(s.target) + '" placeholder="例：9月分"></div>'
-    + '<div><label>月初の預金残高（任意）</label><input data-sf="openBal" inputmode="decimal" value="' + esc(fmtIn(s.openBal)) + '" placeholder="入れると月末残高を計算" style="text-align:right;font-family:\'IBM Plex Mono\',monospace"></div>'
     + '<div><label>入金の見込み率（%）</label><input type="number" data-sf="rate" value="' + esc(s.rate) + '" min="0" max="100" step="1"></div>'
     + '</div>';
   h += '<div class="card-grid g4">'
-    + '<div class="card"><div class="card-label">入金予定（売上高）</div><div class="card-value cv-inc" id="skC-inc"></div><div class="card-note" id="skC-incn"></div></div>'
-    + '<div class="card"><div class="card-label">支払予定</div><div class="card-value cv-exp" id="skC-pay"></div><div class="card-note" id="skC-payn"></div></div>'
-    + '<div class="card"><div class="card-label">差引（入金−支払）</div><div class="card-value cv-prf" id="skC-diff"></div><div class="card-note" id="skC-diffn"></div></div>'
+    + '<div class="card"><div class="card-label">未入金（売上高）</div><div class="card-value cv-inc" id="skC-inc"></div><div class="card-note" id="skC-incn"></div></div>'
+    + '<div class="card"><div class="card-label">未払い</div><div class="card-value cv-exp" id="skC-pay"></div><div class="card-note" id="skC-payn"></div></div>'
+    + '<div class="card"><div class="card-label">差引（未入金−未払い）</div><div class="card-value cv-prf" id="skC-diff"></div><div class="card-note" id="skC-diffn"></div></div>'
     + '<div class="card"><div class="card-label" id="skC-safel">入金×90%−支払</div><div class="card-value cv-tax" id="skC-safe"></div><div class="card-note">入金が遅れる分を見込んだ慎重な数字</div></div>'
     + '</div>';
   h += '<div class="sk-cols">' + listHtml('inc', '売上高（入金予定）', s.inc, true) + listHtml('pay', '支払い', s.pay, true) + '</div>';
   h += '<div class="sk-sum">'
-    + '<div class="sk-sum-row"><span>入金予定 合計</span><span class="v" id="skS-inc"></span></div>'
-    + '<div class="sk-sum-row"><span>支払予定 合計</span><span class="v" id="skS-pay"></span></div>'
-    + '<div class="sk-sum-row big"><span>差引（入金 − 支払）</span><span class="v" id="skS-diff"></span></div>'
-    + '<div class="sk-sum-row"><span id="skS-safel">入金×90% − 支払</span><span class="v" id="skS-safe"></span></div>'
-    + '<div class="sk-sum-row" id="skS-endrow"><span>月末の預金残高（見込み）<span class="hint">月初残高＋入金−支払</span></span><span class="v" id="skS-end"></span></div>'
+    + '<div class="sk-sum-row"><span>未入金 合計<span class="hint" id="skS-incp"></span></span><span class="v" id="skS-inc"></span></div>'
+    + '<div class="sk-sum-row"><span>未払い 合計<span class="hint" id="skS-payp"></span></span><span class="v" id="skS-pay"></span></div>'
+    + '<div class="sk-sum-row big"><span>差引（未入金 − 未払い）</span><span class="v" id="skS-diff"></span></div>'
+    + '<div class="sk-sum-row"><span id="skS-safel">未入金×90% − 未払い</span><span class="v" id="skS-safe"></span></div>'
+    + '<div class="sk-sum-row" id="skS-bankrow"><span>現在の口座残高</span><span class="v" id="skS-bank"></span></div>'
+    + '<div class="sk-sum-row big" id="skS-endrow"><span>口座残高＋差引（見込み）<span class="hint">今の口座残高 ＋ まだ入る分 − まだ払う分</span></span><span class="v" id="skS-end"></span></div>'
     + '</div>';
   h += '<div class="sk-memowrap' + (s.memo ? '' : ' empty') + '"><div class="sk-sec-title">📝 この表のメモ</div><textarea class="sk-sheetmemo" data-sf="memo" placeholder="Excelの欄外に書いていたことなど">' + esc(s.memo) + '</textarea></div>';
-  h += '<div class="sk-ovwrap"><div class="sk-sec-title">📊 表の一覧（行をクリックで開きます）</div><table class="sk-ov"><thead><tr><th>表</th><th>対象</th><th>入金予定</th><th>支払予定</th><th>差引</th><th>見込み率での差引</th></tr></thead><tbody>';
+  h += '<div class="sk-ovwrap"><div class="sk-sec-title">📊 表の一覧（行をクリックで開きます）</div><table class="sk-ov"><thead><tr><th>表</th><th>対象</th><th>入金予定</th><th>支払予定</th><th>予定の差引</th><th>未入金−未払い</th></tr></thead><tbody>';
   sortedSheets().forEach(function(x) {
     var c = calc(x);
-    h += '<tr data-open="' + x.id + '"' + (x.id === s.id ? ' class="cur"' : '') + '><td>' + esc(x.name) + '</td><td>' + esc(x.target) + '</td><td>' + fmtY(c.inc) + '</td><td>' + fmtY(c.pay) + '</td><td' + (c.diff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.diff) + '</td><td' + (c.safe < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.safe) + '</td></tr>';
+    h += '<tr data-open="' + x.id + '"' + (x.id === s.id ? ' class="cur"' : '') + '><td>' + esc(x.name) + '</td><td>' + esc(x.target) + '</td><td>' + fmtY(c.incPlan) + '</td><td>' + fmtY(c.payPlan) + '</td><td' + (c.planDiff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.planDiff) + '</td><td' + (x.id === s.id ? ' id="skOV-cur"' : '') + (c.diff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.diff) + '</td></tr>';
   });
   h += '</tbody></table></div>';
   return h;
@@ -5344,16 +5368,23 @@ function refreshTotals() {
     var s = curSheet(); if (!s) return;
     var c = calc(s);
     setTxt('skC-inc', fmtY(c.inc)); setTxt('skC-pay', fmtY(c.pay)); setTxt('skC-diff', fmtY(c.diff), c.diff < 0); setTxt('skC-safe', fmtY(c.safe), c.safe < 0);
-    setTxt('skC-incn', '入金済み ' + fmtY(c.incDone) + '／残り ' + fmtY(c.inc - c.incDone));
-    setTxt('skC-payn', '支払済み ' + fmtY(c.payDone) + '／残り ' + fmtY(c.pay - c.payDone));
-    setTxt('skC-diffn', c.end == null ? '月初残高を入れると月末残高も出ます' : '月末残高の見込み ' + fmtY(c.end));
-    setTxt('skC-safel', '入金×' + c.rate + '%−支払');
+    setTxt('skC-incn', '入金予定 ' + fmtY(c.incPlan) + '（入金済み ' + fmtY(c.incDone) + '）');
+    setTxt('skC-payn', '支払予定 ' + fmtY(c.payPlan) + '（支払済み ' + fmtY(c.payDone) + '）');
+    setTxt('skC-diffn', c.end == null ? '口座残高を入れると見込みも出ます' : '口座残高＋差引 ' + fmtY(c.end));
+    setTxt('skC-safel', '未入金×' + c.rate + '%−未払い');
     setTxt('skS-inc', fmtY(c.inc)); setTxt('skS-pay', fmtY(c.pay)); setTxt('skS-diff', fmtY(c.diff), c.diff < 0);
-    setTxt('skS-safel', '入金×' + c.rate + '% − 支払'); setTxt('skS-safe', fmtY(c.safe), c.safe < 0);
-    var er = $('skS-endrow'); if (er) er.style.display = c.end == null ? 'none' : '';
+    setTxt('skS-incp', '入金予定 ' + fmtY(c.incPlan)); setTxt('skS-payp', '支払予定 ' + fmtY(c.payPlan));
+    setTxt('skS-safel', '未入金×' + c.rate + '% − 未払い'); setTxt('skS-safe', fmtY(c.safe), c.safe < 0);
+    var br = $('skS-bankrow'), er = $('skS-endrow');
+    if (br) br.style.display = c.bank == null ? 'none' : '';
+    if (er) er.style.display = c.end == null ? 'none' : '';
+    if (c.bank != null) setTxt('skS-bank', fmtY(c.bank), c.bank < 0);
     if (c.end != null) setTxt('skS-end', fmtY(c.end), c.end < 0);
+    setTxt('skOV-cur', fmtY(c.diff), c.diff < 0);
     setTxt('skF-inc', fmtY(c.inc)); setTxt('skF-pay', fmtY(c.pay));
-    setTxt('skR-inc', fmtY(c.inc - c.incDone)); setTxt('skR-pay', fmtY(c.pay - c.payDone));
+    setTxt('skR-inc', fmtY(c.incPlan)); setTxt('skR-pay', fmtY(c.payPlan));
+    setTxt('skD-inc', c.incDone ? '済み ' + fmtY(c.incDone) : ''); setTxt('skD-pay', c.payDone ? '済み ' + fmtY(c.payDone) : '');
+    setTxt('skBankNote', c.end == null ? '入れると「口座残高＋未入金−未払い」の見込みを出します' : '＋ 未入金 ' + fmtY(c.inc) + '　− 未払い ' + fmtY(c.pay) + '　＝ 見込み ' + fmtY(c.end), c.end != null && c.end < 0);
   } else if (ui.tab === 'tpl') {
     var a = 0, b = 0;
     sk.tpl.inc.forEach(function(x) { if (!x.off) a += n0(x.amt); });
@@ -5378,7 +5409,7 @@ function onInput(e) {
   var sf = t.getAttribute('data-sf'), yf = t.getAttribute('data-yf'), f = t.getAttribute('data-f'), bf = t.getAttribute('data-bf'), bo = t.getAttribute('data-bo');
   if (sf) {
     var s = curSheet(); if (!s) return;
-    if (sf === 'openBal') { var v = parseAmt(t.value); t.classList.toggle('bad', v !== null && isNaN(v)); s.openBal = (v === null || isNaN(v)) ? null : v; }
+    if (sf === 'openBal' || sf === 'bank') { var v = parseAmt(t.value); t.classList.toggle('bad', v !== null && isNaN(v)); s[sf] = (v === null || isNaN(v)) ? null : v; }
     else if (sf === 'rate') { s.rate = parseFloat(t.value) || 0; }
     else if (sf === 'ym') { if (/^\d{4}-\d{2}$/.test(t.value)) s.ym = t.value; else return; }
     else s[sf] = t.value;
@@ -5415,7 +5446,7 @@ function onInput(e) {
 function updBdCalc(tr, r) { var box = tr.querySelector('[data-bdcalc]'); if (box) box.innerHTML = bdCalcHtml(bdCalc(r.bd)); }
 function onBlur(e) {
   var t = e.target;
-  if (t.classList && (t.classList.contains('sk-amt') || t.getAttribute('data-sf') === 'openBal' || t.getAttribute('data-f') === 'ym')) {
+  if (t.classList && (t.classList.contains('sk-amt') || t.getAttribute('data-sf') === 'openBal' || t.getAttribute('data-sf') === 'bank' || t.getAttribute('data-f') === 'ym')) {
     var v = parseAmt(t.value);
     if (v !== null && !isNaN(v)) { t.value = fmtIn(v); t.classList.remove('bad'); }
   }
@@ -5572,7 +5603,7 @@ function openNew() {
 function doNew() {
   var ym = $('skNewYm').value; if (!/^\d{4}-\d{2}$/.test(ym)) { alert('お金が動く月を選んでください'); return; }
   var mode = $('skNewMode').value, src = curSheet();
-  var s = { id: uid(), name: $('skNewName').value.trim() || reiwa(ym), ym: ym, target: $('skNewTarget').value.trim(), openBal: null, rate: src ? src.rate : 90, inc: [], pay: [], memo: '' };
+  var s = { id: uid(), name: $('skNewName').value.trim() || reiwa(ym), ym: ym, target: $('skNewTarget').value.trim(), openBal: null, bank: null, rate: src ? src.rate : 90, inc: [], pay: [], memo: '' };
   if ((mode === 'copy' || mode === 'copyname') && src) { s.inc = copyRows(src.inc, mode === 'copy', true); s.pay = copyRows(src.pay, mode === 'copy', false); }
   else if (mode === 'tpl') { s.inc = copyRows(sk.tpl.inc, true, true); s.pay = copyRows(sk.tpl.pay, true, false); }
   sk.sheets.push(s); ui.sheetId = s.id; ui.tab = 'month';
@@ -5671,7 +5702,7 @@ function doCsv() {
     var col = [0,0,0,0,0,0,0,0,0,0,0,0];
     y.rows.forEach(function(r) { var t = 0; var row = [r.name]; r.m.forEach(function(v, k) { row.push(v == null ? '' : v); t += n0(v); col[k] += n0(v); }); row.push(t); lines.push(row.map(csvCell).join(',')); });
     lines.push(['合計'].concat(col).concat([col.reduce(function(a, b) { return a + b; }, 0)]).join(','));
-    download('月次売上高_第' + y.ki + '期.csv', '﻿' + lines.join('\r\n'), 'text/csv');
+    download('月次売上高_第' + y.ki + '期.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
     return;
   }
   var s = curSheet(); if (!s) return;
@@ -5685,12 +5716,15 @@ function doCsv() {
     if (r.bd) r.bd.items.forEach(function(it) { lines.push(['　内訳', '　' + it.name, it.amt == null ? '' : it.amt, '', '', ''].map(csvCell).join(',')); });
   });
   lines.push('');
-  lines.push(['', '入金予定 合計', c.inc].join(','));
-  lines.push(['', '支払予定 合計', c.pay].join(','));
-  lines.push(['', '差引（入金−支払）', c.diff].join(','));
-  lines.push(['', '入金×' + c.rate + '%−支払', c.safe].join(','));
-  if (c.end != null) lines.push(['', '月末の預金残高（見込み）', c.end].join(','));
-  download('資金繰り表_' + s.name.replace(/[\\/:*?"<>|\s]/g, '') + '.csv', '﻿' + lines.join('\r\n'), 'text/csv');
+  lines.push(['', '入金予定（済みも含む）', c.incPlan].join(','));
+  lines.push(['', '支払予定（済みも含む）', c.payPlan].join(','));
+  lines.push(['', '未入金 合計', c.inc].join(','));
+  lines.push(['', '未払い 合計', c.pay].join(','));
+  lines.push(['', '差引（未入金−未払い）', c.diff].join(','));
+  lines.push(['', '未入金×' + c.rate + '%−未払い', c.safe].join(','));
+  if (c.bank != null) lines.push(['', '現在の口座残高', c.bank].join(','));
+  if (c.end != null) lines.push(['', '口座残高＋差引（見込み）', c.end].join(','));
+  download('資金繰り表_' + s.name.replace(/[\\/:*?"<>|\s]/g, '') + '.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
 }
 function doBackup() {
   var d = new Date(), ts = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
