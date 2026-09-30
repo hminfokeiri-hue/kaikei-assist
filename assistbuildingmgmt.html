@@ -1170,6 +1170,7 @@ tr.jumprow:hover td{background:#f5f8ff;}
       <span style="font-size:12px;color:var(--ink-soft)">〜</span>
       <input type="date" id="jDateTo" title="終了日" style="font-size:12px;border:1px solid var(--rule);border-radius:5px;padding:5px 8px">
       <button class="btn btn-secondary btn-sm" id="jDateClear">クリア</button>
+      <select id="jSort" class="print-hide" title="仕訳の並び順" style="font-size:12px;border:1px solid var(--rule);border-radius:5px;padding:5px 8px;background:#fff"><option value="asc">📅 日付が古い順</option><option value="desc">📅 日付が新しい順</option></select>
       <button class="btn btn-primary btn-sm print-hide" id="cmpOpenBtn">🧾 複合仕訳（諸口）</button>
       <button class="btn btn-secondary btn-sm print-hide" id="convertBtn">🔄 自動変換</button>
       <button class="btn btn-secondary btn-sm print-hide" id="printJournalBtn">🖨️ 印刷</button>
@@ -1968,6 +1969,11 @@ function bindEvents() {
     renderLedger();
   });
   safeOn('jDateFrom','change',renderJournal);
+  (function(){
+    var sel=document.getElementById('jSort'); if(!sel) return;
+    try{ var v=localStorage.getItem('kaikei_jsort'); if(v==='asc'||v==='desc') sel.value=v; }catch(e){}
+    sel.addEventListener('change',function(){ try{ localStorage.setItem('kaikei_jsort',sel.value); }catch(e){} renderJournal(); });
+  })();
   safeOn('jDateTo','change',renderJournal);
   safeOn('jDateClear','click',function(){
     document.getElementById('jDateFrom').value='';
@@ -3477,6 +3483,15 @@ function renderJournal() {
     if (jdto   && j.date > jdto)   return false;
     return true;
   });
+  // 並び順：日付が古い順（既定）／新しい順。同じ日付どうしは保存されている順を保つ
+  var jsort=(document.getElementById('jSort')||{}).value||'asc';
+  if(true){
+    var jdir=(jsort==='desc')?-1:1;
+    js=js.map(function(j,i){return {j:j,i:i};}).sort(function(a,b){
+      if(a.j.date!==b.j.date) return (a.j.date<b.j.date?-1:1)*jdir;
+      return (a.i-b.i)*jdir;
+    }).map(function(x){return x.j;});
+  }
   var tD=0,tC=0;
   js.forEach(function(j){var L=jLines(j);tD+=jSum(L.d);tC+=jSum(L.c);});
   var bd=document.getElementById('jBalDiv');
