@@ -1001,6 +1001,7 @@ tr.jumprow:hover td{background:#f5f8ff;}
         <span style="font-size:12px;color:var(--ink-soft)">〜</span>
         <input type="date" id="fDateTo" title="終了日" style="font-size:12px">
         <button class="btn btn-secondary btn-sm" id="fDateClear">クリア</button>
+        <input type="text" id="fSearch" placeholder="🔍 摘要・科目・金額で検索（例：12,345／1万〜5万／10万以上）" style="font-size:12px;border:1px solid var(--rule);border-radius:5px;padding:5px 8px;min-width:260px">
       </div>
     </div>
     <table><thead><tr><th>日付</th><th>種別</th><th>勘定科目</th><th>補助科目</th><th>摘要</th><th class="col-incl" style="text-align:right">税込</th><th class="col-excl" style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead><tbody id="txBody"></tbody></table>
@@ -1072,7 +1073,7 @@ tr.jumprow:hover td{background:#f5f8ff;}
     </div>
   </div>
   <div class="ledger-bar print-hide">
-    <input type="text" id="ledgerSearch" placeholder="🔍 摘要・科目名で検索...">
+    <input type="text" id="ledgerSearch" placeholder="🔍 摘要・科目・金額で検索（例：12,345／1万〜5万／10万以上）">
     <select id="ledgerCat"><option value="all">全科目</option></select>
     <select id="ledgerMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
     <select id="ledgerType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
@@ -1201,6 +1202,7 @@ tr.jumprow:hover td{background:#f5f8ff;}
       <button class="btn btn-primary" id="addJournalBtn">仕訳を追加</button>
     </div>
   </div>
+  <div class="ledger-bar print-hide"><input type="text" id="jSearch" placeholder="🔍 摘要・科目・金額で検索（例：12,345／1万〜5万／10万以上）"></div>
   <div id="jBalDiv" style="display:none;margin-bottom:16px"></div>
   <div id="journalList"></div>
 </div>
@@ -1553,6 +1555,65 @@ function fmt(n) { return '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP');
 // マイナスは会計慣行の△を付けて返す
 function fmtS(n) { return (n < 0 ? '△' : '') + fmt(n); }
 function uid() { return 't' + Date.now() + Math.random().toString(36).slice(2, 5); }
+// ── 検索（文字＋金額）──────────────────────────────
+// 入力例：「アスクル」「12,345」「¥12345」「1.2万」「10000〜50000」「1万-5万」「10万以上」「5000以下」「>=30000」
+// スペース区切りで複数入れると「すべてに当てはまるもの」を表示。
+// 数字だけの言葉は「金額（税込・税抜）が同じ」か「摘要などにその数字を含む」で当たる。範囲・以上・以下は金額で判定。
+// 「-」は 1000以上どうし・万/千/カンマつきのときだけ範囲（25-18271 のような番号は文字として探す）。
+function srchNum(s) {
+  s = String(s).replace(/[,，¥￥円\s]/g, '');
+  var m = s.match(/^(\d+(?:\.\d+)?)(万|千)?$/);
+  if (!m) return null;
+  var v = parseFloat(m[1]);
+  if (m[2] === '万') v *= 10000; else if (m[2] === '千') v *= 1000;
+  return Math.round(v);
+}
+function srchParse(str) {
+  var s = String(str || '').replace(/[０-９．，～ー−－＜＞＝]/g, function(c) {
+    var map = { '．': '.', '，': ',', '～': '〜', 'ー': '-', '−': '-', '－': '-', '＜': '<', '＞': '>', '＝': '=' };
+    return map[c] || String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+  }).trim();
+  var toks = s ? s.split(/[\s　]+/) : [];
+  var q = [];
+  toks.forEach(function(tk) {
+    if (!tk) return;
+    var m, a, b;
+    if ((m = tk.match(/^(.+?)([〜~\-])(.+)$/)) && (a = srchNum(m[1])) !== null && (b = srchNum(m[3])) !== null
+        && (m[2] !== '-' || /[万千,]/.test(m[1] + m[3]) || (a >= 1000 && b >= 1000))) {
+      q.push({ kind: 'range', min: Math.min(a, b), max: Math.max(a, b), raw: tk.toLowerCase() }); return;
+    }
+    if ((m = tk.match(/^(.+?)(以上|以下|未満|超)$/)) && (a = srchNum(m[1])) !== null) {
+      q.push({ kind: 'range', min: (m[2] === '以上' ? a : m[2] === '超' ? a + 1 : -Infinity), max: (m[2] === '以下' ? a : m[2] === '未満' ? a - 1 : Infinity) }); return;
+    }
+    if ((m = tk.match(/^(>=|<=|>|<)(.+)$/)) && (a = srchNum(m[2])) !== null) {
+      q.push({ kind: 'range', min: (m[1] === '>=' ? a : m[1] === '>' ? a + 1 : -Infinity), max: (m[1] === '<=' ? a : m[1] === '<' ? a - 1 : Infinity) }); return;
+    }
+    if ((a = srchNum(tk)) !== null) { q.push({ kind: 'num', v: a, raw: tk.replace(/[¥￥円]/g, '').toLowerCase() }); return; }
+    q.push({ kind: 'text', v: tk.toLowerCase() });
+  });
+  return q;
+}
+// text：検索対象の文字　amts：その取引の金額（税込・税抜・消費税など）
+function srchMatch(q, text, amts) {
+  if (!q || !q.length) return true;
+  var t = String(text || '').toLowerCase();
+  var tPlain = t.replace(/[,，]/g, '');
+  var as = (amts || []).filter(function(x) { return typeof x === 'number' && isFinite(x); }).map(function(x) { return Math.abs(Math.round(x)); });
+  for (var i = 0; i < q.length; i++) {
+    var c = q[i];
+    if (c.kind === 'text') { if (t.indexOf(c.v) === -1) return false; }
+    else if (c.kind === 'num') {
+      if (as.indexOf(c.v) === -1 && t.indexOf(c.raw) === -1 && tPlain.indexOf(String(c.v)) === -1) return false;
+    } else {
+      var ok = false;
+      for (var k = 0; k < as.length; k++) { if (as[k] >= c.min && as[k] <= c.max) { ok = true; break; } }
+      // 「25-18271」のような番号は、摘要にそのまま書かれていれば当たりにする
+      if (!ok && c.raw && t.indexOf(c.raw) !== -1) ok = true;
+      if (!ok) return false;
+    }
+  }
+  return true;
+}
 function catById(id) { return state.categories.find(function(c) { return c.id === id; }) || { name: id, icon: '•', type: 'expense', subCategories: [] }; }
 // 科目の登録順（並び替え結果）を返す。未登録の古いIDは末尾へ
 function catIndex(id) {
@@ -1969,6 +2030,8 @@ function bindEvents() {
     renderLedger();
   });
   safeOn('jDateFrom','change',renderJournal);
+  safeOn('jSearch','input',renderJournal);
+  safeOn('fSearch','input',renderTransactions);
   (function(){
     var sel=document.getElementById('jSort'); if(!sel) return;
     try{ var v=localStorage.getItem('kaikei_jsort'); if(v==='asc'||v==='desc') sel.value=v; }catch(e){}
@@ -2405,12 +2468,15 @@ function renderTransactions() {
   var fT = document.getElementById('fType').value;
   var dfrom = (document.getElementById('fDateFrom')||{}).value||'';
   var dto   = (document.getElementById('fDateTo')||{}).value||'';
+  var fq = srchParse((document.getElementById('fSearch')||{}).value);
   var txs = txOfYear().filter(function(t) {
     var m = parseInt(t.date.slice(5,7));
     if (fM !== 'all' && m !== parseInt(fM)) return false;
     if (fT !== 'all' && t.type !== fT) return false;
     if (dfrom && t.date < dfrom) return false;
     if (dto   && t.date > dto)   return false;
+    if (fq.length && !srchMatch(fq, (t.note || '') + ' ' + catById(t.catId).name + ' ' + (t.subCatName || '') + ' ' + t.date,
+        [t.amount, (t.excl !== undefined ? t.excl : null)])) return false;
     return true;
   });
   var tbody = document.getElementById('txBody');
@@ -2458,7 +2524,7 @@ function renderLedger_inner(txs) {
     var o = document.createElement('option'); o.value = c.id; o.textContent = c.icon + ' ' + c.name; catSel.appendChild(o);
   });
   catSel.value = prev;
-  var kw = (document.getElementById('ledgerSearch').value || '').toLowerCase();
+  var kwq = srchParse(document.getElementById('ledgerSearch').value);
   var selCat = document.getElementById('ledgerCat').value;
   var selM = document.getElementById('ledgerMonth').value;
   var selT = document.getElementById('ledgerType').value;
@@ -2470,7 +2536,8 @@ function renderLedger_inner(txs) {
     if (selT !== 'all' && catById(t.catId).type !== selT) return false;
     if (ldfrom && t.date < ldfrom) return false;
     if (ldto   && t.date > ldto)   return false;
-    if (kw) { var h = ((t.note || '') + ' ' + catById(t.catId).name + ' ' + t.date).toLowerCase(); if (h.indexOf(kw) === -1) return false; }
+    if (kwq.length && !srchMatch(kwq, (t.note || '') + ' ' + catById(t.catId).name + ' ' + (t.subCatName || '') + ' ' + t.date,
+        [t.amount, (t.excl !== undefined ? t.excl : null)])) return false;
     return true;
   });
   var groups = {};
@@ -3476,11 +3543,22 @@ function renderJournal() {
   if(!state.journals)state.journals=[];
   var jdfrom = (document.getElementById('jDateFrom')||{}).value||'';
   var jdto   = (document.getElementById('jDateTo')||{}).value||'';
+  var jq = srchParse((document.getElementById('jSearch')||{}).value);
   var js=state.journals.filter(function(j){
     if (!j.date) return false;
     if (!(j.date && j.date>=fyStart() && j.date<=fyEnd())) return false;
     if (jdfrom && j.date < jdfrom) return false;
     if (jdto   && j.date > jdto)   return false;
+    if (jq.length) {
+      var JL = jLines(j), jt = (j.memo || '') + ' ' + j.date, ja = [];
+      JL.d.concat(JL.c).forEach(function(ln) {
+        jt += ' ' + jName(ln.acc) + ' ' + (subNameOf(ln.acc, ln.sub) || '');
+        var a = parseInt(ln.amt) || 0;
+        ja.push(a);
+        if (ln.tax) ja.push(a - ln.tax);   // 消費税つきの行は税抜金額でも当たる
+      });
+      if (!srchMatch(jq, jt, ja)) return false;
+    }
     return true;
   });
   // 並び順：日付が古い順（既定）／新しい順。同じ日付どうしは保存されている順を保つ
