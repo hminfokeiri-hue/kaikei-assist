@@ -2572,7 +2572,7 @@ function renderLedger_inner(txs) {
     var tbl = document.createElement('table');
     tbl.innerHTML = isPL
       ? '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th class="col-incl" style="text-align:right">税込</th><th class="col-excl" style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>'
-      : '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right">金額</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>';
+      : '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th style="text-align:right;color:var(--accent);width:130px">借方</th><th style="text-align:right;color:var(--red);width:130px">貸方</th><th class="print-hide"></th></tr></thead>';
     var tbody2 = document.createElement('tbody');
     ctxs.forEach(function(t) {
       var r = t.taxRate !== undefined ? t.taxRate : 10;
@@ -2586,9 +2586,9 @@ function renderLedger_inner(txs) {
           + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + rateLabel(r, t.ded) + '</span></td>';
       } else {
         var cr = isCr(t);
-        amtCells = '<td class="td-amount"><span class="bslbl" style="' + (cr ? 'background:var(--red-lt);color:var(--red)' : 'background:var(--accent-lt);color:var(--accent)') + '">' + (cr ? '貸' : '借') + '</span>' + fmt(t.amount) + '</td>'
-          + '<td class="td-num" style="color:var(--ink-soft)">—</td>'
-          + '<td style="color:var(--ink-soft)">—</td>';
+        // 貸借対照表の科目は「借方」「貸方」の2列に分けて、借は左・貸は右に金額を出す
+        amtCells = '<td class="td-amount" style="color:var(--accent)">' + (cr ? '' : fmt(t.amount)) + '</td>'
+          + '<td class="td-amount" style="color:var(--red)">' + (cr ? fmt(t.amount) : '') + '</td>';
       }
       var tr = document.createElement('tr');
       tr.innerHTML = '<td class="td-date">' + t.date + '</td>'
