@@ -1243,6 +1243,7 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   <div class="page-header">
     <div><div class="page-title">試算表</div><div class="page-sub" id="trialSub">科目別の借方・貸方・残高</div></div>
     <div class="print-hide" style="display:flex;gap:8px">
+      <select id="trialUpto" title="この月の末日までの残高で表示します" style="font-size:12px;border:1px solid var(--rule);border-radius:5px;padding:4px 6px"><option value="all">期末まで（全部）</option></select>
       <button class="btn btn-secondary btn-sm" id="openBalBtn">🏁 期首残高</button>
       <button class="btn btn-secondary btn-sm" id="printTrialBtn">🖨️ 印刷</button>
     </div>
@@ -2060,6 +2061,7 @@ function bindEvents() {
     renderLedger();
   });
   safeOn('jDateFrom','change',renderJournal);
+  safeOn('trialUpto','change',renderTrial);
   safeOn('jSearch','input',renderJournal);
   safeOn('fSearch','input',renderTransactions);
   (function(){
@@ -3752,9 +3754,22 @@ function normalSide(id) {
   return (t === 'liability' || t === 'income') ? 'credit' : 'debit';
 }
 function renderTrial() {
-  document.getElementById('trialSub').textContent=state.year+'年度 試算表（期首残高を含む）'+(isExcl()?'　※税抜表示：消費税は仮払消費税・仮受消費税に分けて表示':'');
+  // ○月末時点：選んだ月の末日までの仕訳だけで集計する
+  var tuSel=document.getElementById('trialUpto');
+  if(tuSel&&tuSel.options.length<2){
+    FY_MONTHS.forEach(function(m){ var o=document.createElement('option'); o.value=String(m); o.textContent=m+'月末まで'; tuSel.appendChild(o); });
+  }
+  var tuM=tuSel?tuSel.value:'all', tuEnd=fyEnd(), tuLabel='';
+  if(tuM!=='all'){
+    var tm=parseInt(tuM), ty=(tm>=FY_START)?state.year:state.year+1;
+    var tl=new Date(ty,tm,0).getDate();
+    tuEnd=ty+'-'+(tm<10?'0':'')+tm+'-'+tl;
+    tuLabel='　【'+ty+'年'+tm+'月'+tl+'日 時点】';
+  }
+  document.getElementById('trialSub').textContent=state.year+'年度 試算表（期首残高を含む）'+tuLabel+(isExcl()?'　※税抜表示：消費税は仮払消費税・仮受消費税に分けて表示':'');
+  var phT=document.getElementById('ph-trial'); if(phT) phT.textContent=tuLabel?tuLabel.replace(/[　【】]/g,''):'';
   if(!state.journals)state.journals=[];
-  var js=state.journals.filter(function(j){return j.date&&j.date>=fyStart()&&j.date<=fyEnd();});
+  var js=state.journals.filter(function(j){return j.date&&j.date>=fyStart()&&j.date<=tuEnd;});
   var ob=openBalOf(state.year);
   var cont=document.getElementById('trialContent');cont.innerHTML='';
   var accs={};
