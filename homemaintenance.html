@@ -466,6 +466,24 @@ tr.jumprow:hover td{background:#f5f8ff;}
   #page-shikin .sk-row.done td{background:transparent;}
 }
 
+
+/* 小口現金の立替 */
+.sk-tsum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.sk-tcard{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:9px 14px;min-width:150px;cursor:pointer;}
+.sk-tcard:hover{border-color:var(--accent);}
+.sk-tcard.on{border:2px solid var(--accent);}
+.sk-tcard.all{background:var(--ink);color:#fff;border-color:var(--ink);cursor:default;}
+.sk-tcard .l{font-size:11px;font-weight:700;opacity:.8;}
+.sk-tcard .v{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-top:2px;color:var(--red);}
+.sk-tcard.all .v{color:#fff;}
+.sk-tcard.zero .v{color:#94a3b8;}
+.sk-tcard .n{font-size:11px;color:var(--ink-soft);margin-top:1px;}
+.sk-tcard.all .n{color:#cbd5e1;}
+.sk-ttbl input[type=date].sk-in{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 3px;}
+.sk-ttbl tr.sk-tmon td{background:#f8fafc;font-size:11px;color:var(--ink-soft);padding:4px 8px;border-bottom:1px solid var(--rule);}
+.sk-ttbl tr.sk-tmon td.num{text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ink-mid);}
+.sk-ttbl tr.sk-tmon td:first-child{text-align:right;}
+@media print{.sk-tsum .sk-tcard{border:1px solid #999;} .sk-ttbl input[type=date]::-webkit-calendar-picker-indicator{display:none;}}
 /* ── 勘定科目ピッカー（検索つき） ── */
 .accp{position:fixed;z-index:9600;background:#fff;border:1px solid var(--rule);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.18);width:320px;max-width:calc(100vw - 16px);display:flex;flex-direction:column;overflow:hidden;font-size:13px;}
 .accp.hidden{display:none;}
@@ -993,12 +1011,13 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   <div class="page-header">
     <div>
       <div class="page-title">資金繰り表 <span class="sk-sync wait" id="skSync">未接続</span></div>
-      <div class="page-sub">月ごとの入金予定・支払予定と、期ごとの月次売上高をまとめる場所です</div>
+      <div class="page-sub">月ごとの入金予定・支払予定、小口現金の立替、期ごとの月次売上高をまとめる場所です</div>
     </div>
   </div>
   <div class="sk-indep">🔒 この画面は <b>独立したデータ</b> です。仕訳・試算表・収支記録・現金出納帳とはつながっていないので、ここで何を入れても帳簿の数字は変わりません。</div>
   <div class="sk-tabs">
     <button class="sk-tab on" data-sktab="month">📅 月別の資金繰り表</button>
+    <button class="sk-tab" data-sktab="tate">🧾 小口現金の立替</button>
     <button class="sk-tab" data-sktab="year">📈 月次売上高（期ごと）</button>
     <button class="sk-tab" data-sktab="tpl">📋 原本（ひな形）</button>
   </div>
@@ -5418,11 +5437,11 @@ var FB_PATH = '/companies/' + CO + '/kaikei/shikin';
 var FY = (window.kaikeiFyMonths && window.kaikeiFyMonths.length === 12) ? window.kaikeiFyMonths : [7,8,9,10,11,12,1,2,3,4,5,6];
 
 var sk = blank();
-var ui = { tab: 'month', sheetId: null, yearId: null, bd: {} };
+var ui = { tab: 'month', sheetId: null, yearId: null, bd: {}, tm: 'all', tw: 'all', th: false, tResort: false };
 var lastRemote = '', dirty = false, saving = false, saveTimer = null, poll = null, started = false, pendingRender = false;
 var menuTarget = null, retryTimer = null;
 
-function blank() { return { v: 1, sheets: [], tpl: { inc: [], pay: [] }, years: [], updatedAt: 0 }; }
+function blank() { return { v: 1, sheets: [], tpl: { inc: [], pay: [] }, years: [], tate: { rows: [] }, updatedAt: 0 }; }
 function $(id) { return document.getElementById(id); }
 function uid() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -5474,6 +5493,7 @@ function normalize(d) {
     o.years.push({ id: y.id || uid(), ki: +y.ki || 0, y0: +y.y0 || new Date().getFullYear(), note: y.note || '',
       rows: (y.rows || []).map(function(r) { var m = []; for (var i = 0; i < 12; i++) { var v = r.m ? r.m[i] : null; m.push((typeof v === 'number' && isFinite(v)) ? v : null); } return { id: r.id || uid(), name: r.name || '', m: m }; }) });
   });
+  o.tate = { rows: ((d.tate && d.tate.rows) || []).map(tNorm) };
   return o;
 }
 function sortedSheets() {
@@ -5523,9 +5543,154 @@ function calc(s) {
   return r;
 }
 
+
+// ══ 小口現金の立替（だれが・いつ・いくら立て替えたか。精算したら「済」） ══
+var TATE_ITEMS = ['消耗品費','資材費','駐車場代','ガソリン代','交通費','電車代','高速代','通信費','交際費','福利厚生費','研修費','印紙代','修繕費','新聞図書費','水道光熱費','雑費'];
+function tNorm(r) {
+  return { id: r.id || uid(), date: /^\d{4}-\d{2}-\d{2}$/.test(r.date || '') ? r.date : '', who: r.who == null ? '' : String(r.who),
+    shop: r.shop == null ? '' : String(r.shop), item: r.item == null ? '' : String(r.item),
+    amt: (typeof r.amt === 'number' && isFinite(r.amt)) ? r.amt : null, done: !!r.done,
+    sdate: /^\d{4}-\d{2}-\d{2}$/.test(r.sdate || '') ? r.sdate : '', memo: r.memo == null ? '' : String(r.memo) };
+}
+function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function tYmLabel(ym) { return ym ? (+ym.slice(0, 4)) + '年' + (+ym.slice(5, 7)) + '月' : '日付なし'; }
+function tPeople() {
+  var seen = {}, out = [];
+  sk.tate.rows.forEach(function(r) { var w = r.who.trim(); if (w && !seen[w]) { seen[w] = 1; out.push(w); } });
+  return out;
+}
+function tVisible() {
+  var out = [];
+  sk.tate.rows.forEach(function(r, i) {
+    if (ui.tm && ui.tm !== 'all' && (r.date || '').slice(0, 7) !== ui.tm) return;
+    if (ui.tw && ui.tw !== 'all' && r.who.trim() !== ui.tw) return;
+    if (ui.th && r.done) return;
+    out.push({ r: r, i: i });
+  });
+  out.sort(function(a, b) { var x = a.r.date || '9999', y = b.r.date || '9999'; return x < y ? -1 : x > y ? 1 : a.i - b.i; });
+  return out;
+}
+function renderTate() {
+  var months = {}, cur = thisYm();
+  sk.tate.rows.forEach(function(r) { if (r.date) months[r.date.slice(0, 7)] = 1; });
+  months[cur] = 1;
+  var ml = Object.keys(months).sort().reverse();
+  var people = tPeople();
+  var h = '<div class="sk-toolbar">';
+  h += '<span style="font-size:12px;font-weight:700;color:var(--ink-soft)">月：</span><select id="skTM"><option value="all">すべての月</option>';
+  ml.forEach(function(m) { h += '<option value="' + m + '"' + (ui.tm === m ? ' selected' : '') + '>' + tYmLabel(m) + '</option>'; });
+  h += '</select><span style="font-size:12px;font-weight:700;color:var(--ink-soft)">人：</span><select id="skTW"><option value="all">全員</option>';
+  people.forEach(function(p) { h += '<option value="' + esc(p) + '"' + (ui.tw === p ? ' selected' : '') + '>' + esc(p) + '</option>'; });
+  h += '</select><label style="font-size:12px;display:flex;gap:4px;align-items:center;color:var(--ink-mid)"><input type="checkbox" id="skTH"' + (ui.th ? ' checked' : '') + '> 精算済みをかくす</label>';
+  h += '<button class="btn btn-primary btn-sm" data-act="tadd">＋ 立替を追加</button>';
+  h += '<span class="sk-sp"></span>' + toolRight(sk.tate.rows.length > 0) + '</div>';
+  h += '<div class="sk-print-title">小口現金の立替　' + (ui.tm && ui.tm !== 'all' ? tYmLabel(ui.tm) : 'すべての月') + (ui.tw && ui.tw !== 'all' ? '　' + esc(ui.tw) + 'さん' : '') + '<span style="float:right;font-size:11px;font-weight:400">' + esc(coName()) + '</span></div>';
+  h += '<div class="sk-tsum" id="skT-sum"></div>';
+  h += '<datalist id="skTWho">' + people.map(function(p) { return '<option value="' + esc(p) + '">'; }).join('') + '</datalist>';
+  h += '<datalist id="skTItem">' + TATE_ITEMS.map(function(p) { return '<option value="' + p + '">'; }).join('') + '</datalist>';
+  var vis = tVisible();
+  if (!sk.tate.rows.length) {
+    return h + '<div class="sk-empty">まだ立替がありません。<br>「＋ 立替を追加」で、立て替えた人・お店・金額を入れていきます。<br>精算したら「済」にチェックすると、未精算の合計から外れて灰色になります。</div>';
+  }
+  h += '<div class="sk-list"><table class="sk-tbl sk-ttbl"><thead><tr><th class="sk-c-chk">済</th><th style="width:132px">日付</th><th style="width:120px">立て替えた人</th><th>お店・支払先</th><th style="width:120px">内容</th><th class="sk-c-amt" style="text-align:right">金額（税込）</th><th style="width:132px">精算日</th><th style="width:18%">メモ</th><th class="sk-c-menu"></th></tr></thead><tbody>';
+  var lastM = null, mSum = 0, mN = 0, mUn = 0;
+  var flush = function() {
+    if (lastM === null) return;
+    h += '<tr class="sk-tmon" data-tmon="' + lastM + '"><td colspan="5">' + tYmLabel(lastM) + ' 計（' + mN + '件）</td><td class="num">' + fmtY(mSum) + '</td><td colspan="3" class="st">' + (mUn ? '未精算 ' + fmtY(mUn) : '✓ すべて精算済み') + '</td></tr>';
+  };
+  vis.forEach(function(v) {
+    var r = v.r, m = (r.date || '').slice(0, 7);
+    if (m !== lastM) { flush(); lastM = m; mSum = 0; mN = 0; mUn = 0; }
+    mSum += n0(r.amt); mN++; if (!r.done) mUn += n0(r.amt);
+    h += '<tr class="sk-row' + (r.done ? ' done' : '') + '" data-list="tate" data-i="' + v.i + '">'
+      + '<td class="sk-c-chk"><input type="checkbox" data-f="tdone"' + (r.done ? ' checked' : '') + ' title="精算済み"></td>'
+      + '<td><input type="date" class="sk-in" data-f="tdate" value="' + esc(r.date) + '"></td>'
+      + '<td><input class="sk-in" data-f="who" list="skTWho" value="' + esc(r.who) + '" placeholder="名前"></td>'
+      + '<td><input class="sk-in" data-f="shop" value="' + esc(r.shop) + '" placeholder="例：コーナン平野瓜破店"></td>'
+      + '<td><input class="sk-in" data-f="item" list="skTItem" value="' + esc(r.item) + '" placeholder="例：資材費"></td>'
+      + '<td class="sk-c-amt"><input class="sk-in sk-amt" data-f="tamt" inputmode="decimal" value="' + esc(fmtIn(r.amt)) + '"></td>'
+      + '<td><input type="date" class="sk-in" data-f="sdate" value="' + esc(r.sdate) + '"></td>'
+      + '<td><input class="sk-in sk-memo" data-f="tmemo" value="' + esc(r.memo) + '" placeholder="例：9月給与で精算"></td>'
+      + '<td class="sk-c-menu"><button class="sk-menu-btn" data-act="menu" title="この行の操作">⋯</button></td></tr>';
+  });
+  flush();
+  if (!vis.length) h += '<tr><td colspan="9" style="text-align:center;color:var(--ink-soft);padding:18px">この条件の立替はありません</td></tr>';
+  h += '</tbody><tfoot><tr class="sk-foot"><td colspan="5">表示中の合計</td><td class="num" id="skT-tot"></td><td colspan="3" id="skT-totn"></td></tr></tfoot></table>';
+  h += '<button class="sk-add" data-act="tadd">＋ 立替を追加</button></div>';
+  return h;
+}
+function tRefresh() {
+  var vis = tVisible(), tot = 0, un = 0;
+  vis.forEach(function(v) { tot += n0(v.r.amt); if (!v.r.done) un += n0(v.r.amt); });
+  setTxt('skT-tot', fmtY(tot)); setTxt('skT-totn', '未精算 ' + fmtY(un) + '　／　精算済み ' + fmtY(tot - un));
+  // 月ごとの小計も入れ直す（金額や「済」を変えたとき）
+  var mm = {};
+  vis.forEach(function(v) { var k = (v.r.date || '').slice(0, 7); if (!mm[k]) mm[k] = { s: 0, u: 0, n: 0 }; mm[k].s += n0(v.r.amt); mm[k].n++; if (!v.r.done) mm[k].u += n0(v.r.amt); });
+  document.querySelectorAll('#page-shikin tr[data-tmon]').forEach(function(tr) {
+    var x = mm[tr.getAttribute('data-tmon')]; if (!x) return;
+    var c = tr.children; c[0].textContent = tYmLabel(tr.getAttribute('data-tmon')) + ' 計（' + x.n + '件）'; c[1].textContent = fmtY(x.s);
+    c[2].textContent = x.u ? '未精算 ' + fmtY(x.u) : '✓ すべて精算済み';
+  });
+  // 人ごとの未精算（月の絞り込みに合わせる。人の絞り込みは無視して全員を出す）
+  var per = {}, order = [], allUn = 0, allDone = 0;
+  sk.tate.rows.forEach(function(r) {
+    if (ui.tm && ui.tm !== 'all' && (r.date || '').slice(0, 7) !== ui.tm) return;
+    var w = r.who.trim() || '（名前なし）';
+    if (!per[w]) { per[w] = { un: 0, n: 0, done: 0 }; order.push(w); }
+    if (r.done) { per[w].done += n0(r.amt); allDone += n0(r.amt); } else { per[w].un += n0(r.amt); per[w].n++; allUn += n0(r.amt); }
+  });
+  var box = $('skT-sum'); if (!box) return;
+  var h = '<div class="sk-tcard all"><div class="l">未精算の合計' + (ui.tm && ui.tm !== 'all' ? '（' + tYmLabel(ui.tm) + '）' : '') + '</div><div class="v">' + fmtY(allUn) + '</div><div class="n">精算済み ' + fmtY(allDone) + '</div></div>';
+  order.forEach(function(w) {
+    var p = per[w];
+    h += '<div class="sk-tcard' + (p.un ? '' : ' zero') + (ui.tw === w ? ' on' : '') + '" data-tw="' + esc(w) + '" title="クリックでこの人だけ表示"><div class="l">' + esc(w) + '</div><div class="v">' + fmtY(p.un) + '</div><div class="n">' + (p.un ? '未精算 ' + p.n + '件' : '✓ 精算済み') + '</div></div>';
+  });
+  box.innerHTML = h;
+}
+function tInput(t, ro) {
+  var r = sk.tate.rows[ro.i]; if (!r) return;
+  var f = t.getAttribute('data-f');
+  if (f === 'tdone') {
+    r.done = t.checked; ro.tr.classList.toggle('done', r.done);
+    if (r.done && !r.sdate) { r.sdate = today(); var sd = ro.tr.querySelector('[data-f="sdate"]'); if (sd) sd.value = r.sdate; }
+    if (ui.th) ui.tResort = true;
+  }
+  else if (f === 'tdate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { r.date = t.value; ui.tResort = true; } }
+  else if (f === 'sdate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) r.sdate = t.value; }
+  else if (f === 'tamt') { var v = parseAmt(t.value); t.classList.toggle('bad', v !== null && isNaN(v)); r.amt = (v === null || isNaN(v)) ? null : v; }
+  else if (f === 'who') { r.who = t.value; ui.tResort = true; }
+  else if (f === 'shop') r.shop = t.value;
+  else if (f === 'item') r.item = t.value;
+  else if (f === 'tmemo') r.memo = t.value;
+  changed(); refreshTotals();
+}
+function tAdd(after) {
+  var last = sk.tate.rows[sk.tate.rows.length - 1];
+  var d = today();
+  if (ui.tm && ui.tm !== 'all' && d.slice(0, 7) !== ui.tm) d = ui.tm + '-01';
+  var r = tNorm({ date: d, who: (ui.tw && ui.tw !== 'all') ? ui.tw : (last ? last.who : '') });
+  if (after != null) sk.tate.rows.splice(after + 1, 0, r); else sk.tate.rows.push(r);
+  changed(); render();
+  var idx = sk.tate.rows.indexOf(r);
+  setTimeout(function() {
+    var tr = document.querySelector('#page-shikin tr[data-list="tate"][data-i="' + idx + '"]');
+    var inp = tr && tr.querySelector('input[data-f="shop"]');
+    if (inp) { inp.focus(); tr.scrollIntoView({ block: 'nearest' }); }
+  }, 30);
+}
+function tCsv() {
+  var lines = [['小口現金の立替', ui.tm && ui.tm !== 'all' ? tYmLabel(ui.tm) : 'すべての月', ui.tw && ui.tw !== 'all' ? ui.tw : '全員'].map(csvCell).join(','), ''];
+  lines.push(['日付', '立て替えた人', 'お店・支払先', '内容', '金額（税込）', '精算', '精算日', 'メモ'].join(','));
+  var tot = 0, un = 0;
+  tVisible().forEach(function(v) { var r = v.r; tot += n0(r.amt); if (!r.done) un += n0(r.amt);
+    lines.push([r.date, r.who, r.shop, r.item, r.amt == null ? '' : r.amt, r.done ? '済' : '未', r.sdate, r.memo].map(csvCell).join(',')); });
+  lines.push(''); lines.push(['', '', '', '合計', tot].join(',')); lines.push(['', '', '', '未精算', un].join(','));
+  download('小口現金の立替_' + (ui.tm && ui.tm !== 'all' ? ui.tm : 'すべて') + '.csv', '﻿' + lines.join('\r\n'), 'text/csv');
+}
+
 // ── 保存・同期 ──
 function saveLocal() { lsSet(LS_KEY, JSON.stringify(sk)); }
-function saveUi() { lsSet(LS_UI, JSON.stringify({ tab: ui.tab, sheetId: ui.sheetId, yearId: ui.yearId })); }
+function saveUi() { lsSet(LS_UI, JSON.stringify({ tab: ui.tab, sheetId: ui.sheetId, yearId: ui.yearId, tm: ui.tm, tw: ui.tw, th: ui.th })); }
 function badge(cls, txt) { var b = $('skSync'); if (b) { b.className = 'sk-sync ' + cls; b.textContent = txt; } }
 function changed() {
   dirty = true; saveLocal();
@@ -5557,13 +5722,13 @@ function start() {
   var f = window.kaikeiFbFetch; if (!f) return;
   started = true; badge('wait', '⟳ 読込中');
   f(FB_PATH).then(function(data) {
-    if (data && data.sheets) {
+    if (data && (data.sheets || data.tate)) {
       lastRemote = JSON.stringify(data);
       var local = normalize(JSON.parse(lsGet(LS_KEY) || 'null'));
       if (dirty && local.updatedAt > (data.updatedAt || 0)) { push(); }
       else { applyRemote(data); }
       badge('ok', '✓ 同期済み');
-    } else if (sk.sheets.length || sk.years.length || sk.tpl.inc.length || sk.tpl.pay.length) {
+    } else if (sk.sheets.length || sk.years.length || sk.tpl.inc.length || sk.tpl.pay.length || sk.tate.rows.length) {
       push();
     } else {
       badge('ok', '✓ 接続済み（データなし）');
@@ -5580,7 +5745,7 @@ function tick() {
   var f = window.kaikeiFbFetch; if (!f || saving) return;
   if (dirty) { push(); return; }
   f(FB_PATH).then(function(data) {
-    if (!data || !data.sheets || dirty || saving) return;
+    if (!data || !(data.sheets || data.tate) || dirty || saving) return;
     var s = JSON.stringify(data);
     if (s !== lastRemote) { lastRemote = s; applyRemote(data); badge('ok', '✓ 同期済み'); }
   }).catch(function() { badge('err', '⚠ 同期エラー'); });
@@ -5594,6 +5759,7 @@ function render() {
   document.querySelectorAll('#page-shikin .sk-tab').forEach(function(b) { b.classList.toggle('on', b.getAttribute('data-sktab') === ui.tab); });
   if (ui.tab === 'year') body.innerHTML = renderYear();
   else if (ui.tab === 'tpl') body.innerHTML = renderTpl();
+  else if (ui.tab === 'tate') body.innerHTML = renderTate();
   else body.innerHTML = renderMonth();
   refreshTotals();
   saveUi();
@@ -5752,6 +5918,7 @@ function renderYear() {
 }
 function setTxt(id, txt, neg) { var e = $(id); if (e) { e.textContent = txt; e.classList.toggle('sk-neg', !!neg); } }
 function refreshTotals() {
+  if (ui.tab === 'tate') { tRefresh(); return; }
   if (ui.tab === 'month') {
     var s = curSheet(); if (!s) return;
     var c = calc(s);
@@ -5805,6 +5972,7 @@ function onInput(e) {
     changed(); return;
   }
   var ro = rowOf(t); if (!ro) return;
+  if (ro.key === 'tate') { tInput(t, ro); return; }
   if (ro.key === 'year') {
     var yr = curYear(); if (!yr) return; var row = yr.rows[ro.i]; if (!row) return;
     if (f === 'yname') row.name = t.value;
@@ -5839,6 +6007,7 @@ function onBlur(e) {
     var s = curSheet(), sel = $('skSheetSel');
     if (s && sel && sel.selectedIndex >= 0) sel.options[sel.selectedIndex].textContent = (s.name || reiwa(s.ym)) + (s.target ? '（' + s.target + '）' : '');
   }
+  if (ui.tResort) setTimeout(function() { if (!editing() && ui.tResort) { ui.tResort = false; render(); } }, 60);
   if (pendingRender) setTimeout(function() { if (!editing() && pendingRender) render(); }, 50);
 }
 function onKey(e) {
@@ -5864,6 +6033,8 @@ function onKey(e) {
 function onClick(e) {
   var tab = e.target.closest('[data-sktab]');
   if (tab) { ui.tab = tab.getAttribute('data-sktab'); hideMenu(); render(); return; }
+  var tc = e.target.closest('[data-tw]');
+  if (tc) { var w = tc.getAttribute('data-tw'); ui.tw = (ui.tw === w) ? 'all' : w; render(); return; }
   var ov = e.target.closest('tr[data-open]');
   if (ov) { ui.sheetId = ov.getAttribute('data-open'); render(); window.scrollTo(0, 0); var mn = document.querySelector('main'); if (mn) mn.scrollTop = 0; return; }
   var b = e.target.closest('[data-act]'); if (!b) return;
@@ -5879,10 +6050,11 @@ function onClick(e) {
     case 'delyear': delYear(); return;
     case 'pull': openPull(); return;
     case 'print': doPrint(); return;
-    case 'csv': doCsv(); return;
+    case 'csv': if (ui.tab === 'tate') tCsv(); else doCsv(); return;
     case 'backup': doBackup(); return;
     case 'restore': $('skFile').click(); return;
     case 'tplfrom': tplFrom(); return;
+    case 'tadd': tAdd(); return;
   }
   if (!ro) return;
   var r = getList(ro.key)[ro.i]; if (!r) return;
@@ -5904,6 +6076,8 @@ function showMenu(btn, ro) {
   var m = $('skMenu'), items = [];
   if (ro.key === 'year') {
     items = [['up', '↑ 上へ'], ['down', '↓ 下へ'], ['ins', '＋ この下に行を入れる'], ['-'], ['del', '🗑 この行を削除', 1]];
+  } else if (ro.key === 'tate') {
+    items = [['tdup', '⎘ この行を複製'], ['tins', '＋ 同じ日の行を足す'], ['-'], ['del', '🗑 この行を削除', 1]];
   } else {
     var r = getList(ro.key)[ro.i]; if (!r) return;
     var isInc = (ro.key === 'inc' || ro.key === 'tinc');
@@ -5928,8 +6102,14 @@ function onMenu(e) {
   var act = b.getAttribute('data-mact'), ro = menuTarget; hideMenu();
   var list;
   if (ro.key === 'year') { var y = curYear(); if (!y) return; list = y.rows; }
+  else if (ro.key === 'tate') list = sk.tate.rows;
   else list = getList(ro.key);
   var i = ro.i, r = list[i]; if (!r) return;
+  if (ro.key === 'tate') {
+    if (act === 'del') { if (!confirm('「' + (r.shop || r.who || '（名前なし）') + '」' + fmtY(n0(r.amt)) + ' の行を削除しますか？')) return; list.splice(i, 1); changed(); render(); return; }
+    if (act === 'tdup' || act === 'tins') { var nr = tNorm(clone(r)); nr.id = uid(); nr.done = false; nr.sdate = ''; if (act === 'tins') { nr.shop = ''; nr.item = ''; nr.amt = null; nr.memo = ''; } list.splice(i + 1, 0, nr); changed(); render(); return; }
+    return;
+  }
   if (act === 'up' && i > 0) { list.splice(i - 1, 0, list.splice(i, 1)[0]); }
   else if (act === 'down' && i < list.length - 1) { list.splice(i + 1, 0, list.splice(i, 1)[0]); }
   else if (act === 'ins') { list.splice(i + 1, 0, newRow(ro.key)); changed(); render(); focusRow(ro.key, i + 1); return; }
@@ -6118,9 +6298,9 @@ function onFile(e) {
   var rd = new FileReader();
   rd.onload = function() {
     var data; try { data = JSON.parse(rd.result); } catch (er) { alert('ファイルを読めませんでした（JSON形式ではないようです）'); return; }
-    if (!data || !data.sheets) { alert('資金繰りのデータではないようです。\n（帳簿のバックアップJSONは、上の 💾 バックアップ → JSONから復元 で読み込みます）'); return; }
+    if (!data || !(data.sheets || data.tate)) { alert('資金繰りのデータではないようです。\n（帳簿のバックアップJSONは、上の 💾 バックアップ → JSONから復元 で読み込みます）'); return; }
     var nd = normalize(data);
-    var msg = '読み込むデータ：月別の表 ' + nd.sheets.length + '枚、月次売上高 ' + nd.years.length + '期分\n\n';
+    var msg = '読み込むデータ：月別の表 ' + nd.sheets.length + '枚、月次売上高 ' + nd.years.length + '期分、立替 ' + nd.tate.rows.length + '件\n\n';
     if (sk.sheets.length || sk.years.length) msg += '今の資金繰りデータ（表 ' + sk.sheets.length + '枚）は、このデータで置きかわります。\nよろしいですか？';
     else msg += 'このデータを読み込みますか？';
     if (!confirm(msg)) return;
@@ -6134,7 +6314,7 @@ function onFile(e) {
 function boot() {
   var raw = lsGet(LS_KEY);
   if (raw) { try { sk = normalize(JSON.parse(raw)); } catch (e) {} }
-  try { var u = JSON.parse(lsGet(LS_UI) || '{}'); if (u.tab) ui.tab = u.tab; if (u.sheetId) ui.sheetId = u.sheetId; if (u.yearId) ui.yearId = u.yearId; } catch (e) {}
+  try { var u = JSON.parse(lsGet(LS_UI) || '{}'); if (u.tab) ui.tab = u.tab; if (u.sheetId) ui.sheetId = u.sheetId; if (u.yearId) ui.yearId = u.yearId; if (u.tm) ui.tm = u.tm; if (u.tw) ui.tw = u.tw; ui.th = !!u.th; } catch (e) {}
   var pg = $('page-shikin'); if (!pg) return;
   pg.addEventListener('input', onInput);
   pg.addEventListener('change', function(e) {
@@ -6142,6 +6322,10 @@ function boot() {
     if (t.id === 'skSheetSel') { ui.sheetId = t.value; render(); return; }
     if (t.id === 'skYearSel') { ui.yearId = t.value; render(); return; }
     if (t.id === 'skFile') { onFile(e); return; }
+    if (t.id === 'skTM') { ui.tm = t.value; render(); return; }
+    if (t.id === 'skTW') { ui.tw = t.value; render(); return; }
+    if (t.id === 'skTH') { ui.th = t.checked; render(); return; }
+    if (t.type === 'date' && t.closest('tr[data-list="tate"]')) { onInput(e); return; }
     if (t.type === 'checkbox' || t.type === 'month') onInput(e);
   });
   pg.addEventListener('click', onClick);
