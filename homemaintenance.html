@@ -2616,7 +2616,7 @@ function renderLedger_inner(txs) {
           : '借方計: ' + fmt(bD) + '　貸方計: ' + fmt(bC)) + '</span>';
     var tbl = document.createElement('table');
     tbl.innerHTML = isPL
-      ? '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th class="col-incl" style="text-align:right">税込</th><th class="col-excl" style="text-align:right">税抜</th><th style="text-align:right">消費税</th><th>税率</th><th class="print-hide"></th></tr></thead>'
+      ? '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th class="lg-dr" style="text-align:right;width:150px">借方（' + taxViewLabel() + '）</th><th class="lg-cr" style="text-align:right;width:150px">貸方（' + taxViewLabel() + '）</th><th style="text-align:right;white-space:nowrap">消費税</th><th style="white-space:nowrap">税率</th><th class="print-hide"></th></tr></thead>'
       : '<thead><tr><th>日付</th><th>補助科目</th><th>摘要</th><th class="lg-dr" style="text-align:right;width:150px">借方</th><th class="lg-cr" style="text-align:right;width:150px">貸方</th><th class="print-hide"></th></tr></thead>';
     var tbody2 = document.createElement('tbody');
     var mAcc = null;
@@ -2625,8 +2625,8 @@ function renderLedger_inner(txs) {
       var mr = document.createElement('tr'); mr.className = 'lg-month';
       var lab = '<td colspan="3" class="lg-mlabel">' + mAcc.label + ' 計（' + mAcc.n + '件）</td>';
       if (isPL) {
-        mr.innerHTML = lab + '<td class="td-amount col-incl">' + fmt(mAcc.incl) + '</td>'
-          + '<td class="td-amount col-excl">' + fmt(mAcc.excl) + '</td>'
+        mr.innerHTML = lab + '<td class="td-amount lg-dr">' + (mAcc.d ? fmt(mAcc.d) : '') + '</td>'
+          + '<td class="td-amount lg-cr">' + (mAcc.c ? fmt(mAcc.c) : '') + '</td>'
           + '<td class="td-num">' + fmt(mAcc.tax) + '</td><td></td><td class="print-hide"></td>';
       } else {
         mr.innerHTML = lab + '<td class="td-amount lg-dr">' + (mAcc.d ? fmt(mAcc.d) : '') + '</td>'
@@ -2642,13 +2642,16 @@ function renderLedger_inner(txs) {
       }
       mAcc.n++; mAcc.incl += t.amount; mAcc.excl += (t.excl !== undefined ? t.excl : t.amount); mAcc.tax += (t.tax || 0);
       if (!isPL) { if (isCr(t)) mAcc.c += t.amount; else mAcc.d += t.amount; }
+      else { var pv = isExcl() ? (t.excl !== undefined ? t.excl : t.amount) : t.amount; if (t.type === 'income') mAcc.c += pv; else mAcc.d += pv; }
       var r = t.taxRate !== undefined ? t.taxRate : 10;
       var src = srcOfRow(t);
       var amtCells;
       if (isPL) {
-        var sg = (t.type === 'income' ? '+' : '-'), cl = (t.type === 'income' ? 'td-inc' : 'td-exp');
-        amtCells = '<td class="td-amount col-incl ' + cl + '">' + sg + fmt(t.amount) + '</td>'
-          + '<td class="td-amount col-excl ' + cl + '">' + sg + fmt(t.excl !== undefined ? t.excl : t.amount) + '</td>'
+        // 損益の科目も、貸借対照表の科目と同じく「借方」「貸方」の2列（収益＝貸方、費用＝借方）
+        var pcr = (t.type === 'income');
+        var pAmt = fmt(isExcl() ? (t.excl !== undefined ? t.excl : t.amount) : t.amount);
+        amtCells = '<td class="td-amount lg-dr" style="color:var(--accent)">' + (pcr ? '' : '<span class="lg-mk d">借</span>' + pAmt) + '</td>'
+          + '<td class="td-amount lg-cr" style="color:var(--red)">' + (pcr ? '<span class="lg-mk c">貸</span>' + pAmt : '') + '</td>'
           + '<td class="td-num" style="color:var(--yellow)">' + fmt(t.tax||0) + '</td>'
           + '<td><span class="badge ' + (r===8?'badge-8':r===10?'badge-10':'') + '">' + rateLabel(r, t.ded) + '</span></td>';
       } else {
