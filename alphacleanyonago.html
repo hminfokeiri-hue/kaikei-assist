@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>帳簿アシスト｜株式会社ホームメンテナンス</title>
+<title>帳簿アシスト｜アルファクリーン米子</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
@@ -319,153 +319,6 @@ tr.jumprow:hover td{background:#f5f8ff;}
 .trial-tbl td:first-child{text-align:left;font-family:'Noto Sans JP',sans-serif;font-size:13px;}
 .trial-tbl tfoot td{font-weight:700;background:var(--paper-alt);border-top:2px solid var(--ink);}
 .year-update-info{background:var(--accent-lt);border:1px solid #93c5fd;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;}
-/* ══ 資金繰り表（独立機能） ══ */
-.sk-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
-.sk-tab{padding:7px 14px;border-radius:6px;border:1px solid var(--rule);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink-mid);}
-.sk-tab.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;}
-.sk-sync{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;margin-left:8px;vertical-align:middle;}
-.sk-sync.ok{background:var(--green-lt);color:var(--green);}
-.sk-sync.wait{background:var(--yellow-lt);color:var(--yellow);}
-.sk-sync.err{background:var(--red-lt);color:var(--red);}
-.sk-indep{background:#f1f5f9;border:1px dashed #94a3b8;border-radius:6px;padding:7px 12px;font-size:12px;color:#475569;margin-bottom:14px;}
-.sk-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
-.sk-toolbar select{border:1px solid var(--rule);border-radius:5px;padding:6px 10px;font-family:inherit;font-size:13px;background:var(--paper);max-width:340px;}
-.sk-toolbar .sk-sp{flex:1;}
-.sk-meta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:12px 14px;margin-bottom:14px;}
-.sk-meta label{display:block;font-size:10px;font-weight:700;color:var(--ink-soft);letter-spacing:.04em;margin-bottom:3px;}
-.sk-meta input{width:100%;padding:6px 9px;border:1px solid var(--rule);border-radius:5px;font-family:inherit;font-size:13px;outline:none;}
-.sk-meta input:focus{border-color:var(--accent);}
-.sk-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
-.sk-list{background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
-.sk-list-h{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;color:#fff;font-weight:700;font-size:14px;}
-.sk-list-h.inc{background:var(--green);}
-.sk-list-h.pay{background:var(--red);}
-.sk-list-h small{font-weight:400;font-size:11px;opacity:.85;}
-.sk-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
-.sk-tbl th{background:var(--paper-alt);font-size:10px;font-weight:700;color:var(--ink-soft);padding:5px 6px;text-align:left;border-bottom:1px solid var(--rule);}
-.sk-tbl td{padding:2px 4px;border-bottom:1px solid #f0eeeb;font-size:13px;vertical-align:middle;}
-.sk-tbl tr.sk-row:hover td{background:#fafaf8;}
-.sk-c-chk{width:30px;text-align:center;}
-.sk-c-amt{width:128px;}
-.sk-c-memo{width:34%;}
-.sk-c-menu{width:34px;text-align:center;}
-.sk-in{width:100%;border:1px solid transparent;background:transparent;border-radius:4px;padding:5px 6px;font-family:inherit;font-size:13px;color:var(--ink);outline:none;}
-.sk-in:hover{border-color:var(--rule);}
-.sk-in:focus{border-color:var(--accent);background:#fff;}
-.sk-amt{text-align:right;font-family:'IBM Plex Mono',monospace;}
-.sk-amt.bad{border-color:var(--red);background:var(--red-lt);}
-.sk-memo{color:var(--ink-soft);font-size:12px;}
-.sk-row.done td{background:#f3faf5;}
-.sk-row.done .sk-in{color:#64748b;}
-.sk-row.done .sk-amt{text-decoration:line-through;text-decoration-color:#94a3b8;}
-.sk-row.off td{opacity:.5;}
-.sk-row.off .sk-amt{text-decoration:line-through;}
-.sk-tag{display:inline-block;font-size:10px;padding:0 6px;border-radius:10px;font-weight:700;vertical-align:middle;white-space:nowrap;}
-.sk-tag.other{background:#e0e7ff;color:#3730a3;}
-.sk-tag.offt{background:var(--paper-alt);color:var(--ink-soft);}
-.sk-tag.bd{background:var(--yellow-lt);color:var(--yellow);cursor:pointer;}
-.sk-namewrap{display:flex;align-items:center;gap:4px;}
-.sk-namewrap .sk-in{flex:1;min-width:0;}
-.sk-menu-btn{border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--ink-soft);padding:2px 6px;border-radius:4px;line-height:1;}
-.sk-menu-btn:hover{background:var(--paper-alt);color:var(--ink);}
-.sk-add{display:block;width:100%;border:none;border-top:1px dashed var(--rule);background:#fcfcfb;color:var(--accent);padding:8px;font-family:inherit;font-size:12px;cursor:pointer;}
-.sk-add:hover{background:var(--accent-lt);}
-.sk-foot td{background:var(--paper-alt);font-weight:700;font-size:12px;padding:7px 8px;}
-.sk-foot .num{text-align:right;font-family:'IBM Plex Mono',monospace;}
-.sk-foot.sub td{background:#fff;font-weight:400;color:#9ca3af;font-size:11px;padding-top:3px;padding-bottom:5px;}
-.sk-bank{border-top:2px solid var(--green);background:#f0fdf4;padding:10px 14px 12px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;}
-.sk-bank label{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;}
-.sk-bank .sk-in{background:#fff;border-color:#bbf7d0;font-size:15px;font-weight:600;padding:6px 10px;}
-.sk-bank .sk-in:focus{border-color:var(--green);}
-.sk-bank-note{grid-column:1 / -1;font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;text-align:right;}
-.sk-bd td{background:#fffbeb !important;padding:8px 12px 10px 38px;}
-.sk-bd-box{border-left:3px solid #fcd34d;padding-left:10px;}
-.sk-bd-title{font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:4px;}
-.sk-bd table{width:100%;border-collapse:collapse;}
-.sk-bd table td{background:transparent !important;padding:1px 2px;border:none;}
-.sk-bd .sk-in{font-size:12px;padding:3px 5px;}
-.sk-bd-opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;margin:6px 0;}
-.sk-bd-opts input[type=number]{width:56px;padding:3px 5px;border:1px solid var(--rule);border-radius:4px;font-family:inherit;}
-.sk-bd-calc{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;}
-.sk-bd-calc b{font-size:13px;}
-.sk-sum{background:#fff;border:1px solid var(--rule);border-radius:8px;margin-top:16px;overflow:hidden;}
-.sk-sum-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid #f0eeeb;font-size:13px;}
-.sk-sum-row:last-child{border-bottom:none;}
-.sk-sum-row .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;}
-.sk-sum-row.big{background:var(--ink);color:#fff;}
-.sk-sum-row.big .v{font-size:16px;}
-.sk-sum-row .hint{font-size:11px;color:var(--ink-soft);margin-left:6px;}
-.sk-sum-row.big .hint{color:#cbd5e1;}
-.sk-neg{color:var(--red) !important;}
-.sk-sum-row.big .sk-neg{color:#fca5a5 !important;}
-.sk-sheetmemo{width:100%;min-height:70px;border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font-family:inherit;font-size:12px;resize:vertical;margin-top:6px;color:var(--ink-mid);}
-.sk-sec-title{font-size:12px;font-weight:700;color:var(--ink-soft);margin:18px 0 4px;}
-.sk-ov{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden;font-size:12px;}
-.sk-ov th{background:var(--paper-alt);padding:6px 10px;text-align:right;font-size:10px;color:var(--ink-soft);}
-.sk-ov th:first-child,.sk-ov td:first-child,.sk-ov th:nth-child(2),.sk-ov td:nth-child(2){text-align:left;}
-.sk-ov td{padding:6px 10px;border-top:1px solid #f0eeeb;text-align:right;font-family:'IBM Plex Mono',monospace;cursor:pointer;}
-.sk-ov td:first-child,.sk-ov td:nth-child(2){font-family:'Noto Sans JP',sans-serif;}
-.sk-ov tr:hover td{background:var(--accent-lt);}
-.sk-ov tr.cur td{background:#eef2ff;font-weight:700;}
-.sk-menu{position:absolute;z-index:500;background:#fff;border:1px solid var(--rule);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:4px;min-width:190px;}
-.sk-menu.hidden{display:none;}
-.sk-menu button{display:block;width:100%;text-align:left;border:none;background:transparent;padding:7px 10px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:5px;color:var(--ink);}
-.sk-menu button:hover{background:var(--paper-alt);}
-.sk-menu button.danger{color:var(--red);}
-.sk-menu hr{border:none;border-top:1px solid var(--rule);margin:3px 0;}
-.sk-ywrap{overflow-x:auto;background:#fff;border:1px solid var(--rule);border-radius:8px;}
-.sk-ytbl{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;}
-.sk-ytbl th{background:var(--ink);color:#fff;padding:6px 8px;font-size:11px;text-align:right;position:sticky;top:0;white-space:nowrap;}
-.sk-ytbl th:first-child{text-align:left;position:sticky;left:0;z-index:2;min-width:190px;}
-.sk-ytbl td{border-bottom:1px solid #f0eeeb;padding:1px 2px;}
-.sk-ytbl td:first-child{position:sticky;left:0;background:#fff;z-index:1;border-right:2px solid var(--rule);}
-.sk-ytbl .sk-in{font-size:12px;padding:4px 5px;}
-.sk-ytbl td.m .sk-in{width:92px;text-align:right;font-family:'IBM Plex Mono',monospace;}
-.sk-ytbl td.tot{background:#fef9ec;font-family:'IBM Plex Mono',monospace;text-align:right;padding:4px 8px;font-weight:700;border-left:2px solid #fcd34d;min-width:100px;}
-.sk-ytbl tfoot td{background:var(--paper-alt);font-weight:700;font-family:'IBM Plex Mono',monospace;text-align:right;padding:6px 8px;}
-.sk-ytbl tfoot td:first-child{text-align:left;font-family:'Noto Sans JP',sans-serif;background:var(--paper-alt);}
-.sk-empty{padding:40px;text-align:center;color:var(--ink-soft);background:#fff;border:1px dashed var(--rule);border-radius:8px;}
-.sk-print-title{display:none;}
-.sk-hidden{display:none !important;}
-@media (max-width:1100px){.sk-cols{grid-template-columns:1fr;}.sk-meta{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media print{
-  #page-shikin .sk-tabs,#page-shikin .sk-toolbar,#page-shikin .sk-indep,#page-shikin .sk-ovwrap,#page-shikin .sk-add,#page-shikin .sk-c-menu,#page-shikin .page-header,#page-shikin .sk-meta,.sk-menu{display:none !important;}
-  #page-shikin .sk-print-title{display:block;font-size:16px;font-weight:700;margin-bottom:8px;border-bottom:2px solid #000;padding-bottom:4px;}
-  #page-shikin .sk-in{border:none !important;background:transparent !important;padding:1px 3px !important;font-size:10.5px !important;}
-  #page-shikin .sk-tbl td{padding:0 2px;font-size:10.5px;}
-  #page-shikin .sk-cols{grid-template-columns:1fr 1fr !important;gap:8px;}
-  #page-shikin .sk-list-h,#page-shikin .sk-sum-row.big,#page-shikin .sk-ytbl th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  #page-shikin .sk-list-h{padding:3px 8px;font-size:12px;}
-  #page-shikin .sk-sum{margin-top:8px;break-inside:avoid;}
-  #page-shikin .sk-sum-row{padding:3px 10px;font-size:11px;}
-  #page-shikin .card-grid{display:none !important;}
-  #page-shikin .sk-bd td{padding:3px 6px 4px 20px;}
-  #page-shikin .sk-bd-opts{display:none;}
-  #page-shikin .sk-ywrap{overflow:visible;border:none;}
-  #page-shikin .sk-ytbl{font-size:9px;}
-  #page-shikin .sk-ytbl td.m .sk-in{width:66px;font-size:9px !important;}
-  #page-shikin .sk-ytbl th:first-child,#page-shikin .sk-ytbl td:first-child{min-width:120px;}
-  #page-shikin .sk-sheetmemo{border:none;padding:0;min-height:0;font-size:10px;}
-  #page-shikin .sk-memowrap.empty{display:none;}
-  #page-shikin .sk-bank{padding:3px 8px;}
-  #page-shikin .sk-bank .sk-in{font-size:11px !important;}
-  #page-shikin .sk-bank-note{font-size:9px;}
-  #page-shikin .sk-c-chk{width:16px;}
-  #page-shikin .sk-c-amt{width:74px;}
-  #page-shikin .sk-c-memo{width:26%;}
-  #page-shikin .sk-in{height:auto !important;line-height:1.3 !important;}
-  #page-shikin .sk-bd table td{padding:0 2px !important;}
-  #page-shikin .sk-bd-calc{line-height:1.4;}
-  #page-shikin input[type=checkbox]{width:10px;height:10px;margin:0;}
-  #page-shikin ::placeholder{color:transparent;}
-  #page-shikin .sk-tbl th{padding:2px 3px;font-size:9px;}
-  #page-shikin .sk-foot td{padding:3px 4px;font-size:10px;white-space:nowrap;}
-  #page-shikin .sk-bd .sk-in{font-size:9.5px !important;padding:0 3px !important;}
-  #page-shikin .sk-bd-title,#page-shikin .sk-bd-calc{font-size:9.5px;}
-  #page-shikin .sk-tag{font-size:8px;padding:0 3px;}
-  #page-shikin .sk-row.done td{background:transparent;}
-}
-
 /* ── 勘定科目ピッカー（検索つき） ── */
 .accp{position:fixed;z-index:9600;background:#fff;border:1px solid var(--rule);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.18);width:320px;max-width:calc(100vw - 16px);display:flex;flex-direction:column;overflow:hidden;font-size:13px;}
 .accp.hidden{display:none;}
@@ -503,7 +356,7 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
 <div id="lockScreen">
   <div class="lock-box">
     <div class="lock-logo">帳<span>簿</span>アシスト</div>
-    <div class="lock-sub">🏢 ホームメンテナンス 専用</div>
+    <div class="lock-sub">🏢 アルファクリーン米子 専用</div>
     <div class="lock-icon">🔐</div>
     <div class="lock-label">パスワード</div>
     <form id="loginForm" autocomplete="on">
@@ -866,50 +719,9 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   </div>
 </div>
 
-<!-- 資金繰り：行メニュー -->
-<div class="sk-menu hidden" id="skMenu"></div>
-
-<!-- 資金繰り：新しい表 -->
-<div class="modal-bg hidden" id="skNewModal">
-  <div class="modal-box" style="width:430px">
-    <div class="modal-title">＋ 新しい資金繰り表</div>
-    <div class="fg"><label>表の名前</label><input type="text" id="skNewName" placeholder="例：R8.11"></div>
-    <div class="fg"><label>お金が動く月</label><input type="month" id="skNewYm"></div>
-    <div class="fg"><label>対象（〇月分）</label><input type="text" id="skNewTarget" placeholder="例：9月分"></div>
-    <div class="fg"><label>作り方</label>
-      <select id="skNewMode">
-        <option value="copy">いま開いている表をコピー（金額もそのまま）</option>
-        <option value="copyname">いま開いている表の項目だけコピー（金額は空に）</option>
-        <option value="tpl">原本（ひな形）から作る</option>
-        <option value="blank">空の表</option>
-      </select>
-    </div>
-    <div style="font-size:11px;color:var(--ink-soft)">※ 済みのチェックは外した状態で作ります。「合計から外す」の設定と、協力会社の内訳の名前は引き継ぎます。</div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="skNewCancel">キャンセル</button>
-      <button class="btn btn-primary" id="skNewOk">作成</button>
-    </div>
-  </div>
-</div>
-
-<!-- 資金繰り：月別の表から月次売上高へ取り込み -->
-<div class="modal-bg hidden" id="skPullModal">
-  <div class="modal-box" style="width:430px">
-    <div class="modal-title">📥 月別の表から売上を取り込む</div>
-    <div class="fg"><label>取り込む表</label><select id="skPullSheet"></select></div>
-    <div class="fg"><label>入れる月（この期の列）</label><select id="skPullMonth"></select></div>
-    <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin:4px 0 8px"><input type="checkbox" id="skPullOver" checked> すでに入っている金額も上書きする</label>
-    <div style="font-size:11px;color:var(--ink-soft)">入金のうち「売上」の行だけを取り込みます（「その他（借入など）」と「合計から外す」行は除きます）。名前が同じ取引先に入り、ない取引先は行を追加します。</div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="skPullCancel">キャンセル</button>
-      <button class="btn btn-primary" id="skPullOk">取り込む</button>
-    </div>
-  </div>
-</div>
-
 <!-- HEADER -->
 <header>
-  <div class="logo">帳<span>簿</span>アシスト <span style="font-size:11px;color:#93c5fd;font-weight:400">｜ ホームメンテナンス</span></div>
+  <div class="logo">帳<span>簿</span>アシスト <span style="font-size:11px;color:#93c5fd;font-weight:400">｜ アルファクリーン米子</span></div>
   <div class="hright">
     <span class="sync-badge sync-wait" id="syncBadge">⟳ 未接続</span>
     対象年度: <select id="yearSelect"></select>
@@ -929,8 +741,6 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   <div class="nav-item active" data-page="dashboard">📊 ダッシュボード</div>
   <div class="nav-item" data-page="transactions">📝 収支記録</div>
   <div class="nav-item" data-page="cashbook">💵 現金出納帳</div>
-  <div class="nav-sec">資金繰り（独立）</div>
-  <div class="nav-item" data-page="shikin">💴 資金繰り表</div>
   <div class="nav-sec">帳簿・財務</div>
   <div class="nav-item" data-page="ledger">📒 総勘定元帳</div>
   <div class="nav-item" data-page="pl">📈 損益計算書</div>
@@ -979,24 +789,6 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   <div class="breakdown-card"><h3>経費カテゴリ別内訳<span class="tv-lbl" style="font-size:11px;font-weight:400;color:var(--ink-soft)">（税込）</span></h3><div id="catBreakdown"></div></div>
 </div>
 
-<!-- SHIKIN（資金繰り表・独立機能） -->
-<div class="page" id="page-shikin">
-  <div class="page-header">
-    <div>
-      <div class="page-title">資金繰り表 <span class="sk-sync wait" id="skSync">未接続</span></div>
-      <div class="page-sub">月ごとの入金予定・支払予定と、期ごとの月次売上高をまとめる場所です</div>
-    </div>
-  </div>
-  <div class="sk-indep">🔒 この画面は <b>独立したデータ</b> です。仕訳・試算表・収支記録・現金出納帳とはつながっていないので、ここで何を入れても帳簿の数字は変わりません。</div>
-  <div class="sk-tabs">
-    <button class="sk-tab on" data-sktab="month">📅 月別の資金繰り表</button>
-    <button class="sk-tab" data-sktab="year">📈 月次売上高（期ごと）</button>
-    <button class="sk-tab" data-sktab="tpl">📋 原本（ひな形）</button>
-  </div>
-  <div id="skBody"></div>
-  <input type="file" id="skFile" accept=".json,application/json" style="display:none">
-</div>
-
 <!-- TRANSACTIONS -->
 <div class="page" id="page-transactions">
   <div class="print-header"><h2>収支記録</h2><p id="ph-transactions"></p></div>
@@ -1025,7 +817,7 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
     <div class="table-header">
       <div class="table-header-title">取引一覧</div>
       <div class="filter-row">
-        <select id="fMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
+        <select id="fMonth"><option value="all">全月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
         <select id="fType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
         <input type="date" id="fDateFrom" title="開始日" style="font-size:12px">
         <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -1082,7 +874,7 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
     <div class="table-header">
       <div class="table-header-title">現金の動き</div>
       <div class="filter-row">
-        <select id="cbMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
+        <select id="cbMonth"><option value="all">全月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
       </div>
     </div>
     <table>
@@ -1105,7 +897,7 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
   <div class="ledger-bar print-hide">
     <input type="text" id="ledgerSearch" placeholder="🔍 摘要・科目・金額で検索（例：12,345／1万〜5万／10万以上）">
     <select id="ledgerCat"><option value="all">全科目</option></select>
-    <select id="ledgerMonth"><option value="all">全月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option></select>
+    <select id="ledgerMonth"><option value="all">全月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     <select id="ledgerType"><option value="all">全種別</option><option value="income">収入</option><option value="expense">支出</option></select>
     <input type="date" id="lDateFrom" title="開始日" style="font-size:12px">
     <span style="font-size:12px;color:var(--ink-soft)">〜</span>
@@ -1320,9 +1112,9 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
 // ── 定数 ──
 var PW_KEY = 'kaikei_pw';
 var SESSION_KEY = 'kaikei_session';
-var STORAGE_KEY = 'kaikei_hm_v1';
-var FB_KEY = 'kaikei_hm_fb';
-var COMPANY_KEY = 'hm';
+var STORAGE_KEY = 'kaikei_v4';
+var FB_KEY = 'kaikei_fb';
+var COMPANY_KEY = 'alphaclean';
 var FB_PATH = '/companies/' + COMPANY_KEY + '/kaikei';
 var DEFAULT_FB_URL = 'https://kaikei-login-default-rtdb.asia-southeast1.firebasedatabase.app';
 /* ログインPWはFirebase Authに移行（ソースから削除） */
@@ -1481,7 +1273,7 @@ function saveToFb() {
 
 // ── データ ──
 var state = {
-  year: (function(){var d=new Date();return (d.getMonth()+1)>=7?d.getFullYear():d.getFullYear()-1;})(),
+  year: new Date().getFullYear(),
   cashOpen: {},
   openBal: {},
   categories: [
@@ -1695,15 +1487,15 @@ function ensureBsCats() {
   }
   return added;
 }
-// ── 会計年度（期首7月・期末6月） ──
-var FY_START = 7;
-var FY_MONTHS = [7,8,9,10,11,12,1,2,3,4,5,6];
+// ── 会計年度（暦年：期首1月・期末12月） ──
+var FY_START = 1;
+var FY_MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
 // 期数：2026年度＝第36期
 var PERIOD_BASE = 1990;
 function periodNo(y){ return y - PERIOD_BASE; }
-function fyLabel(y){ return y + '年度 第' + periodNo(y) + '期 (' + y + '/7〜' + (y+1) + '/6)'; }
-function fyStart(y){ return (y||state.year) + '-07-01'; }
-function fyEnd(y){ return ((y||state.year)+1) + '-06-30'; }
+function fyLabel(y){ return y + '年度 (' + y + '/1〜' + y + '/12)'; }
+function fyStart(y){ return (y||state.year) + '-01-01'; }
+function fyEnd(y){ return (y||state.year) + '-12-31'; }
 function fyIndex(m){ return (m - FY_START + 12) % 12; }
 function fyOfDate(d){ var yr=parseInt(d.slice(0,4)), mo=parseInt(d.slice(5,7)); return mo>=FY_START ? yr : yr-1; }
 function currentFY(){ var d=new Date(); return (d.getMonth()+1)>=FY_START ? d.getFullYear() : d.getFullYear()-1; }
@@ -5341,773 +5133,7 @@ window.kaikeiStopSync = function(){ if (pollTimer) clearInterval(pollTimer); };
 init();
 })();
 </script>
-<script>
-/* ══════════════════════════════════════════════════════════
-   資金繰り表（独立機能）
-   ・仕訳・試算表・収支記録・現金出納帳とは一切つながらない
-   ・保存先は Firebase /companies/<会社キー>/kaikei/shikin（会計データ d の隣。中身は別で、帳簿の数字には影響しない）
-     ※ルールが /kaikei 単位でも読み書きできるよう、会計ノードの中に置いている
-   ・この端末の控えは localStorage 'kaikei_<会社キー>_shikin_v1'
-   ・本体側から借りるのは window.kaikeiFbFetch / kaikeiCompanyKey / kaikeiFyMonths の3つだけ
-   ══════════════════════════════════════════════════════════ */
-(function(){
-'use strict';
 
-var CO = window.kaikeiCompanyKey || 'hm';
-var LS_KEY = 'kaikei_' + CO + '_shikin_v1';
-var LS_UI = 'kaikei_' + CO + '_shikin_ui';
-var FB_PATH = '/companies/' + CO + '/kaikei/shikin';
-var FY = (window.kaikeiFyMonths && window.kaikeiFyMonths.length === 12) ? window.kaikeiFyMonths : [7,8,9,10,11,12,1,2,3,4,5,6];
-
-var sk = blank();
-var ui = { tab: 'month', sheetId: null, yearId: null, bd: {} };
-var lastRemote = '', dirty = false, saving = false, saveTimer = null, poll = null, started = false, pendingRender = false;
-var menuTarget = null, retryTimer = null;
-
-function blank() { return { v: 1, sheets: [], tpl: { inc: [], pay: [] }, years: [], updatedAt: 0 }; }
-function $(id) { return document.getElementById(id); }
-function uid() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function clone(o) { return JSON.parse(JSON.stringify(o)); }
-function n0(v) { return (typeof v === 'number' && isFinite(v)) ? v : 0; }
-function fmtIn(v) { return (typeof v === 'number' && isFinite(v)) ? Math.round(v).toLocaleString('ja-JP') : ''; }
-function fmtY(v) { v = Math.round(n0(v)); return (v < 0 ? '△' : '') + '¥' + Math.abs(v).toLocaleString('ja-JP'); }
-function half(s) { return String(s).replace(/[０-９＋－ー−×÷＊／（）．，＝]/g, function(c) {
-  var m = { '＋': '+', '－': '-', 'ー': '-', '−': '-', '×': '*', '÷': '/', '＊': '*', '／': '/', '（': '(', '）': ')', '．': '.', '，': ',', '＝': '=' };
-  return m[c] || String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
-}); }
-// 金額の読み取り：カンマ・円・△に対応。「=」や「+ - * /」を使った式も計算する
-function parseAmt(str) {
-  var s = half(str).replace(/[,¥￥円\s]/g, '');
-  if (s === '') return null;
-  if (s.charAt(0) === '△' || s.charAt(0) === '▲') s = '-' + s.slice(1);
-  if (s.charAt(0) === '=') s = s.slice(1);
-  if (!/^[0-9+\-*/().]+$/.test(s)) return NaN;
-  try { var v = Function('"use strict";return (' + s + ')')(); return (typeof v === 'number' && isFinite(v)) ? Math.round(v) : NaN; }
-  catch (e) { return NaN; }
-}
-function reiwa(ym) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7); return 'R' + (y - 2018) + '.' + m; }
-function addMonth(ym, k) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1 + k; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12; return y + '-' + ('0' + (m + 1)).slice(-2); }
-function thisYm() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
-function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-
-// ── データの整え ──
-function normRow(r, isInc) {
-  var o = { id: r.id || uid(), name: r.name == null ? '' : String(r.name), amt: (typeof r.amt === 'number' && isFinite(r.amt)) ? r.amt : null, memo: r.memo == null ? '' : String(r.memo), done: !!r.done };
-  if (r.off) o.off = true;
-  if (isInc) o.kind = r.kind === 'other' ? 'other' : 'sales';
-  if (r.bd && r.bd.items) o.bd = { items: r.bd.items.map(function(it) { return { name: it.name == null ? '' : String(it.name), amt: (typeof it.amt === 'number' && isFinite(it.amt)) ? it.amt : null }; }), fee: n0(r.bd.fee), tax: r.bd.tax !== false };
-  return o;
-}
-function normalize(d) {
-  var o = blank();
-  if (!d || typeof d !== 'object') return o;
-  o.updatedAt = d.updatedAt || 0;
-  (d.sheets || []).forEach(function(s) {
-    o.sheets.push({ id: s.id || uid(), name: s.name || '', ym: /^\d{4}-\d{2}$/.test(s.ym || '') ? s.ym : thisYm(), target: s.target || '',
-      openBal: (typeof s.openBal === 'number') ? s.openBal : null, bank: (typeof s.bank === 'number') ? s.bank : null, rate: (typeof s.rate === 'number') ? s.rate : 90,
-      inc: (s.inc || []).map(function(r) { return normRow(r, true); }), pay: (s.pay || []).map(function(r) { return normRow(r, false); }), memo: s.memo || '' });
-  });
-  var t = d.tpl || {};
-  o.tpl.inc = (t.inc || []).map(function(r) { var x = normRow(r, true); x.done = false; return x; });
-  o.tpl.pay = (t.pay || []).map(function(r) { var x = normRow(r, false); x.done = false; return x; });
-  (d.years || []).forEach(function(y) {
-    o.years.push({ id: y.id || uid(), ki: +y.ki || 0, y0: +y.y0 || new Date().getFullYear(), note: y.note || '',
-      rows: (y.rows || []).map(function(r) { var m = []; for (var i = 0; i < 12; i++) { var v = r.m ? r.m[i] : null; m.push((typeof v === 'number' && isFinite(v)) ? v : null); } return { id: r.id || uid(), name: r.name || '', m: m }; }) });
-  });
-  return o;
-}
-function sortedSheets() {
-  return sk.sheets.slice().sort(function(a, b) { return a.ym < b.ym ? 1 : a.ym > b.ym ? -1 : (a.name < b.name ? 1 : a.name > b.name ? -1 : 0); });
-}
-function curSheet() {
-  var s = sk.sheets.filter(function(x) { return x.id === ui.sheetId; })[0];
-  if (!s) { s = sortedSheets()[0] || null; ui.sheetId = s ? s.id : null; }
-  return s;
-}
-function curYear() {
-  var y = sk.years.filter(function(x) { return x.id === ui.yearId; })[0];
-  if (!y) {
-    var arr = sk.years.slice().sort(function(a, b) { return a.y0 - b.y0; });
-    var d = new Date(), fyY = (d.getMonth() + 1) >= FY[0] ? d.getFullYear() : d.getFullYear() - 1;
-    y = arr.filter(function(x) { return x.y0 === fyY; })[0] || arr[arr.length - 1] || null;
-    ui.yearId = y ? y.id : null;
-  }
-  return y;
-}
-function getList(key) {
-  if (key === 'tinc') return sk.tpl.inc;
-  if (key === 'tpay') return sk.tpl.pay;
-  var s = curSheet(); if (!s) return [];
-  return key === 'inc' ? s.inc : s.pay;
-}
-function bdCalc(bd) {
-  var sub = 0; bd.items.forEach(function(it) { sub += n0(it.amt); });
-  var fee = Math.floor(sub * n0(bd.fee) / 100);
-  var base = sub + fee;
-  var tax = bd.tax ? Math.floor(base * 0.1) : 0;
-  return { sub: sub, fee: fee, base: base, tax: tax, total: base + tax };
-}
-function calc(s) {
-  var r = { inc: 0, incDone: 0, pay: 0, payDone: 0 };
-  s.inc.forEach(function(x) { if (x.off) return; r.inc += n0(x.amt); if (x.done) r.incDone += n0(x.amt); });
-  s.pay.forEach(function(x) { if (x.off) return; r.pay += n0(x.amt); if (x.done) r.payDone += n0(x.amt); });
-  // 済みにチェックした分は合計から引く（inc / pay は「まだ入っていない・まだ払っていない」分）
-  r.incPlan = r.inc; r.payPlan = r.pay;
-  r.inc = r.incPlan - r.incDone; r.pay = r.payPlan - r.payDone;
-  r.planDiff = r.incPlan - r.payPlan;
-  r.rate = n0(s.rate);
-  r.bank = (typeof s.bank === 'number') ? s.bank : null;
-  // 差引 ＝ 未入金 ＋ 現在の口座残高 − 未払い（口座残高が空なら0として計算）
-  r.diff = r.inc + n0(r.bank) - r.pay;
-  r.safe = Math.floor(r.inc * r.rate / 100) + n0(r.bank) - r.pay;
-  return r;
-}
-
-// ── 保存・同期 ──
-function saveLocal() { lsSet(LS_KEY, JSON.stringify(sk)); }
-function saveUi() { lsSet(LS_UI, JSON.stringify({ tab: ui.tab, sheetId: ui.sheetId, yearId: ui.yearId })); }
-function badge(cls, txt) { var b = $('skSync'); if (b) { b.className = 'sk-sync ' + cls; b.textContent = txt; } }
-function changed() {
-  dirty = true; saveLocal();
-  badge('wait', '⟳ 保存待ち');
-  clearTimeout(saveTimer); saveTimer = setTimeout(push, 900);
-}
-function push() {
-  var f = window.kaikeiFbFetch;
-  if (!f || !started) { badge('wait', 'この端末に保存（未接続）'); return; }
-  if (saving) { clearTimeout(saveTimer); saveTimer = setTimeout(push, 700); return; }
-  saving = true; sk.updatedAt = Date.now(); saveLocal();
-  var body = clone(sk), str = JSON.stringify(body);
-  badge('wait', '⟳ 保存中');
-  f(FB_PATH, 'PUT', body).then(function() {
-    saving = false; lastRemote = str;
-    if (JSON.stringify(sk) === str) { dirty = false; badge('ok', '✓ 保存済み'); }
-    else { changed(); }
-  }).catch(function() { saving = false; badge('err', '⚠ 保存失敗（この端末には残っています）'); });
-}
-function editing() {
-  var a = document.activeElement, pg = $('page-shikin');
-  return !!(a && pg && pg.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName));
-}
-function applyRemote(data) {
-  sk = normalize(data); saveLocal();
-  if (editing()) pendingRender = true; else render();
-}
-function start() {
-  var f = window.kaikeiFbFetch; if (!f) return;
-  started = true; badge('wait', '⟳ 読込中');
-  f(FB_PATH).then(function(data) {
-    if (data && data.sheets) {
-      lastRemote = JSON.stringify(data);
-      var local = normalize(JSON.parse(lsGet(LS_KEY) || 'null'));
-      if (dirty && local.updatedAt > (data.updatedAt || 0)) { push(); }
-      else { applyRemote(data); }
-      badge('ok', '✓ 同期済み');
-    } else if (sk.sheets.length || sk.years.length || sk.tpl.inc.length || sk.tpl.pay.length) {
-      push();
-    } else {
-      badge('ok', '✓ 接続済み（データなし）');
-    }
-    if (poll) clearInterval(poll);
-    poll = setInterval(tick, 10000);
-  }).catch(function(err) {
-    var code = (err && err.message || '').replace(/[^0-9]/g, '');
-    badge('err', '⚠ 接続失敗' + (code ? '（' + code + '）' : '') + '・30秒後に再接続します');
-    clearTimeout(retryTimer); retryTimer = setTimeout(function() { if (started) start(); }, 30000);
-  });
-}
-function tick() {
-  var f = window.kaikeiFbFetch; if (!f || saving) return;
-  if (dirty) { push(); return; }
-  f(FB_PATH).then(function(data) {
-    if (!data || !data.sheets || dirty || saving) return;
-    var s = JSON.stringify(data);
-    if (s !== lastRemote) { lastRemote = s; applyRemote(data); badge('ok', '✓ 同期済み'); }
-  }).catch(function() { badge('err', '⚠ 同期エラー'); });
-}
-function stop() { if (poll) clearInterval(poll); poll = null; clearTimeout(retryTimer); started = false; }
-
-// ── 描画 ──
-function render() {
-  pendingRender = false;
-  var body = $('skBody'); if (!body) return;
-  document.querySelectorAll('#page-shikin .sk-tab').forEach(function(b) { b.classList.toggle('on', b.getAttribute('data-sktab') === ui.tab); });
-  if (ui.tab === 'year') body.innerHTML = renderYear();
-  else if (ui.tab === 'tpl') body.innerHTML = renderTpl();
-  else body.innerHTML = renderMonth();
-  refreshTotals();
-  saveUi();
-}
-function rowHtml(key, r, i, withDone) {
-  var isInc = (key === 'inc' || key === 'tinc');
-  var cls = 'sk-row' + (r.done && withDone ? ' done' : '') + (r.off ? ' off' : '');
-  var h = '<tr class="' + cls + '" data-list="' + key + '" data-i="' + i + '">';
-  if (withDone) h += '<td class="sk-c-chk"><input type="checkbox" data-f="done"' + (r.done ? ' checked' : '') + ' title="' + (isInc ? '入金済み' : '支払済み') + '"></td>';
-  h += '<td><div class="sk-namewrap"><input class="sk-in" data-f="name" value="' + esc(r.name) + '" placeholder="項目名">';
-  if (isInc && r.kind === 'other') h += '<span class="sk-tag other" title="売上ではない入金（借入・振替など）">他</span>';
-  if (r.off) h += '<span class="sk-tag offt">合計外</span>';
-  if (r.bd) h += '<span class="sk-tag bd" data-act="bd" title="内訳を開く／閉じる">内訳</span>';
-  h += '</div></td>';
-  h += '<td class="sk-c-amt"><input class="sk-in sk-amt" data-f="amt" inputmode="decimal" value="' + esc(fmtIn(r.amt)) + '" placeholder=""></td>';
-  h += '<td class="sk-c-memo"><input class="sk-in sk-memo" data-f="memo" value="' + esc(r.memo) + '"></td>';
-  h += '<td class="sk-c-menu"><button class="sk-menu-btn" data-act="menu" title="この行の操作">⋯</button></td></tr>';
-  if (r.bd && ui.bd[r.id]) h += bdHtml(key, r, i, withDone ? 5 : 4);
-  return h;
-}
-function bdHtml(key, r, i, span) {
-  var c = bdCalc(r.bd);
-  var h = '<tr class="sk-bd" data-list="' + key + '" data-i="' + i + '"><td colspan="' + span + '"><div class="sk-bd-box">';
-  h += '<div class="sk-bd-title">📋 「' + esc(r.name || '（名前なし）') + '」の内訳</div><table>';
-  r.bd.items.forEach(function(it, j) {
-    h += '<tr><td><input class="sk-in" data-bf="name" data-j="' + j + '" value="' + esc(it.name) + '" placeholder="協力会社名など"></td>'
-      + '<td style="width:120px"><input class="sk-in sk-amt" data-bf="amt" data-j="' + j + '" inputmode="decimal" value="' + esc(fmtIn(it.amt)) + '" placeholder=""></td>'
-      + '<td style="width:30px" class="print-hide"><button class="sk-menu-btn" data-act="bddel" data-j="' + j + '" title="この行を消す">×</button></td></tr>';
-  });
-  h += '</table><button class="sk-add" data-act="bdadd" style="border-top:none;background:transparent;text-align:left;padding:4px">＋ 内訳の行を追加</button>';
-  h += '<div class="sk-bd-opts">管理費 <input type="number" data-bo="fee" value="' + esc(r.bd.fee) + '" min="0" step="0.1">%'
-    + '<label style="display:flex;gap:4px;align-items:center"><input type="checkbox" data-bo="tax"' + (r.bd.tax ? ' checked' : '') + '> 消費税10%を乗せる</label>'
-    + '<span style="color:var(--ink-soft)">（円未満切り捨て）</span></div>';
-  h += '<div class="sk-bd-calc" data-bdcalc="1">' + bdCalcHtml(c) + '</div>';
-  h += '<div class="print-hide" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="bdapply">↑ この合計を金額に入れる</button><button class="btn btn-secondary btn-sm" data-act="bdclose">閉じる</button></div>';
-  h += '</div></td></tr>';
-  return h;
-}
-function bdCalcHtml(c) {
-  return '小計 ' + fmtY(c.sub) + '　＋ 管理費 ' + fmtY(c.fee) + '　＝ ' + fmtY(c.base)
-    + (c.tax ? '　＋ 消費税 ' + fmtY(c.tax) : '') + '<br>合計 <b>' + fmtY(c.total) + '</b>';
-}
-function listHtml(key, title, rows, withDone) {
-  var isInc = (key === 'inc' || key === 'tinc');
-  var h = '<div class="sk-list"><div class="sk-list-h ' + (isInc ? 'inc' : 'pay') + '"><span>' + title + '</span><small>' + rows.length + '行</small></div>';
-  h += '<table class="sk-tbl"><thead><tr>' + (withDone ? '<th class="sk-c-chk">済</th>' : '') + '<th>項目</th><th class="sk-c-amt" style="text-align:right">金額（税込）</th><th class="sk-c-memo">メモ</th><th class="sk-c-menu"></th></tr></thead><tbody>';
-  rows.forEach(function(r, i) { h += rowHtml(key, r, i, withDone); });
-  h += '</tbody><tfoot>';
-  var span = withDone ? 2 : 1;
-  if (withDone) {
-    h += '<tr class="sk-foot"><td colspan="2">' + (isInc ? '未入金 合計' : '未払い 合計') + '</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
-    h += '<tr class="sk-foot sub"><td colspan="2">' + (isInc ? '入金予定（済みも含む）' : '支払予定（済みも含む）') + '</td><td class="num" id="skR-' + key + '"></td><td colspan="2" id="skD-' + key + '"></td></tr>';
-  } else {
-    h += '<tr class="sk-foot"><td colspan="' + span + '">合計（税込）</td><td class="num" id="skF-' + key + '"></td><td colspan="2"></td></tr>';
-  }
-  h += '</tfoot></table><button class="sk-add" data-act="add" data-list="' + key + '">＋ 行を追加</button>';
-  if (key === 'inc') {
-    var s0 = curSheet();
-    h += '<div class="sk-bank"><label for="skBankIn">🏦 現在の口座残高</label>'
-      + '<input id="skBankIn" class="sk-in sk-amt" data-sf="bank" inputmode="decimal" value="' + esc(fmtIn(s0 ? s0.bank : null)) + '" placeholder="今の口座残高を入力">'
-      + '<div class="sk-bank-note" id="skBankNote"></div></div>';
-  }
-  h += '</div>';
-  return h;
-}
-function renderMonth() {
-  var s = curSheet();
-  var h = '<div class="sk-toolbar">';
-  h += '<span style="font-size:12px;font-weight:700;color:var(--ink-soft)">表：</span><select id="skSheetSel">';
-  sortedSheets().forEach(function(x) { h += '<option value="' + x.id + '"' + (s && x.id === s.id ? ' selected' : '') + '>' + esc(x.name || reiwa(x.ym)) + (x.target ? '（' + esc(x.target) + '）' : '') + '</option>'; });
-  if (!s) h += '<option>（まだ表がありません）</option>';
-  h += '</select>';
-  h += '<button class="btn btn-primary btn-sm" data-act="newsheet">＋ 新しい表</button>';
-  if (s) h += '<button class="btn btn-secondary btn-sm" data-act="dupsheet" title="同じ月の別案をつくる（Excelの「(2)」と同じ）">⎘ 複製</button>'
-    + '<button class="btn btn-secondary btn-sm" data-act="delsheet">🗑 この表を削除</button>';
-  h += '<span class="sk-sp"></span>' + toolRight(!!s) + '</div>';
-  if (!s) {
-    return h + '<div class="sk-empty">まだ資金繰り表がありません。<br>「＋ 新しい表」で作るか、右の「📂 読み込み」から今までのExcelを変換したデータを読み込んでください。</div>';
-  }
-  h += '<div class="sk-print-title">資金繰り表　' + esc(s.name) + (s.target ? '　（' + esc(s.target) + 'の）' : '') + '<span style="float:right;font-size:11px;font-weight:400">' + esc(s.ym.replace('-', '年') + '月') + '</span></div>';
-  h += '<div class="sk-meta" style="grid-template-columns:repeat(4,minmax(0,1fr))">'
-    + '<div><label>表の名前</label><input data-sf="name" value="' + esc(s.name) + '"></div>'
-    + '<div><label>お金が動く月</label><input type="month" data-sf="ym" value="' + esc(s.ym) + '"></div>'
-    + '<div><label>対象（〇月分）</label><input data-sf="target" value="' + esc(s.target) + '" placeholder="例：9月分"></div>'
-    + '<div><label>入金の見込み率（%）</label><input type="number" data-sf="rate" value="' + esc(s.rate) + '" min="0" max="100" step="1"></div>'
-    + '</div>';
-  h += '<div class="card-grid g4">'
-    + '<div class="card"><div class="card-label">未入金（売上高）</div><div class="card-value cv-inc" id="skC-inc"></div><div class="card-note" id="skC-incn"></div></div>'
-    + '<div class="card"><div class="card-label">未払い</div><div class="card-value cv-exp" id="skC-pay"></div><div class="card-note" id="skC-payn"></div></div>'
-    + '<div class="card"><div class="card-label">差引（未入金＋口座残高−未払い）</div><div class="card-value cv-prf" id="skC-diff"></div><div class="card-note" id="skC-diffn"></div></div>'
-    + '<div class="card"><div class="card-label" id="skC-safel">未入金×90%＋口座残高−未払い</div><div class="card-value cv-tax" id="skC-safe"></div><div class="card-note">入金が遅れる分を見込んだ慎重な数字</div></div>'
-    + '</div>';
-  h += '<div class="sk-cols">' + listHtml('inc', '売上高（入金予定）', s.inc, true) + listHtml('pay', '支払い', s.pay, true) + '</div>';
-  h += '<div class="sk-sum">'
-    + '<div class="sk-sum-row"><span>未入金 合計<span class="hint" id="skS-incp"></span></span><span class="v" id="skS-inc"></span></div>'
-    + '<div class="sk-sum-row"><span>＋ 現在の口座残高</span><span class="v" id="skS-bank"></span></div>'
-    + '<div class="sk-sum-row"><span>− 未払い 合計<span class="hint" id="skS-payp"></span></span><span class="v" id="skS-pay"></span></div>'
-    + '<div class="sk-sum-row big"><span>差引（未入金 ＋ 口座残高 − 未払い）</span><span class="v" id="skS-diff"></span></div>'
-    + '<div class="sk-sum-row"><span id="skS-safel">未入金×90% ＋ 口座残高 − 未払い</span><span class="v" id="skS-safe"></span></div>'
-    + '</div>';
-  h += '<div class="sk-memowrap' + (s.memo ? '' : ' empty') + '"><div class="sk-sec-title">📝 この表のメモ</div><textarea class="sk-sheetmemo" data-sf="memo" placeholder="Excelの欄外に書いていたことなど">' + esc(s.memo) + '</textarea></div>';
-  h += '<div class="sk-ovwrap"><div class="sk-sec-title">📊 表の一覧（行をクリックで開きます）</div><table class="sk-ov"><thead><tr><th>表</th><th>対象</th><th>入金予定</th><th>支払予定</th><th>予定の差引</th><th>差引（口座込み）</th></tr></thead><tbody>';
-  sortedSheets().forEach(function(x) {
-    var c = calc(x);
-    h += '<tr data-open="' + x.id + '"' + (x.id === s.id ? ' class="cur"' : '') + '><td>' + esc(x.name) + '</td><td>' + esc(x.target) + '</td><td>' + fmtY(c.incPlan) + '</td><td>' + fmtY(c.payPlan) + '</td><td' + (c.planDiff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.planDiff) + '</td><td' + (x.id === s.id ? ' id="skOV-cur"' : '') + (c.diff < 0 ? ' class="sk-neg"' : '') + '>' + fmtY(c.diff) + '</td></tr>';
-  });
-  h += '</tbody></table></div>';
-  return h;
-}
-function toolRight(canPrint) {
-  return (canPrint ? '<button class="btn btn-secondary btn-sm" data-act="print">🖨️ 印刷</button><button class="btn btn-secondary btn-sm" data-act="csv">📊 Excel用CSV</button>' : '')
-    + '<button class="btn btn-secondary btn-sm" data-act="backup" title="資金繰りのデータだけを保存">💾 バックアップ</button>'
-    + '<button class="btn btn-secondary btn-sm" data-act="restore" title="バックアップや変換データを読み込む">📂 読み込み</button>';
-}
-function renderTpl() {
-  var h = '<div class="sk-toolbar"><span style="font-size:12px;color:var(--ink-mid)">「＋ 新しい表 → 原本から作る」を選んだときに使うひな形です。毎月決まった金額（家賃など）は金額も入れておけます。</span><span class="sk-sp"></span>';
-  if (curSheet()) h += '<button class="btn btn-secondary btn-sm" data-act="tplfrom">いま開いている表を原本にする</button>';
-  h += toolRight(false) + '</div>';
-  h += '<div class="sk-cols">' + listHtml('tinc', '売上高（入金）のひな形', sk.tpl.inc, false) + listHtml('tpay', '支払いのひな形', sk.tpl.pay, false) + '</div>';
-  return h;
-}
-function coName() { var t = document.title || ''; return t.indexOf('｜') >= 0 ? t.split('｜').pop() : ''; }
-function ymLabel(y, idx) { var m = FY[idx]; var yr = (m >= FY[0]) ? y.y0 : y.y0 + 1; return { m: m, yr: yr }; }
-function renderYear() {
-  var y = curYear();
-  var h = '<div class="sk-toolbar"><span style="font-size:12px;font-weight:700;color:var(--ink-soft)">期：</span><select id="skYearSel">';
-  sk.years.slice().sort(function(a, b) { return b.y0 - a.y0 || b.ki - a.ki; }).forEach(function(x) {
-    h += '<option value="' + x.id + '"' + (y && x.id === y.id ? ' selected' : '') + '>第' + x.ki + '期（' + x.y0 + '年' + FY[0] + '月〜）</option>';
-  });
-  if (!y) h += '<option>（まだありません）</option>';
-  h += '</select><button class="btn btn-primary btn-sm" data-act="newyear">＋ 新しい期</button>';
-  if (y) h += '<button class="btn btn-secondary btn-sm" data-act="pull">📥 月別の表から取り込む</button><button class="btn btn-secondary btn-sm" data-act="delyear">🗑 この期を削除</button>';
-  h += '<span class="sk-sp"></span>' + toolRight(!!y) + '</div>';
-  if (!y) return h + '<div class="sk-empty">まだ期がありません。「＋ 新しい期」で作れます。</div>';
-  var endM = FY[11], endY = FY[11] >= FY[0] ? y.y0 : y.y0 + 1;
-  h += '<div class="sk-print-title">第' + y.ki + '期　売上高（' + y.y0 + '年' + FY[0] + '月〜' + endY + '年' + endM + '月）<span style="float:right;font-size:11px;font-weight:400">' + esc(coName()) + '</span></div>';
-  h += '<div class="sk-meta" style="grid-template-columns:120px 160px 1fr">'
-    + '<div><label>期</label><input type="number" data-yf="ki" value="' + esc(y.ki) + '"></div>'
-    + '<div><label>期首の年（' + FY[0] + '月が属する年）</label><input type="number" data-yf="y0" value="' + esc(y.y0) + '"></div>'
-    + '<div><label>メモ（〇〇現在 など）</label><input data-yf="note" value="' + esc(y.note) + '"></div></div>';
-  h += '<div class="sk-ywrap"><table class="sk-ytbl"><thead><tr><th>取引先</th>';
-  for (var i = 0; i < 12; i++) { var L = ymLabel(y, i); h += '<th>' + (i === 0 || L.m === 1 ? L.yr + '年' : '') + L.m + '月</th>'; }
-  h += '<th>合計</th><th class="print-hide"></th></tr></thead><tbody>';
-  y.rows.forEach(function(r, ri) {
-    h += '<tr data-list="year" data-i="' + ri + '"><td><input class="sk-in" data-f="yname" value="' + esc(r.name) + '" placeholder="取引先"></td>';
-    for (var k = 0; k < 12; k++) h += '<td class="m"><input class="sk-in" data-f="ym" data-m="' + k + '" inputmode="decimal" value="' + esc(fmtIn(r.m[k])) + '"></td>';
-    h += '<td class="tot" id="skYR-' + ri + '"></td><td class="print-hide"><button class="sk-menu-btn" data-act="menu">⋯</button></td></tr>';
-  });
-  h += '</tbody><tfoot><tr><td>合計</td>';
-  for (var k2 = 0; k2 < 12; k2++) h += '<td id="skYC-' + k2 + '"></td>';
-  h += '<td id="skYC-all"></td><td class="print-hide"></td></tr><tr><td>合計（税抜）</td>';
-  for (var k3 = 0; k3 < 12; k3++) h += '<td id="skYX-' + k3 + '"></td>';
-  h += '<td id="skYX-all"></td><td class="print-hide"></td></tr></tfoot></table></div>';
-  h += '<button class="sk-add" data-act="add" data-list="year" style="border:1px dashed var(--rule);border-radius:0 0 8px 8px">＋ 取引先の行を追加</button>';
-  return h;
-}
-function setTxt(id, txt, neg) { var e = $(id); if (e) { e.textContent = txt; e.classList.toggle('sk-neg', !!neg); } }
-function refreshTotals() {
-  if (ui.tab === 'month') {
-    var s = curSheet(); if (!s) return;
-    var c = calc(s);
-    setTxt('skC-inc', fmtY(c.inc)); setTxt('skC-pay', fmtY(c.pay)); setTxt('skC-diff', fmtY(c.diff), c.diff < 0); setTxt('skC-safe', fmtY(c.safe), c.safe < 0);
-    setTxt('skC-incn', '入金予定 ' + fmtY(c.incPlan) + '（入金済み ' + fmtY(c.incDone) + '）');
-    setTxt('skC-payn', '支払予定 ' + fmtY(c.payPlan) + '（支払済み ' + fmtY(c.payDone) + '）');
-    setTxt('skC-diffn', c.bank == null ? '口座残高が未入力です（0円で計算中）' : '口座残高 ' + fmtY(c.bank) + ' を含む');
-    setTxt('skC-safel', '未入金×' + c.rate + '%＋口座残高−未払い');
-    setTxt('skS-inc', fmtY(c.inc)); setTxt('skS-pay', fmtY(c.pay)); setTxt('skS-diff', fmtY(c.diff), c.diff < 0);
-    setTxt('skS-incp', '入金予定 ' + fmtY(c.incPlan)); setTxt('skS-payp', '支払予定 ' + fmtY(c.payPlan));
-    setTxt('skS-safel', '未入金×' + c.rate + '% ＋ 口座残高 − 未払い'); setTxt('skS-safe', fmtY(c.safe), c.safe < 0);
-    setTxt('skS-bank', c.bank == null ? '未入力' : fmtY(c.bank), c.bank != null && c.bank < 0);
-    setTxt('skOV-cur', fmtY(c.diff), c.diff < 0);
-    setTxt('skF-inc', fmtY(c.inc)); setTxt('skF-pay', fmtY(c.pay));
-    setTxt('skR-inc', fmtY(c.incPlan)); setTxt('skR-pay', fmtY(c.payPlan));
-    setTxt('skD-inc', c.incDone ? '済み ' + fmtY(c.incDone) : ''); setTxt('skD-pay', c.payDone ? '済み ' + fmtY(c.payDone) : '');
-    setTxt('skBankNote', '未入金 ' + fmtY(c.inc) + '　＋ 口座残高 ' + fmtY(n0(c.bank)) + '　− 未払い ' + fmtY(c.pay) + '　＝ 差引 ' + fmtY(c.diff), c.diff < 0);
-  } else if (ui.tab === 'tpl') {
-    var a = 0, b = 0;
-    sk.tpl.inc.forEach(function(x) { if (!x.off) a += n0(x.amt); });
-    sk.tpl.pay.forEach(function(x) { if (!x.off) b += n0(x.amt); });
-    setTxt('skF-tinc', fmtY(a)); setTxt('skF-tpay', fmtY(b));
-  } else if (ui.tab === 'year') {
-    var y = curYear(); if (!y) return;
-    var col = [0,0,0,0,0,0,0,0,0,0,0,0], all = 0;
-    y.rows.forEach(function(r, ri) {
-      var t = 0; r.m.forEach(function(v, k) { t += n0(v); col[k] += n0(v); });
-      all += t; setTxt('skYR-' + ri, t ? Math.round(t).toLocaleString('ja-JP') : '');
-    });
-    col.forEach(function(v, k) { setTxt('skYC-' + k, v ? v.toLocaleString('ja-JP') : ''); setTxt('skYX-' + k, v ? Math.round(v / 1.1).toLocaleString('ja-JP') : ''); });
-    setTxt('skYC-all', all.toLocaleString('ja-JP')); setTxt('skYX-all', Math.round(all / 1.1).toLocaleString('ja-JP'));
-  }
-}
-
-// ── 入力の受け取り ──
-function rowOf(el) { var tr = el.closest('tr[data-list]'); if (!tr) return null; return { key: tr.getAttribute('data-list'), i: +tr.getAttribute('data-i'), tr: tr }; }
-function onInput(e) {
-  var t = e.target;
-  var sf = t.getAttribute('data-sf'), yf = t.getAttribute('data-yf'), f = t.getAttribute('data-f'), bf = t.getAttribute('data-bf'), bo = t.getAttribute('data-bo');
-  if (sf) {
-    var s = curSheet(); if (!s) return;
-    if (sf === 'openBal' || sf === 'bank') { var v = parseAmt(t.value); t.classList.toggle('bad', v !== null && isNaN(v)); s[sf] = (v === null || isNaN(v)) ? null : v; }
-    else if (sf === 'rate') { s.rate = parseFloat(t.value) || 0; }
-    else if (sf === 'ym') { if (/^\d{4}-\d{2}$/.test(t.value)) s.ym = t.value; else return; }
-    else s[sf] = t.value;
-    changed(); refreshTotals(); return;
-  }
-  if (yf) {
-    var y = curYear(); if (!y) return;
-    if (yf === 'ki' || yf === 'y0') { var nv = parseInt(t.value, 10); if (!isNaN(nv)) y[yf] = nv; } else y[yf] = t.value;
-    changed(); return;
-  }
-  var ro = rowOf(t); if (!ro) return;
-  if (ro.key === 'year') {
-    var yr = curYear(); if (!yr) return; var row = yr.rows[ro.i]; if (!row) return;
-    if (f === 'yname') row.name = t.value;
-    else if (f === 'ym') { var mv = parseAmt(t.value); t.classList.toggle('bad', mv !== null && isNaN(mv)); row.m[+t.getAttribute('data-m')] = (mv === null || isNaN(mv)) ? null : mv; }
-    changed(); refreshTotals(); return;
-  }
-  var list = getList(ro.key), r = list[ro.i]; if (!r) return;
-  if (bf && r.bd) {
-    var it = r.bd.items[+t.getAttribute('data-j')]; if (!it) return;
-    if (bf === 'amt') { var bv = parseAmt(t.value); t.classList.toggle('bad', bv !== null && isNaN(bv)); it.amt = (bv === null || isNaN(bv)) ? null : bv; }
-    else it.name = t.value;
-    updBdCalc(ro.tr, r); changed(); return;
-  }
-  if (bo && r.bd) {
-    if (bo === 'fee') r.bd.fee = parseFloat(t.value) || 0; else r.bd.tax = t.checked;
-    updBdCalc(ro.tr, r); changed(); return;
-  }
-  if (f === 'done') { r.done = t.checked; ro.tr.classList.toggle('done', r.done); }
-  else if (f === 'amt') { var av = parseAmt(t.value); t.classList.toggle('bad', av !== null && isNaN(av)); r.amt = (av === null || isNaN(av)) ? null : av; }
-  else if (f === 'name' || f === 'memo') r[f] = t.value;
-  changed(); refreshTotals();
-}
-function updBdCalc(tr, r) { var box = tr.querySelector('[data-bdcalc]'); if (box) box.innerHTML = bdCalcHtml(bdCalc(r.bd)); }
-function onBlur(e) {
-  var t = e.target;
-  if (t.classList && (t.classList.contains('sk-amt') || t.getAttribute('data-sf') === 'openBal' || t.getAttribute('data-sf') === 'bank' || t.getAttribute('data-f') === 'ym')) {
-    var v = parseAmt(t.value);
-    if (v !== null && !isNaN(v)) { t.value = fmtIn(v); t.classList.remove('bad'); }
-  }
-  var sf = t.getAttribute && t.getAttribute('data-sf');
-  if (sf === 'name' || sf === 'target') {
-    var s = curSheet(), sel = $('skSheetSel');
-    if (s && sel && sel.selectedIndex >= 0) sel.options[sel.selectedIndex].textContent = (s.name || reiwa(s.ym)) + (s.target ? '（' + s.target + '）' : '');
-  }
-  if (pendingRender) setTimeout(function() { if (!editing() && pendingRender) render(); }, 50);
-}
-function onKey(e) {
-  if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
-  var t = e.target; if (t.tagName !== 'INPUT' || t.type === 'checkbox') return;
-  var tr = t.closest('tr'); if (!tr) return;
-  e.preventDefault();
-  var f = t.getAttribute('data-f'), bf = t.getAttribute('data-bf'), m = t.getAttribute('data-m');
-  var sel = bf ? '[data-bf="' + bf + '"]' : f ? '[data-f="' + f + '"]' + (m != null ? '[data-m="' + m + '"]' : '') : null;
-  if (!sel) { t.blur(); return; }
-  if (bf) {
-    var j = +t.getAttribute('data-j'); var nx = tr.parentNode.querySelector('input[data-bf="' + bf + '"][data-j="' + (j + 1) + '"]');
-    if (nx) { nx.focus(); nx.select(); } else t.blur();
-    return;
-  }
-  var n = tr.nextElementSibling;
-  while (n && !(n.matches('tr.sk-row') || n.matches('tr[data-list="year"]'))) n = n.nextElementSibling;
-  var nxt = n ? n.querySelector(sel) : null;
-  if (nxt) { nxt.focus(); if (nxt.select) nxt.select(); } else t.blur();
-}
-
-// ── ボタン・メニュー ──
-function onClick(e) {
-  var tab = e.target.closest('[data-sktab]');
-  if (tab) { ui.tab = tab.getAttribute('data-sktab'); hideMenu(); render(); return; }
-  var ov = e.target.closest('tr[data-open]');
-  if (ov) { ui.sheetId = ov.getAttribute('data-open'); render(); window.scrollTo(0, 0); var mn = document.querySelector('main'); if (mn) mn.scrollTop = 0; return; }
-  var b = e.target.closest('[data-act]'); if (!b) return;
-  var act = b.getAttribute('data-act');
-  var ro = rowOf(b);
-  switch (act) {
-    case 'menu': showMenu(b, ro); return;
-    case 'add': addRow(b.getAttribute('data-list')); return;
-    case 'newsheet': openNew(); return;
-    case 'dupsheet': dupSheet(); return;
-    case 'delsheet': delSheet(); return;
-    case 'newyear': newYear(); return;
-    case 'delyear': delYear(); return;
-    case 'pull': openPull(); return;
-    case 'print': doPrint(); return;
-    case 'csv': doCsv(); return;
-    case 'backup': doBackup(); return;
-    case 'restore': $('skFile').click(); return;
-    case 'tplfrom': tplFrom(); return;
-  }
-  if (!ro) return;
-  var r = getList(ro.key)[ro.i]; if (!r) return;
-  if (act === 'bd') { ui.bd[r.id] = !ui.bd[r.id]; render(); }
-  else if (act === 'bdclose') { ui.bd[r.id] = false; render(); }
-  else if (act === 'bdadd') { r.bd.items.push({ name: '', amt: null }); changed(); render(); focusLast('[data-bf="name"]', r); }
-  else if (act === 'bddel') { r.bd.items.splice(+b.getAttribute('data-j'), 1); changed(); render(); }
-  else if (act === 'bdapply') { var c = bdCalc(r.bd); r.amt = c.total; changed(); render(); }
-}
-function focusLast(sel, r) {
-  setTimeout(function() {
-    var trs = document.querySelectorAll('#page-shikin tr.sk-bd');
-    for (var i = 0; i < trs.length; i++) { var ins = trs[i].querySelectorAll(sel); if (ins.length) { ins[ins.length - 1].focus(); } }
-  }, 30);
-}
-function showMenu(btn, ro) {
-  if (!ro) return;
-  menuTarget = ro;
-  var m = $('skMenu'), items = [];
-  if (ro.key === 'year') {
-    items = [['up', '↑ 上へ'], ['down', '↓ 下へ'], ['ins', '＋ この下に行を入れる'], ['-'], ['del', '🗑 この行を削除', 1]];
-  } else {
-    var r = getList(ro.key)[ro.i]; if (!r) return;
-    var isInc = (ro.key === 'inc' || ro.key === 'tinc');
-    items = [['up', '↑ 上へ'], ['down', '↓ 下へ'], ['ins', '＋ この下に行を入れる'], ['-'],
-      ['bd', r.bd ? (ui.bd[r.id] ? '📋 内訳を閉じる' : '📋 内訳を開く') : '📋 内訳をつくる（協力会社など）'],
-      ['off', r.off ? '✓ 合計に戻す' : '⊘ 合計から外す（メモとして残す）']];
-    if (isInc) items.push(['kind', r.kind === 'other' ? '💰 「売上」にする' : '🏦 「その他（借入など）」にする']);
-    if (r.bd) items.push(['bdrm', '内訳をやめる']);
-    items.push(['-'], ['del', '🗑 この行を削除', 1]);
-  }
-  m.innerHTML = items.map(function(x) { return x[0] === '-' ? '<hr>' : '<button data-mact="' + x[0] + '"' + (x[2] ? ' class="danger"' : '') + '>' + x[1] + '</button>'; }).join('');
-  m.classList.remove('hidden');
-  var rc = btn.getBoundingClientRect();
-  var left = rc.right + window.scrollX - m.offsetWidth; if (left < 8) left = 8;
-  var top = rc.bottom + window.scrollY + 4;
-  if (rc.bottom + m.offsetHeight + 10 > window.innerHeight) top = rc.top + window.scrollY - m.offsetHeight - 4;
-  m.style.left = left + 'px'; m.style.top = top + 'px';
-}
-function hideMenu() { var m = $('skMenu'); if (m) m.classList.add('hidden'); menuTarget = null; }
-function onMenu(e) {
-  var b = e.target.closest('[data-mact]'); if (!b || !menuTarget) return;
-  var act = b.getAttribute('data-mact'), ro = menuTarget; hideMenu();
-  var list;
-  if (ro.key === 'year') { var y = curYear(); if (!y) return; list = y.rows; }
-  else list = getList(ro.key);
-  var i = ro.i, r = list[i]; if (!r) return;
-  if (act === 'up' && i > 0) { list.splice(i - 1, 0, list.splice(i, 1)[0]); }
-  else if (act === 'down' && i < list.length - 1) { list.splice(i + 1, 0, list.splice(i, 1)[0]); }
-  else if (act === 'ins') { list.splice(i + 1, 0, newRow(ro.key)); changed(); render(); focusRow(ro.key, i + 1); return; }
-  else if (act === 'del') { if (!confirm('「' + (r.name || '（名前なし）') + '」の行を削除しますか？')) return; list.splice(i, 1); }
-  else if (act === 'bd') {
-    if (!r.bd) { r.bd = { items: [{ name: '', amt: null }], fee: 0, tax: false }; ui.bd[r.id] = true; }
-    else { ui.bd[r.id] = !ui.bd[r.id]; render(); return; }
-  }
-  else if (act === 'bdrm') { if (!confirm('内訳を消しますか？（金額はそのまま残ります）')) return; delete r.bd; ui.bd[r.id] = false; }
-  else if (act === 'off') { if (r.off) delete r.off; else r.off = true; }
-  else if (act === 'kind') { r.kind = r.kind === 'other' ? 'sales' : 'other'; }
-  else return;
-  changed(); render();
-}
-function newRow(key) {
-  if (key === 'year') return { id: uid(), name: '', m: [null,null,null,null,null,null,null,null,null,null,null,null] };
-  var r = { id: uid(), name: '', amt: null, memo: '', done: false };
-  if (key === 'inc' || key === 'tinc') r.kind = 'sales';
-  return r;
-}
-function addRow(key) {
-  var list;
-  if (key === 'year') { var y = curYear(); if (!y) return; list = y.rows; } else list = getList(key);
-  list.push(newRow(key)); changed(); render(); focusRow(key, list.length - 1);
-}
-function focusRow(key, i) {
-  setTimeout(function() {
-    var tr = document.querySelector('#page-shikin tr[data-list="' + key + '"][data-i="' + i + '"]');
-    var inp = tr && tr.querySelector('input[data-f="name"],input[data-f="yname"]');
-    if (inp) { inp.focus(); tr.scrollIntoView({ block: 'nearest' }); }
-  }, 30);
-}
-
-// ── 表の作成・複製・削除 ──
-function copyRows(rows, keepAmt, isInc) {
-  return rows.map(function(r) {
-    var o = normRow(clone(r), isInc); o.id = uid(); o.done = false;
-    if (!keepAmt) o.amt = null;
-    if (o.bd && !keepAmt) o.bd.items.forEach(function(it) { it.amt = null; });
-    return o;
-  });
-}
-function openNew() {
-  var s = curSheet();
-  var maxYm = sk.sheets.reduce(function(a, x) { return x.ym > a ? x.ym : a; }, '');
-  var ym = maxYm ? addMonth(maxYm, 1) : thisYm();
-  $('skNewYm').value = ym; $('skNewName').value = reiwa(ym);
-  $('skNewTarget').value = (+addMonth(ym, -1).slice(5, 7)) + '月分';
-  var sel = $('skNewMode');
-  sel.options[0].disabled = sel.options[1].disabled = !s;
-  sel.value = s ? 'copy' : ((sk.tpl.inc.length || sk.tpl.pay.length) ? 'tpl' : 'blank');
-  $('skNewModal').classList.remove('hidden');
-  setTimeout(function() { $('skNewName').focus(); }, 50);
-}
-function doNew() {
-  var ym = $('skNewYm').value; if (!/^\d{4}-\d{2}$/.test(ym)) { alert('お金が動く月を選んでください'); return; }
-  var mode = $('skNewMode').value, src = curSheet();
-  var s = { id: uid(), name: $('skNewName').value.trim() || reiwa(ym), ym: ym, target: $('skNewTarget').value.trim(), openBal: null, bank: null, rate: src ? src.rate : 90, inc: [], pay: [], memo: '' };
-  if ((mode === 'copy' || mode === 'copyname') && src) { s.inc = copyRows(src.inc, mode === 'copy', true); s.pay = copyRows(src.pay, mode === 'copy', false); }
-  else if (mode === 'tpl') { s.inc = copyRows(sk.tpl.inc, true, true); s.pay = copyRows(sk.tpl.pay, true, false); }
-  sk.sheets.push(s); ui.sheetId = s.id; ui.tab = 'month';
-  $('skNewModal').classList.add('hidden'); changed(); render();
-}
-function dupSheet() {
-  var s = curSheet(); if (!s) return;
-  var base = s.name.replace(/\s*\(\d+\)$/, ''), k = 2, names = sk.sheets.map(function(x) { return x.name; });
-  while (names.indexOf(base + ' (' + k + ')') >= 0) k++;
-  var d = clone(s); d.id = uid(); d.name = base + ' (' + k + ')';
-  d.inc.forEach(function(r) { r.id = uid(); }); d.pay.forEach(function(r) { r.id = uid(); });
-  sk.sheets.push(d); ui.sheetId = d.id; changed(); render();
-}
-function delSheet() {
-  var s = curSheet(); if (!s) return;
-  if (!confirm('表「' + s.name + '」を削除しますか？\n（削除すると元に戻せません。心配なときは先に 💾 バックアップ を取ってください）')) return;
-  sk.sheets = sk.sheets.filter(function(x) { return x.id !== s.id; }); ui.sheetId = null; changed(); render();
-}
-function tplFrom() {
-  var s = curSheet(); if (!s) return;
-  if (!confirm('いま開いている表「' + s.name + '」の項目と金額で、原本を置きかえますか？')) return;
-  sk.tpl.inc = copyRows(s.inc, true, true); sk.tpl.pay = copyRows(s.pay, true, false); changed(); render();
-}
-
-// ── 期（月次売上高） ──
-function newYear() {
-  var last = sk.years.slice().sort(function(a, b) { return a.y0 - b.y0; }).pop();
-  var d = new Date(), fyY = (d.getMonth() + 1) >= FY[0] ? d.getFullYear() : d.getFullYear() - 1;
-  var y0 = last ? last.y0 + 1 : fyY, ki = last ? last.ki + 1 : (y0 - 1990);
-  var yy = prompt('新しく作る期の番号を入れてください（期首は ' + y0 + '年' + FY[0] + '月）', String(ki));
-  if (yy === null) return;
-  ki = parseInt(half(yy), 10) || ki;
-  var rows = last ? last.rows.map(function(r) { return { id: uid(), name: r.name, m: [null,null,null,null,null,null,null,null,null,null,null,null] }; }) : [];
-  var y = { id: uid(), ki: ki, y0: y0, note: '', rows: rows };
-  sk.years.push(y); ui.yearId = y.id; changed(); render();
-}
-function delYear() {
-  var y = curYear(); if (!y) return;
-  if (!confirm('第' + y.ki + '期の月次売上高を削除しますか？（元に戻せません）')) return;
-  sk.years = sk.years.filter(function(x) { return x.id !== y.id; }); ui.yearId = null; changed(); render();
-}
-function openPull() {
-  var y = curYear(); if (!y) return;
-  var ss = sortedSheets(); if (!ss.length) { alert('月別の資金繰り表がまだありません'); return; }
-  var cur = curSheet();
-  $('skPullSheet').innerHTML = ss.map(function(x) { return '<option value="' + x.id + '"' + (cur && x.id === cur.id ? ' selected' : '') + '>' + esc(x.name) + (x.target ? '（' + esc(x.target) + '）' : '') + '</option>'; }).join('');
-  var ms = ''; for (var i = 0; i < 12; i++) { var L = ymLabel(y, i); ms += '<option value="' + i + '">' + L.yr + '年' + L.m + '月</option>'; }
-  $('skPullMonth').innerHTML = ms;
-  var pickMonth = function() {
-    var s = sk.sheets.filter(function(x) { return x.id === $('skPullSheet').value; })[0]; if (!s) return;
-    var mm = (s.target.match(/(\d+)\s*月/) || [])[1]; var m = mm ? +mm : +addMonth(s.ym, -1).slice(5, 7);
-    var idx = FY.indexOf(m); if (idx >= 0) $('skPullMonth').value = idx;
-  };
-  $('skPullSheet').onchange = pickMonth; pickMonth();
-  $('skPullModal').classList.remove('hidden');
-}
-function doPull() {
-  var y = curYear(); var s = sk.sheets.filter(function(x) { return x.id === $('skPullSheet').value; })[0];
-  if (!y || !s) return;
-  var k = +$('skPullMonth').value, over = $('skPullOver').checked, put = 0, added = 0, skipped = 0;
-  s.inc.forEach(function(r) {
-    if (r.off || r.kind === 'other' || r.amt == null || !r.name.trim()) return;
-    var nm = r.name.trim(), row = y.rows.filter(function(x) { return x.name.trim() === nm; })[0];
-    if (!row) { row = newRow('year'); row.name = nm; y.rows.push(row); added++; }
-    if (row.m[k] != null && !over) { skipped++; return; }
-    row.m[k] = r.amt; put++;
-  });
-  $('skPullModal').classList.add('hidden'); changed(); render();
-  var L = ymLabel(y, k);
-  alert(L.yr + '年' + L.m + '月の列に ' + put + '件を入れました。' + (added ? '\n新しい取引先の行を ' + added + '件追加しました。' : '') + (skipped ? '\nすでに金額があった ' + skipped + '件はそのままにしました。' : ''));
-}
-
-// ── 印刷・CSV・バックアップ ──
-function doPrint() {
-  var pg = $('page-shikin'), st = null;
-  if (ui.tab === 'year') { st = document.createElement('style'); st.id = 'skPageStyle'; st.textContent = '@page{size:A4 landscape;margin:8mm}'; document.head.appendChild(st); }
-  else { st = document.createElement('style'); st.id = 'skPageStyle'; st.textContent = '@page{size:A4 portrait;margin:8mm}'; document.head.appendChild(st); }
-  pg.classList.add('print-target');
-  var done = function() { pg.classList.remove('print-target'); var x = $('skPageStyle'); if (x) x.remove(); window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done);
-  window.print();
-  setTimeout(done, 1500);
-}
-function csvCell(v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-function download(name, text, type) {
-  var blob = new Blob([text], { type: type });
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-}
-function doCsv() {
-  var lines = [];
-  if (ui.tab === 'year') {
-    var y = curYear(); if (!y) return;
-    var head = ['取引先']; for (var i = 0; i < 12; i++) head.push(ymLabel(y, i).m + '月'); head.push('合計');
-    lines.push(['第' + y.ki + '期 売上高', y.note].map(csvCell).join(',')); lines.push(head.join(','));
-    var col = [0,0,0,0,0,0,0,0,0,0,0,0];
-    y.rows.forEach(function(r) { var t = 0; var row = [r.name]; r.m.forEach(function(v, k) { row.push(v == null ? '' : v); t += n0(v); col[k] += n0(v); }); row.push(t); lines.push(row.map(csvCell).join(',')); });
-    lines.push(['合計'].concat(col).concat([col.reduce(function(a, b) { return a + b; }, 0)]).join(','));
-    download('月次売上高_第' + y.ki + '期.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
-    return;
-  }
-  var s = curSheet(); if (!s) return;
-  var c = calc(s);
-  lines.push(['資金繰り表', s.name, s.target].map(csvCell).join(','));
-  lines.push('');
-  lines.push(['区分', '項目', '金額（税込）', '済み', '合計に含む', 'メモ'].join(','));
-  s.inc.forEach(function(r) { lines.push([r.kind === 'other' ? '入金（その他）' : '入金（売上）', r.name, r.amt == null ? '' : r.amt, r.done ? '済' : '', r.off ? '含まない' : '', r.memo].map(csvCell).join(',')); });
-  s.pay.forEach(function(r) {
-    lines.push(['支払', r.name, r.amt == null ? '' : r.amt, r.done ? '済' : '', r.off ? '含まない' : '', r.memo].map(csvCell).join(','));
-    if (r.bd) r.bd.items.forEach(function(it) { lines.push(['　内訳', '　' + it.name, it.amt == null ? '' : it.amt, '', '', ''].map(csvCell).join(',')); });
-  });
-  lines.push('');
-  lines.push(['', '入金予定（済みも含む）', c.incPlan].join(','));
-  lines.push(['', '支払予定（済みも含む）', c.payPlan].join(','));
-  lines.push(['', '未入金 合計', c.inc].join(','));
-  lines.push(['', '未払い 合計', c.pay].join(','));
-  lines.push(['', '現在の口座残高', c.bank == null ? '' : c.bank].join(','));
-  lines.push(['', '差引（未入金＋口座残高−未払い）', c.diff].join(','));
-  lines.push(['', '未入金×' + c.rate + '%＋口座残高−未払い', c.safe].join(','));
-  download('資金繰り表_' + s.name.replace(/[\\/:*?"<>|\s]/g, '') + '.csv', '\ufeff' + lines.join('\r\n'), 'text/csv');
-}
-function doBackup() {
-  var d = new Date(), ts = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
-  download('資金繰り_バックアップ_' + ts + '.json', JSON.stringify(sk, null, 1), 'application/json');
-}
-function onFile(e) {
-  var file = e.target.files && e.target.files[0]; if (!file) return;
-  var rd = new FileReader();
-  rd.onload = function() {
-    var data; try { data = JSON.parse(rd.result); } catch (er) { alert('ファイルを読めませんでした（JSON形式ではないようです）'); return; }
-    if (!data || !data.sheets) { alert('資金繰りのデータではないようです。\n（帳簿のバックアップJSONは、上の 💾 バックアップ → JSONから復元 で読み込みます）'); return; }
-    var nd = normalize(data);
-    var msg = '読み込むデータ：月別の表 ' + nd.sheets.length + '枚、月次売上高 ' + nd.years.length + '期分\n\n';
-    if (sk.sheets.length || sk.years.length) msg += '今の資金繰りデータ（表 ' + sk.sheets.length + '枚）は、このデータで置きかわります。\nよろしいですか？';
-    else msg += 'このデータを読み込みますか？';
-    if (!confirm(msg)) return;
-    sk = nd; ui.sheetId = null; ui.yearId = null; ui.tab = 'month'; changed(); render();
-  };
-  rd.readAsText(file, 'utf-8');
-  e.target.value = '';
-}
-
-// ── 起動 ──
-function boot() {
-  var raw = lsGet(LS_KEY);
-  if (raw) { try { sk = normalize(JSON.parse(raw)); } catch (e) {} }
-  try { var u = JSON.parse(lsGet(LS_UI) || '{}'); if (u.tab) ui.tab = u.tab; if (u.sheetId) ui.sheetId = u.sheetId; if (u.yearId) ui.yearId = u.yearId; } catch (e) {}
-  var pg = $('page-shikin'); if (!pg) return;
-  pg.addEventListener('input', onInput);
-  pg.addEventListener('change', function(e) {
-    var t = e.target;
-    if (t.id === 'skSheetSel') { ui.sheetId = t.value; render(); return; }
-    if (t.id === 'skYearSel') { ui.yearId = t.value; render(); return; }
-    if (t.id === 'skFile') { onFile(e); return; }
-    if (t.type === 'checkbox' || t.type === 'month') onInput(e);
-  });
-  pg.addEventListener('click', onClick);
-  pg.addEventListener('focusout', onBlur);
-  pg.addEventListener('keydown', onKey);
-  $('skMenu').addEventListener('click', onMenu);
-  document.addEventListener('click', function(e) { if (!e.target.closest('#skMenu') && !e.target.closest('[data-act="menu"]')) hideMenu(); });
-  document.addEventListener('scroll', hideMenu, true);
-  $('skNewCancel').addEventListener('click', function() { $('skNewModal').classList.add('hidden'); });
-  $('skNewOk').addEventListener('click', doNew);
-  $('skNewYm').addEventListener('change', function() { var v = this.value; if (/^\d{4}-\d{2}$/.test(v)) { $('skNewName').value = reiwa(v); $('skNewTarget').value = (+addMonth(v, -1).slice(5, 7)) + '月分'; } });
-  $('skPullCancel').addEventListener('click', function() { $('skPullModal').classList.add('hidden'); });
-  $('skPullOk').addEventListener('click', doPull);
-  var nav = document.querySelector('.nav-item[data-page="shikin"]');
-  if (nav) nav.addEventListener('click', function() { hideMenu(); render(); });
-  render();
-  // 本体のログイン・ログアウトに合わせて同期を開始／停止
-  var origInit = window.initFirebase, origStop = window.kaikeiStopSync;
-  window.initFirebase = function() { var r = origInit ? origInit.apply(this, arguments) : undefined; start(); return r; };
-  window.kaikeiStopSync = function() { stop(); return origStop ? origStop.apply(this, arguments) : undefined; };
-}
-boot();
-})();
-</script>
 <script type="module">
   import { setupKaikeiAuth } from './kaikei-auth.js';
   setupKaikeiAuth({
@@ -6119,7 +5145,7 @@ boot();
       messagingSenderId: "890962616772",
       appId: "1:890962616772:web:789a933f2fd03c37e14491"
     },
-    email: "hm.info.keiri+hm@gmail.com",
+    email: "hm.info.keiri+alphaclean@gmail.com",
     onLogin: function(){ if (window.initFirebase) window.initFirebase(); },
     onLogout: function(){ if (window.kaikeiStopSync) window.kaikeiStopSync(); }
   });
