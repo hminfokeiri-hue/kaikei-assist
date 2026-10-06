@@ -495,6 +495,15 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
 #toTopBtn.show{opacity:.88;pointer-events:auto;}
 #toTopBtn:hover{opacity:1;}
 @media print{#toTopBtn,.accp{display:none !important;}}
+/* 仕訳帳：枠の中でスクロール */
+.jbox-bar{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:12px;color:var(--ink-soft);}
+.jbox-bar .jb-cnt{margin-right:auto;}
+.jbox-bar button{font-size:12px;border:1px solid var(--rule);background:#fff;border-radius:5px;padding:4px 10px;cursor:pointer;color:var(--ink);}
+.jbox-bar button:hover{background:var(--paper-alt);}
+#journalList.jscroll{max-height:50vh;overflow-y:auto;border:2px solid var(--rule);border-radius:8px;padding:6px;background:var(--paper-alt);scroll-behavior:smooth;}
+#journalList.jscroll.big{max-height:82vh;}
+@media print{.jbox-bar{display:none !important;}#journalList.jscroll{max-height:none !important;overflow:visible !important;border:none !important;padding:0 !important;background:none !important;}}
+
 </style>
 </head>
 <body>
@@ -5344,8 +5353,39 @@ function accpRender() {
   b.addEventListener('click', function() {
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
     if (mainEl) { try { mainEl.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { mainEl.scrollTop = 0; } }
+    var jl = document.getElementById('journalList'); if (jl) jl.scrollTop = 0;
   });
 })();
+
+// ── 仕訳帳：枠の中でスクロール（画面の半分くらいの高さ）──
+(function() {
+  var list = document.getElementById('journalList');
+  if (!list) return;
+  list.classList.add('jscroll');
+  var KEY = 'jbox_big';
+  try { if (localStorage.getItem(KEY) === '1') list.classList.add('big'); } catch (e) {}
+  var bar = document.createElement('div');
+  bar.className = 'jbox-bar print-hide';
+  bar.innerHTML = '<span class="jb-cnt" id="jbCnt"></span>'
+    + '<button type="button" id="jbTop" title="枠のいちばん上へ">▲ 先頭へ</button>'
+    + '<button type="button" id="jbBottom" title="枠のいちばん下へ">▼ 最後へ</button>'
+    + '<button type="button" id="jbSize" title="枠の高さを切り替え"></button>';
+  list.parentNode.insertBefore(bar, list);
+  var sizeBtn = document.getElementById('jbSize');
+  function setLabel() { sizeBtn.textContent = list.classList.contains('big') ? '⤡ 枠を小さく' : '⤢ 枠を大きく'; }
+  setLabel();
+  sizeBtn.addEventListener('click', function() {
+    list.classList.toggle('big'); setLabel();
+    try { localStorage.setItem(KEY, list.classList.contains('big') ? '1' : '0'); } catch (e) {}
+  });
+  document.getElementById('jbTop').addEventListener('click', function() { list.scrollTop = 0; });
+  document.getElementById('jbBottom').addEventListener('click', function() { list.scrollTop = list.scrollHeight; });
+  var cnt = document.getElementById('jbCnt');
+  function count() { var n = list.querySelectorAll('.jcard').length; cnt.textContent = n ? ('表示中 ' + n.toLocaleString() + '件（枠の中でスクロールできます）') : ''; }
+  try { new MutationObserver(count).observe(list, { childList: true }); } catch (e) {}
+  count();
+})();
+
 
 window.initFirebase = initFirebase;
 /* 資金繰り表（独立機能）が使う：通信と会社キー・期の月順だけを渡す */
