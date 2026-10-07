@@ -527,6 +527,10 @@ tr.lg-month td.lg-dr,tr.lg-month td.lg-cr{opacity:.85;}
 #toTopBtn.show{opacity:.88;pointer-events:auto;}
 #toTopBtn:hover{opacity:1;}
 @media print{#toTopBtn,.accp{display:none !important;}}
+#appBackBtn{position:fixed;left:calc(50% + 105px);transform:translateX(-50%);bottom:14px;z-index:901;border:none;border-radius:24px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;line-height:1.3;padding:9px 18px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#appBackBtn:hover{filter:brightness(1.1);}
+@media print{#appBackBtn{display:none !important;}}
+
 /* 仕訳帳：枠の中でスクロール */
 .jbox-bar{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:12px;color:var(--ink-soft);}
 .jbox-bar .jb-cnt{margin-right:auto;}
@@ -2704,6 +2708,7 @@ function renderLedger_inner(txs) {
         + '</td>';
       if (src) {
         tr.className = 'jumprow';
+        tr.setAttribute('data-src', src.kind + ':' + src.id);
         tr.title = 'クリックで' + (src.kind === 'tx' ? '収支記録' : '仕訳帳') + 'のこの取引へ移動します';
         tr.addEventListener('click', (function(sx){ return function(e){
           if (e.target && e.target.closest && e.target.closest('[data-srcedit]')) { openSrcEdit(sx.kind, sx.id); return; }
@@ -5422,6 +5427,103 @@ function accpRender() {
   count();
 })();
 
+
+// ── 帳簿アシストの中だけで「戻る」（どの画面から飛んでも、さっきの画面の同じ場所・同じ絞り込みに戻る）──
+// ・画面を切り替えるたびに、元の画面の状態（絞り込み・スクロール位置）を積んでおく
+// ・右下の「↩ 戻る」ボタン、ブラウザの戻るボタン、Alt＋← のどれでも、帳簿アシストの中で1つ前の画面に戻る
+//   （帳簿アシストの中で戻る先がなくなったら、ブラウザの戻るは今までどおり入口へ）
+(function() {
+  var FILTERS = ['ledgerCat', 'ledgerMonth', 'ledgerType', 'ledgerSearch', 'lDateFrom', 'lDateTo',
+    'fMonth', 'fType', 'fDateFrom', 'fDateTo', 'fSearch', 'cbMonth',
+    'jDateFrom', 'jDateTo', 'jSort', 'jSearch', 'trialUpto'];
+  var stack = [], restoring = false, pendingKey = null;
+  var mainEl = document.querySelector('main');
+  var btn = document.createElement('button');
+  btn.id = 'appBackBtn'; btn.type = 'button'; btn.style.display = 'none';
+  document.body.appendChild(btn);
+  function curPage() { var p = document.querySelector('.page.active'); return p ? p.id.replace('page-', '') : ''; }
+  function navOf(pg) { return document.querySelector('.nav-item[data-page="' + pg + '"]'); }
+  function pageLabel(e) {
+    var n = navOf(e.page), t = n ? n.textContent.replace(/^\S+\s*/, '').trim() : e.page;
+    if (e.page === 'ledger' && e.catLabel) t += '（' + e.catLabel + '）';
+    return t;
+  }
+  function snapshot() {
+    var pg = curPage(); if (!pg) return null;
+    var e = { page: pg, vals: {}, w: window.scrollY || document.documentElement.scrollTop || 0, m: mainEl ? mainEl.scrollTop : 0, inner: {} };
+    var pe = document.getElementById('page-' + pg);
+    FILTERS.forEach(function(id) { var el = document.getElementById(id); if (el && pe && pe.contains(el)) e.vals[id] = el.value; });
+    var ys = document.getElementById('yearSelect'); if (ys) e.year = ys.value;
+    if (pe) pe.querySelectorAll('.jscroll, #journalList').forEach(function(x) { if (x.id) e.inner[x.id] = x.scrollTop; });
+    if (pg === 'ledger') {
+      var cs = document.getElementById('ledgerCat');
+      if (cs && cs.value !== 'all' && cs.selectedIndex >= 0) e.catLabel = cs.options[cs.selectedIndex].textContent.replace(/^\S+\s/, '');
+      if (pendingKey) e.key = pendingKey;
+    }
+    pendingKey = null;
+    return e;
+  }
+  function refresh() {
+    var e = stack[stack.length - 1];
+    if (!e) { btn.style.display = 'none'; return; }
+    btn.textContent = '↩ 戻る：' + pageLabel(e);
+    btn.title = 'さっき見ていた「' + pageLabel(e) + '」の同じ場所に戻ります（ブラウザの戻る・Alt＋← でも戻れます）';
+    btn.style.display = '';
+  }
+  // 画面を切り替える直前に、今の画面の状態を積む（左のメニューも、各画面の「〜へ」リンクもここを通る）
+  document.addEventListener('click', function(ev) {
+    var n = ev.target.closest && ev.target.closest('.nav-item[data-page]');
+    if (!n || restoring) return;
+    var to = n.getAttribute('data-page'), from = curPage();
+    if (!from || to === from) return;
+    var e = snapshot(); if (!e) return;
+    stack.push(e); if (stack.length > 40) stack.shift();
+    try { history.pushState({ kb: stack.length }, ''); } catch (er) {}
+    refresh();
+  }, true);
+  // 元帳の行から飛ぶときは、押した行を覚えておく（戻ったときに光らせる）
+  var origSrc = window.jumpToSrc;
+  if (origSrc) window.jumpToSrc = function(kind, id) { if (curPage() === 'ledger') pendingKey = kind + ':' + id; return origSrc.apply(this, arguments); };
+  function restore(e) {
+    restoring = true;
+    try {
+      var ys = document.getElementById('yearSelect');
+      if (ys && e.year && ys.value !== e.year) { ys.value = e.year; ys.dispatchEvent(new Event('change', { bubbles: true })); }
+      Object.keys(e.vals).forEach(function(id) { var el = document.getElementById(id); if (el && el.value !== e.vals[id]) el.value = e.vals[id]; });
+      if (curPage() !== e.page) { var n = navOf(e.page); if (n) n.click(); }
+      else if (typeof renderAll === 'function') renderAll();
+    } finally { restoring = false; }
+    setTimeout(function() {
+      var ls = document.getElementById('ledgerCat');
+      if (e.page === 'ledger' && ls && e.vals.ledgerCat !== undefined && ls.value !== e.vals.ledgerCat) { ls.value = e.vals.ledgerCat; renderLedger(); }
+      Object.keys(e.inner).forEach(function(id) { var x = document.getElementById(id); if (x) x.scrollTop = e.inner[id]; });
+      window.scrollTo(0, e.w); if (mainEl) mainEl.scrollTop = e.m;
+      if (e.key) {
+        var row = document.querySelector('#ledgerContent tr[data-src="' + String(e.key).replace(/"/g, '') + '"]');
+        if (row) {
+          var r = row.getBoundingClientRect();
+          if (r.top < 60 || r.bottom > window.innerHeight - 20) row.scrollIntoView({ block: 'center' });
+          row.classList.add('jump-flash'); setTimeout(function() { row.classList.remove('jump-flash'); }, 2600);
+        }
+      }
+    }, 180);
+  }
+  function backTo(depth) {
+    if (depth < 0 || depth >= stack.length) return;
+    var e = stack[depth]; stack.length = depth; refresh(); restore(e);
+  }
+  window.addEventListener('popstate', function(ev) {
+    var d = ev.state && typeof ev.state.kb === 'number' ? ev.state.kb : 0;
+    if (d < stack.length) backTo(d);
+  });
+  btn.addEventListener('click', function() {
+    if (!stack.length) return;
+    var st = history.state;
+    if (st && st.kb === stack.length) history.back();   // ブラウザの履歴とそろえて戻る（popstate で戻す）
+    else backTo(stack.length - 1);
+  });
+  try { if (!history.state || typeof history.state.kb !== 'number') history.replaceState({ kb: 0 }, ''); } catch (er) {}
+})();
 
 window.initFirebase = initFirebase;
 /* 資金繰り表（独立機能）が使う：通信と会社キー・期の月順だけを渡す */
